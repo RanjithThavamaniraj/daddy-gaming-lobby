@@ -25,9 +25,9 @@ export default function Home() {
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
 
       {/* Background Glow */}
-      <div className="absolute top-[-150px] left-[-100px] w-[500px] h-[500px] bg-purple-600 opacity-20 blur-3xl rounded-full"></div>
+      <div className="pointer-events-none absolute top-[-150px] left-[-100px] w-[500px] h-[500px] bg-purple-600 opacity-20 blur-3xl rounded-full"></div>
 
-      <div className="absolute bottom-[-150px] right-[-100px] w-[500px] h-[500px] bg-blue-500 opacity-20 blur-3xl rounded-full"></div>
+      <div className="pointer-events-none absolute bottom-[-150px] right-[-100px] w-[500px] h-[500px] bg-blue-500 opacity-20 blur-3xl rounded-full"></div>
 
       {/* Hero Section */}
       <section className="relative z-10 px-8 py-24 text-center">

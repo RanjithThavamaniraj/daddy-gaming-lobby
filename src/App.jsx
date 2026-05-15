@@ -9,7 +9,7 @@ export default function App() {
   return (
     <BrowserRouter>
 
-      <div className="bg-black text-white min-h-screen">
+      <div className="min-h-screen bg-black text-white">
 
         {/* Navbar */}
         <nav className="flex items-center justify-between px-8 py-6 border-b border-zinc-800">
@@ -21,7 +21,7 @@ export default function App() {
             Daddy Gaming Lobby
           </Link>
 
-          <div className="flex gap-6">
+          <div className="flex items-center gap-6">
 
             <Link to="/">
               Home
@@ -38,6 +38,15 @@ export default function App() {
             <Link to="/login">
               Login
             </Link>
+
+            <a
+              href="https://discord.gg/gf7Ecat6Ka"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-indigo-600 px-4 py-2 rounded-xl font-bold hover:bg-indigo-500 transition"
+            >
+              Join Discord
+            </a>
 
           </div>
 
