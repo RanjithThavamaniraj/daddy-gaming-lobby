@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import TopNav from "../components/TopNav";
 
 function GameIcon({ slug }) {
   const icons = {
@@ -146,7 +147,9 @@ export default function Tournaments() {
   const glowRef = useRef({ x: 0, y: 0 });
   const trailRef = useRef({ x: 0, y: 0 });
   const hasMovedRef = useRef(false);
-  const [activeCardId, setActiveCardId] = useState(null);
+
+  const featured = tournaments[0];
+  const schedule = tournaments.slice(1);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -286,35 +289,7 @@ export default function Tournaments() {
           margin: 0 auto;
         }
 
-        .top-bar {
-          margin-bottom: 2.5rem;
-        }
 
-        .nav-logo {
-          font-family: 'Orbitron', sans-serif;
-          font-size: 0.85rem;
-          font-weight: 800;
-          letter-spacing: 0.2em;
-          color: #a855f7;
-          text-decoration: none;
-          text-shadow: 0 0 20px rgba(168,85,247,0.4);
-          display: inline-block;
-          transition:
-            color 0.3s ease,
-            text-shadow 0.3s ease,
-            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-logo:hover {
-          color: #e9d5ff;
-          text-shadow: 0 0 28px rgba(168,85,247,0.65);
-          transform: scale(1.05);
-        }
-
-        .nav-logo:active {
-          transform: scale(0.98);
-          transition-duration: 0.1s;
-        }
 
         .page-title {
           font-family: 'Orbitron', sans-serif;
@@ -348,367 +323,343 @@ export default function Tournaments() {
           }
         }
 
-        @property --card-border-angle {
-          syntax: '<angle>';
-          initial-value: 0deg;
-          inherits: false;
-        }
-
-        .tournament-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 1.25rem;
-        }
-
-        .card {
-          --accent: #a855f7;
-          --card-border-angle: 0deg;
-          position: relative;
-          overflow: hidden;
-          border-radius: 20px;
-          padding: 1px;
-          cursor: pointer;
-          outline: none;
-          animation: cardEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes cardEnter {
-          from {
-            opacity: 0;
-            transform: translateY(20px) scale(0.97);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        .card-border {
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          padding: 1.5px;
-          background: conic-gradient(
-            from var(--card-border-angle),
-            transparent 0%,
-            var(--accent) 15%,
-            rgba(255,255,255,0.4) 22%,
-            var(--accent) 28%,
-            transparent 45%
-          );
-          -webkit-mask:
-            linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          opacity: 0;
-          transition: opacity 0.4s ease;
-          pointer-events: none;
-          z-index: 2;
-        }
-
-        .card:hover .card-border,
-        .card.is-active .card-border {
-          opacity: 0.85;
-          animation: spinCardBorder 3s linear infinite;
-        }
-
-        .card.is-active .card-border {
-          opacity: 1;
-          animation-duration: 2s;
-        }
-
-        @keyframes spinCardBorder {
-          to { --card-border-angle: 360deg; }
-        }
-
-        .card-inner {
-          position: relative;
-          border-radius: 19px;
-          padding: 1.5rem;
-          background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(255,255,255,0.07);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          height: 100%;
-          transition:
-            background 0.4s ease,
-            border-color 0.4s ease,
-            box-shadow 0.4s ease;
-        }
-
-        .card-inner::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          background: linear-gradient(
-            145deg,
-            color-mix(in srgb, var(--accent) 10%, transparent),
-            transparent 55%
-          );
-          opacity: 0.6;
-          transition: opacity 0.4s ease;
-          pointer-events: none;
-        }
-
-        .card-shine {
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 60%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,0.06),
-            transparent
-          );
-          transform: skewX(-20deg);
-          transition: left 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-          pointer-events: none;
-          z-index: 3;
-        }
-
-        .card:hover .card-shine,
-        .card.is-active .card-shine {
-          left: 150%;
-        }
-
-        .card:hover {
-          transform: translateY(-8px) scale(1.01);
-        }
-
-        .card:hover .card-inner,
-        .card.is-active .card-inner {
-          border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-          background: rgba(255,255,255,0.04);
-          box-shadow:
-            0 20px 48px rgba(0,0,0,0.4),
-            0 0 32px color-mix(in srgb, var(--accent) 18%, transparent),
-            inset 0 1px 0 rgba(255,255,255,0.06);
-        }
-
-        .card:hover .card-inner::before,
-        .card.is-active .card-inner::before {
-          opacity: 1;
-        }
-
-        .card:active {
-          transform: translateY(-4px) scale(0.99);
-          transition-duration: 0.12s;
-        }
-
-        .card.is-active {
-          transform: translateY(-8px) scale(1.02);
-        }
-
-        .card:focus-visible {
-          outline: 2px solid color-mix(in srgb, var(--accent) 60%, #a855f7);
-          outline-offset: 3px;
-        }
-
-        .card-glow {
-          position: absolute;
-          width: 180px;
-          height: 180px;
-          background: color-mix(in srgb, var(--accent) 30%, transparent);
-          border-radius: 50%;
-          filter: blur(65px);
-          top: -55px;
-          right: -55px;
-          opacity: 0;
-          transition:
-            opacity 0.45s ease,
-            transform 0.45s ease;
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        .card:hover .card-glow,
-        .card.is-active .card-glow {
-          opacity: 1;
-          transform: scale(1.2);
-        }
-
-        .card-header {
+        /* Redesign Layout */
+        .layout-grid {
           display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 1rem;
-          margin-bottom: 1.25rem;
-          position: relative;
-          z-index: 1;
+          flex-direction: column;
+          gap: 4rem;
         }
 
-        .card-game-row {
+        .section-heading {
+          font-family: 'Orbitron', sans-serif;
+          font-size: 1.25rem;
+          color: #d1d5db;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          margin-bottom: 1.5rem;
           display: flex;
           align-items: center;
-          gap: 0.85rem;
+          gap: 1rem;
+          animation: fadeUp 0.6s ease both 0.1s;
         }
 
-        .card-icon {
-          width: 44px;
-          height: 44px;
-          flex-shrink: 0;
-          border-radius: 12px;
+        .section-heading::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, rgba(168,85,247,0.3), transparent);
+        }
+
+        /* Hero Card Cyberpunk */
+        .hero-card {
+          position: relative;
+          padding: 2px;
+          background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 60%, transparent), rgba(255,255,255,0.05));
+          clip-path: polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px);
+          transition: transform 0.3s ease, filter 0.3s ease;
+          animation: fadeUp 0.6s ease both 0.2s;
+        }
+
+        .hero-card:hover {
+          transform: translateY(-4px);
+          filter: drop-shadow(0 10px 30px color-mix(in srgb, var(--accent) 30%, transparent));
+        }
+
+        .hero-inner {
+          position: relative;
+          background: linear-gradient(135deg, rgba(10,10,15,0.95), rgba(20,10,30,0.95));
+          clip-path: polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px);
+          padding: 3.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 2rem;
+          overflow: hidden;
+        }
+
+        .hero-scanlines {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.15) 50%);
+          background-size: 100% 4px;
+          pointer-events: none;
+          z-index: 1;
+          opacity: 0.8;
+        }
+
+        .hero-content {
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+        }
+
+        .hero-icon {
+          width: 80px;
+          height: 80px;
+          background: color-mix(in srgb, var(--accent) 15%, transparent);
+          border: 1px solid var(--accent);
+          color: var(--accent);
           display: flex;
           align-items: center;
           justify-content: center;
-          background: color-mix(in srgb, var(--accent) 12%, transparent);
-          border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-          color: var(--accent);
-          transition:
-            transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-            box-shadow 0.4s ease,
-            border-color 0.4s ease;
+          transform: rotate(-5deg);
+          box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 30%, transparent);
+          border-radius: 8px;
         }
 
-        .card-icon svg {
-          width: 22px;
-          height: 22px;
-          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .hero-icon svg {
+          width: 44px;
+          height: 44px;
+          transform: rotate(5deg);
         }
 
-        .card:hover .card-icon,
-        .card.is-active .card-icon {
-          transform: scale(1.1) translateY(-2px);
-          border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-          box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 25%, transparent);
+        .hero-details {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
         }
 
-        .card:hover .card-icon svg,
-        .card.is-active .card-icon svg {
-          transform: scale(1.05);
-        }
-
-        .game-title {
+        .hero-title {
           font-family: 'Orbitron', sans-serif;
-          font-size: 1.25rem;
+          font-size: clamp(2rem, 4vw, 3rem);
           font-weight: 800;
-          letter-spacing: 0.02em;
-          line-height: 1.2;
-          transition:
-            color 0.35s ease,
-            text-shadow 0.35s ease,
-            transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .card:hover .game-title,
-        .card.is-active .game-title {
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
           color: #fff;
-          text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 45%, transparent);
-          transform: translateX(2px);
+          text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 50%, transparent);
+          margin: 0;
+          line-height: 1;
         }
 
-        .status {
-          flex-shrink: 0;
-          display: inline-flex;
+        .hero-badges {
+          display: flex;
           align-items: center;
-          gap: 0.35rem;
-          padding: 0.35rem 0.75rem;
-          border-radius: 6px;
-          font-size: 0.62rem;
-          font-weight: 700;
+          gap: 1rem;
+        }
+
+        .badge-live {
+          background: rgba(220,38,38,0.15);
+          border: 1px solid #dc2626;
+          color: #f87171;
+          padding: 0.25rem 0.75rem;
+          font-size: 0.75rem;
+          font-weight: 800;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          background: rgba(34,197,94,0.1);
-          border: 1px solid rgba(34,197,94,0.25);
-          color: #4ade80;
-          transition:
-            transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-            box-shadow 0.35s ease,
-            background 0.35s ease;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
         }
 
-        .status::before {
+        .badge-live::before {
           content: '';
-          width: 5px;
-          height: 5px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
-          background: #4ade80;
-          box-shadow: 0 0 6px #4ade80;
-          animation: statusPulse 2s ease-in-out infinite;
+          background: #ef4444;
+          box-shadow: 0 0 8px #ef4444;
+          animation: pulseRed 1.5s infinite;
         }
 
-        @keyframes statusPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.85); }
+        @keyframes pulseRed {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
         }
 
-        .card:hover .status,
-        .card.is-active .status {
-          transform: scale(1.05);
-          background: rgba(34,197,94,0.18);
-          box-shadow: 0 0 16px rgba(34,197,94,0.2);
-        }
-
-        .card.is-active .status {
-          border-color: rgba(34,197,94,0.45);
-        }
-
-        .mode {
-          position: relative;
-          z-index: 1;
+        .badge-mode {
           color: #c084fc;
-          font-size: 1rem;
           font-weight: 700;
-          margin-bottom: 1rem;
-          transition:
-            color 0.35s ease,
-            transform 0.35s ease;
+          font-size: 1rem;
         }
 
-        .card:hover .mode,
-        .card.is-active .mode {
-          color: #e9d5ff;
-          transform: translateX(4px);
-        }
-
-        .meta {
-          position: relative;
-          z-index: 1;
+        .hero-meta {
           color: #9ca3af;
-          font-size: 0.92rem;
+          font-size: 1.1rem;
           font-weight: 600;
-          margin-bottom: 0.45rem;
-          transition:
-            color 0.35s ease,
-            transform 0.35s ease;
-          opacity: 0.85;
         }
 
-        .card:hover .meta,
-        .card.is-active .meta {
-          color: #d1d5db;
-          transform: translateX(4px);
-          opacity: 1;
+        /* Cyber Button */
+        .cyber-btn {
+          position: relative;
+          z-index: 2;
+          background: transparent;
+          border: none;
+          color: #fff;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 1.1rem;
+          font-weight: 800;
+          letter-spacing: 0.15em;
+          padding: 1rem 3rem;
+          cursor: pointer;
+          clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+          transition: transform 0.2s ease;
         }
 
-        .meta:last-child {
-          margin-bottom: 0;
+        .cyber-btn.primary {
+          background: var(--accent);
+          text-shadow: 0 0 8px rgba(0,0,0,0.5);
+          box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent);
         }
 
-        @media (prefers-reduced-motion: reduce) {
-          .card,
-          .card-border,
-          .card-shine,
-          .nav-logo,
-          .page-title,
-          .status::before {
-            animation: none !important;
-            transition-duration: 0.01ms !important;
+        .cyber-btn.primary:hover {
+          transform: scale(1.05);
+          background: color-mix(in srgb, var(--accent) 80%, white);
+        }
+
+        .cyber-btn.outline {
+          border: 1px solid var(--accent);
+          background: color-mix(in srgb, var(--accent) 10%, transparent);
+          font-size: 0.9rem;
+          padding: 0.75rem 2rem;
+          clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .cyber-btn.outline:hover {
+          background: var(--accent);
+          transform: scale(1.05);
+        }
+
+        /* Match Schedule List */
+        .schedule-list {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .schedule-row {
+          position: relative;
+          padding: 1px;
+          border-radius: 4px;
+          background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+          overflow: hidden;
+          animation: fadeUp 0.6s ease both;
+          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .schedule-row:hover {
+          transform: translateX(8px);
+          background: linear-gradient(90deg, var(--accent), transparent);
+        }
+
+        .row-inner {
+          background: rgba(10,10,14,0.9);
+          padding: 1.25rem 2rem;
+          border-radius: 4px;
+          display: grid;
+          grid-template-columns: auto 1.5fr 1fr 1fr auto;
+          align-items: center;
+          gap: 2rem;
+          position: relative;
+          z-index: 2;
+        }
+
+        .row-icon {
+          width: 40px;
+          height: 40px;
+          color: var(--accent);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .row-icon svg {
+          width: 24px;
+          height: 24px;
+        }
+
+        .row-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .row-title {
+          font-family: 'Orbitron', sans-serif;
+          font-size: 1.2rem;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          color: #e5e7eb;
+          margin: 0;
+          transition: color 0.2s ease;
+        }
+
+        .row-mode {
+          color: #a855f7;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+
+        .schedule-row:hover .row-title {
+          color: #fff;
+          animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+
+        @keyframes glitch {
+          0% { transform: translate(0); text-shadow: none; }
+          20% { transform: translate(-2px, 1px); text-shadow: 2px 0 var(--accent), -2px 0 #00d4ff; }
+          40% { transform: translate(-1px, -1px); text-shadow: -2px 0 var(--accent), 2px 0 #00d4ff; }
+          60% { transform: translate(2px, 1px); text-shadow: 2px 0 var(--accent), -1px 0 #00d4ff; }
+          80% { transform: translate(1px, -1px); text-shadow: -1px 0 var(--accent), 2px 0 #00d4ff; }
+          100% { transform: translate(0); text-shadow: 0 0 8px var(--accent); }
+        }
+
+        .row-meta {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .row-time {
+          color: #e5e7eb;
+          font-weight: 700;
+          font-size: 1rem;
+        }
+
+        .row-players {
+          color: #9ca3af;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+          .row-inner {
+            grid-template-columns: auto 1fr 1fr auto;
+            gap: 1.5rem;
           }
-
-          .card:hover,
-          .card.is-active {
-            transform: none;
+          .row-meta {
+            align-items: flex-end;
           }
         }
 
         @media (max-width: 768px) {
           .page-title { font-size: 2rem; }
+          .hero-inner {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 2rem;
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+          }
+          .hero-card {
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+          }
+          .hero-content {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .cyber-btn.primary {
+            width: 100%;
+          }
+          .row-inner {
+            grid-template-columns: 1fr;
+            padding: 1.5rem;
+            gap: 1rem;
+          }
+          .row-icon { display: none; }
+          .row-meta { align-items: flex-start; }
+          .cyber-btn.outline { width: 100%; text-align: center; }
         }
       `}</style>
 
@@ -720,59 +671,59 @@ export default function Tournaments() {
         <div className="glow-2" />
 
         <div className="content">
-          <div className="top-bar">
-            <Link to="/" className="nav-logo">
-              DGL
-            </Link>
-          </div>
+          <TopNav />
 
           <h1 className="page-title">Titan Grindhouse</h1>
 
-          <div className="tournament-grid">
-            {tournaments.map((tournament, index) => (
-              <article
-                className={`card${activeCardId === tournament.id ? " is-active" : ""}`}
-                key={tournament.id}
-                role="button"
-                tabIndex={0}
-                style={{
-                  "--accent": tournament.accent,
-                  animationDelay: `${0.06 * index}s`,
-                }}
-                onClick={() =>
-                  setActiveCardId((id) =>
-                    id === tournament.id ? null : tournament.id,
-                  )
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setActiveCardId((id) =>
-                      id === tournament.id ? null : tournament.id,
-                    );
-                  }
-                }}
-              >
-                <div className="card-border" aria-hidden />
-                <div className="card-shine" aria-hidden />
-                <div className="card-glow" aria-hidden />
-                <div className="card-inner">
-                  <div className="card-header">
-                    <div className="card-game-row">
-                      <div className="card-icon">
-                        <GameIcon slug={tournament.slug} />
+          <div className="layout-grid">
+            <section className="featured-section">
+              <h2 className="section-heading">Main Event</h2>
+              <div className="hero-card" style={{ "--accent": featured.accent }}>
+                <div className="hero-scanlines"></div>
+                <div className="hero-inner">
+                  <div className="hero-content">
+                    <div className="hero-icon"><GameIcon slug={featured.slug} /></div>
+                    <div className="hero-details">
+                      <h3 className="hero-title">{featured.game}</h3>
+                      <div className="hero-badges">
+                        <span className="badge-live">LIVE NOW</span>
+                        <span className="badge-mode">{featured.mode}</span>
                       </div>
-                      <h2 className="game-title">{tournament.game}</h2>
+                      <p className="hero-meta">{featured.players} • {featured.time}</p>
                     </div>
-                    <span className="status">Open</span>
                   </div>
-
-                  <p className="mode">{tournament.mode}</p>
-                  <p className="meta">{tournament.players}</p>
-                  <p className="meta">{tournament.time}</p>
+                  <button className="cyber-btn primary">
+                    <span>REGISTER NOW</span>
+                  </button>
                 </div>
-              </article>
-            ))}
+              </div>
+            </section>
+
+            <section className="schedule-section">
+              <h2 className="section-heading">Match Schedule</h2>
+              <div className="schedule-list">
+                {schedule.map((t, index) => (
+                  <div 
+                    className="schedule-row" 
+                    key={t.id} 
+                    style={{ "--accent": t.accent, animationDelay: `${0.1 * index}s` }}
+                  >
+                    <div className="row-inner">
+                      <div className="row-icon"><GameIcon slug={t.slug} /></div>
+                      <div className="row-info">
+                        <h4 className="row-title">{t.game}</h4>
+                        <span className="row-mode">{t.mode}</span>
+                      </div>
+                      <div className="row-meta">
+                        <span className="row-time">{t.time}</span>
+                        <span className="row-players">{t.players}</span>
+                      </div>
+                      <button className="cyber-btn outline">JOIN</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </div>

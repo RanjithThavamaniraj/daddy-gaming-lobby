@@ -1,5 +1,29 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import TopNav from "../components/TopNav";
+
+function useCounter(end, duration = 2000) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(Math.floor(easeOut * end));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }, [end, duration]);
+  return count;
+}
+
+function AnimatedNumber({ value, duration = 2000 }) {
+  const count = useCounter(value, duration);
+  return <>{count}</>;
+}
 
 function GameRealmIcon({ slug }) {
   const icons = {
@@ -206,10 +230,10 @@ const liveActivity = [
 ];
 
 const stats = [
-  { value: "12+", label: "Tournaments Hosted", icon: "◈" },
-  { value: "120+", label: "Registered Players", icon: "◎" },
-  { value: "9", label: "Active Games", icon: "⬡" },
-  { value: "99%", label: "Server Uptime", icon: "▣" },
+  { value: 12, suffix: "+", label: "Tournaments Hosted", icon: "◈" },
+  { value: 120, suffix: "+", label: "Registered Players", icon: "◎" },
+  { value: 9, suffix: "", label: "Active Games", icon: "⬡" },
+  { value: 99, suffix: "%", label: "Server Uptime", icon: "▣" },
 ];
 
 export default function Dashboard() {
@@ -422,32 +446,58 @@ export default function Dashboard() {
           margin: 0 auto;
         }
 
-        /* ── Top bar ── */
-        .control-topbar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1.5rem;
-          margin-bottom: 2.5rem;
-          flex-wrap: wrap;
-        }
-
-        .control-logo {
-          font-family: 'Orbitron', sans-serif;
-          font-size: 0.85rem;
-          font-weight: 800;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          color: #a855f7;
-          text-decoration: none;
-          text-shadow: 0 0 20px rgba(168,85,247,0.4);
-        }
 
         .topbar-right {
           display: flex;
           align-items: center;
           gap: 1.25rem;
           flex-wrap: wrap;
+        }
+
+        .quick-join-btn {
+          position: relative;
+          background: linear-gradient(135deg, #c084fc 0%, #9333ea 100%);
+          border: none;
+          padding: 0.65rem 1.4rem;
+          border-radius: 999px;
+          color: #fff;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 0.85rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          cursor: pointer;
+          overflow: hidden;
+          box-shadow: 0 4px 14px rgba(168,85,247,0.4);
+          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          text-decoration: none;
+        }
+
+        .quick-join-btn::before {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%; width: 50%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transform: skewX(-20deg);
+          animation: btnSweep 3s infinite;
+        }
+
+        @keyframes btnSweep {
+          0% { left: -100%; }
+          20% { left: 200%; }
+          100% { left: 200%; }
+        }
+
+        .quick-join-btn:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 6px 20px rgba(168,85,247,0.6);
+        }
+
+        .quick-join-btn:active {
+          transform: translateY(1px) scale(0.98);
         }
 
         .status-pill {
@@ -853,8 +903,9 @@ export default function Dashboard() {
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           overflow: hidden;
+          transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px)) scale(var(--s, 1));
           transition:
-            transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+            transform 0.15s ease-out,
             border-color 0.35s ease,
             box-shadow 0.35s ease;
         }
@@ -872,7 +923,8 @@ export default function Dashboard() {
         }
 
         .game-card:hover .game-card-inner {
-          transform: translateY(-6px);
+          --ty: -6px;
+          --s: 1.02;
           border-color: color-mix(in srgb, var(--realm-accent) 35%, transparent);
           box-shadow:
             0 20px 48px rgba(0,0,0,0.45),
@@ -1063,6 +1115,16 @@ export default function Dashboard() {
           animation: cardEnter 0.5s ease both;
         }
 
+        @keyframes livePulse {
+          0% { box-shadow: 0 0 0 0 rgba(168,85,247,0.4); border-color: rgba(168,85,247,0.3); }
+          70% { box-shadow: 0 0 0 10px rgba(168,85,247,0); border-color: rgba(255,255,255,0.06); }
+          100% { box-shadow: 0 0 0 0 rgba(168,85,247,0); border-color: rgba(255,255,255,0.06); }
+        }
+
+        .activity-card.live-pulse {
+          animation: cardEnter 0.5s ease both, livePulse 2.5s infinite;
+        }
+
         .activity-card:nth-child(1) { animation-delay: 0.55s; }
         .activity-card:nth-child(2) { animation-delay: 0.62s; }
         .activity-card:nth-child(3) { animation-delay: 0.69s; }
@@ -1124,6 +1186,38 @@ export default function Dashboard() {
           margin: 0.25rem 0;
         }
 
+        .page-title {
+          font-family: 'Orbitron', sans-serif;
+          font-size: clamp(2.2rem, 6vw, 3.5rem);
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #a855f7;
+          text-shadow:
+            0 0 12px rgba(168,85,247,0.45),
+            0 0 40px rgba(168,85,247,0.12);
+          margin-bottom: 2.5rem;
+          animation: fadeUp 0.6s ease both, titleGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes titleGlow {
+          0%, 100% {
+            text-shadow:
+              0 0 12px rgba(168,85,247,0.45),
+              0 0 40px rgba(168,85,247,0.12);
+          }
+          50% {
+            text-shadow:
+              0 0 20px rgba(168,85,247,0.65),
+              0 0 50px rgba(168,85,247,0.25);
+          }
+        }
+
         @media (max-width: 1100px) {
           .dashboard-grid {
             grid-template-columns: 1fr;
@@ -1142,6 +1236,10 @@ export default function Dashboard() {
           .glass-panel {
             padding: 1.5rem;
           }
+
+          .page-title {
+            font-size: 2rem;
+          }
         }
       `}</style>
 
@@ -1156,27 +1254,33 @@ export default function Dashboard() {
 
         <div className="dashboard-content">
 
-          <div className="control-topbar">
-            <Link to="/" className="control-logo">
-              DGL
-            </Link>
+          <TopNav>
             <div className="topbar-right">
+              <a href="https://discord.gg/gf7Ecat6Ka" target="_blank" rel="noopener noreferrer" className="quick-join-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Quick Match
+              </a>
               <div className="online-box">
                 <div className="online-label">Players Online</div>
-                <div className="online-count">18</div>
+                <div className="online-count"><AnimatedNumber value={18} /></div>
               </div>
               <div className="status-pill">
                 <span className="status-dot" />
                 System Online
               </div>
             </div>
-          </div>
+          </TopNav>
+
+          <h1 className="page-title">Titan Dashboard</h1>
 
           <div className="stats-grid">
-            {stats.map((stat) => (
+            {stats.map((stat, index) => (
               <div className="stat-card" key={stat.label}>
                 <div className="stat-icon">{stat.icon}</div>
-                <div className="stat-number">{stat.value}</div>
+                <div className="stat-number">
+                  <AnimatedNumber value={stat.value} duration={1500 + index * 200} />
+                  {stat.suffix}
+                </div>
                 <div className="stat-label">{stat.label}</div>
               </div>
             ))}
@@ -1198,6 +1302,23 @@ export default function Dashboard() {
                     style={{
                       "--realm-accent": realm.accent,
                       "--realm-glow": realm.glow,
+                    }}
+                    onMouseMove={(e) => {
+                      const card = e.currentTarget;
+                      const rect = card.getBoundingClientRect();
+                      const x = e.clientX - rect.left;
+                      const y = e.clientY - rect.top;
+                      const centerX = rect.width / 2;
+                      const centerY = rect.height / 2;
+                      const rotateX = ((y - centerY) / centerY) * -12;
+                      const rotateY = ((x - centerX) / centerX) * 12;
+                      card.style.setProperty('--rx', `${rotateX}deg`);
+                      card.style.setProperty('--ry', `${rotateY}deg`);
+                    }}
+                    onMouseLeave={(e) => {
+                      const card = e.currentTarget;
+                      card.style.setProperty('--rx', '0deg');
+                      card.style.setProperty('--ry', '0deg');
                     }}
                   >
                     <div className="game-card-border" aria-hidden="true" />
@@ -1245,7 +1366,7 @@ export default function Dashboard() {
               <div className="activity-list">
                 {liveActivity.map((item, index) => (
                   <div key={index}>
-                    <div className={`activity-card type-${item.type}`}>
+                    <div className={`activity-card type-${item.type} ${index === 0 ? 'live-pulse' : ''}`}>
                       <div className="activity-text">{item.activity}</div>
                       <div className="activity-time">{item.time}</div>
                     </div>

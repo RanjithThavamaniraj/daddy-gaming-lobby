@@ -230,18 +230,33 @@ export default function Home() {
           animation: fadeIn .6s ease both;
         }
         .nav-left { display: flex; align-items: center; gap: clamp(2rem,5vw,4rem); }
-        .logo-link { text-decoration: none; display: inline-block; transition: transform .35s var(--ease-spring); }
+        .logo-link {
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          transition: transform .35s var(--ease-spring);
+        }
         .logo-link:hover { transform: scale(1.02); }
-        .logo {
+        .logo-icon {
+          height: clamp(32px, 5vw, 44px);
+          width: auto;
+          mix-blend-mode: screen;
+          filter: drop-shadow(0 0 12px rgba(168,85,247,0.25));
+          transition: filter .35s ease, transform .35s var(--ease-spring);
+          object-fit: contain;
+        }
+        .logo-text {
           font-family: 'Orbitron', sans-serif;
-          font-size: clamp(1.1rem,2.5vw,1.45rem); font-weight: 900;
+          font-size: clamp(1rem,2vw,1.25rem); font-weight: 900;
           text-transform: uppercase; letter-spacing: .14em; white-space: nowrap;
           color: #f9fafb; line-height: 1.2;
           text-shadow: 0 0 24px rgba(168,85,247,.15);
           transition: text-shadow .35s ease;
         }
-        .logo-link:hover .logo { text-shadow: 0 0 32px rgba(168,85,247,.5); }
-        .logo span { color: var(--purple); text-shadow: 0 0 16px rgba(168,85,247,.4); }
+        .logo-text span { color: var(--purple); text-shadow: 0 0 16px rgba(168,85,247,.4); }
+        .logo-link:hover .logo-icon { filter: drop-shadow(0 0 20px rgba(168,85,247,0.45)); }
+        .logo-link:hover .logo-text { text-shadow: 0 0 32px rgba(168,85,247,.5); }
 
         .nav-links { display: flex; align-items: center; gap: clamp(1.5rem,3vw,2.75rem); }
         .nav-links a {
@@ -537,11 +552,117 @@ export default function Home() {
         }
         .player-card:hover .player-name { color: #fff; }
 
+        /* ── FOOTER ── */
+        .home-footer {
+          margin-top: 6rem;
+          padding: 4rem 2rem 2rem;
+          background: linear-gradient(180deg, transparent, rgba(168,85,247,0.04));
+          border-top: 1px solid rgba(168,85,247,0.15);
+          position: relative;
+          z-index: 10;
+        }
+        .footer-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr;
+          gap: 3rem;
+          max-width: 1200px;
+          margin: 0 auto;
+          margin-bottom: 3rem;
+        }
+        .footer-brand .logo-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.75rem;
+          text-decoration: none;
+          margin-bottom: 1rem;
+        }
+        .footer-brand .logo-icon {
+          height: 32px;
+          mix-blend-mode: screen;
+          filter: drop-shadow(0 0 12px rgba(168,85,247,0.4));
+        }
+        .footer-brand .logo-text {
+          font-family: 'Orbitron', sans-serif;
+          font-size: 1.2rem;
+          font-weight: 800;
+          color: #fff;
+          letter-spacing: 0.1em;
+        }
+        .footer-brand .logo-text span {
+          color: #a855f7;
+        }
+        .footer-desc {
+          color: #9ca3af;
+          line-height: 1.6;
+          font-size: 0.95rem;
+          max-width: 320px;
+        }
+        .footer-col-title {
+          font-family: 'Orbitron', sans-serif;
+          color: #fff;
+          font-size: 1.1rem;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          margin-bottom: 1.5rem;
+          text-transform: uppercase;
+        }
+        .footer-links {
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+        }
+        .footer-links a {
+          color: #9ca3af;
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.2s ease, transform 0.2s ease;
+          display: inline-flex;
+        }
+        .footer-links a:hover {
+          color: #c084fc;
+          transform: translateX(4px);
+        }
+        .footer-bottom {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding-top: 2rem;
+          border-top: 1px solid rgba(255,255,255,0.05);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          color: #6b7280;
+          font-size: 0.85rem;
+          font-weight: 500;
+        }
+        .footer-socials {
+          display: flex;
+          gap: 1.25rem;
+        }
+        .footer-socials a {
+          color: #6b7280;
+          text-decoration: none;
+          transition: color 0.2s ease;
+          font-weight: 600;
+          letter-spacing: 0.05em;
+        }
+        .footer-socials a:hover {
+          color: #a855f7;
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
           .nav-left { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
           .nav-links { gap: 1.25rem 1.5rem; flex-wrap: wrap; }
           .hero-section { min-height: auto; padding-block: 3rem 2rem; }
+          .footer-grid {
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+          }
+          .footer-bottom {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           * { animation: none !important; transition: none !important; }
@@ -565,7 +686,8 @@ export default function Home() {
           <nav className="navbar">
             <div className="nav-left">
               <Link to="/" className="logo-link">
-                <div className="logo">DADDY GAMING <span>LOBBY</span></div>
+                <img src="/logo.png" alt="Daddy Gaming Lobby" className="logo-icon" />
+                <div className="logo-text">DADDY GAMING <span>LOBBY</span></div>
               </Link>
               <div className="nav-links">
                 <Link to="/dashboard">Dashboard</Link>
@@ -650,6 +772,47 @@ export default function Home() {
               })}
             </div>
           </section>
+
+          {/* FOOTER */}
+          <footer className="home-footer">
+            <div className="footer-grid">
+              <div className="footer-brand">
+                <Link to="/" className="logo-link">
+                  <img src="/logo.png" alt="Daddy Gaming Lobby" className="logo-icon" />
+                  <div className="logo-text">DADDY GAMING <span>LOBBY</span></div>
+                </Link>
+                <p className="footer-desc">
+                  The ultimate competitive gaming arena. Join tournaments, climb leaderboards, and become part of the next generation of esports warriors.
+                </p>
+              </div>
+              
+              <div className="footer-col">
+                <h3 className="footer-col-title">Navigation</h3>
+                <div className="footer-links">
+                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/tournaments">Tournaments</Link>
+                  <Link to="/leaderboard">Leaderboard</Link>
+                </div>
+              </div>
+
+              <div className="footer-col">
+                <h3 className="footer-col-title">Community</h3>
+                <div className="footer-links">
+                  <a href="https://discord.gg/gf7Ecat6Ka" target="_blank" rel="noreferrer">Discord Server</a>
+                </div>
+              </div>
+            </div>
+
+            <div className="footer-bottom">
+              <div className="footer-copyright">
+                © {new Date().getFullYear()} Daddy Gaming Lobby. All rights reserved.
+              </div>
+              <div className="footer-socials">
+                <Link to="/privacy">PRIVACY</Link>
+                <Link to="/terms">TERMS</Link>
+              </div>
+            </div>
+          </footer>
 
         </div>
       </div>

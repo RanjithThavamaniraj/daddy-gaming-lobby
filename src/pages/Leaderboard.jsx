@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import TopNav from "../components/TopNav";
 
 const players = [
   { rank: 1, name: "ShadowX", game: "Valorant", points: 2450, badge: "🥇", accent: "#f59e0b" },
@@ -21,6 +22,7 @@ export default function Leaderboard() {
   const trailRef = useRef({ x: 0, y: 0 });
   const hasMovedRef = useRef(false);
   const [activeId, setActiveId] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("ALL");
 
   useEffect(() => {
     const container = containerRef.current;
@@ -121,22 +123,7 @@ export default function Leaderboard() {
 
         .content { position: relative; z-index: 5; max-width: 1280px; margin: 0 auto; }
 
-        .top-bar { margin-bottom: 2.5rem; }
 
-        .nav-logo {
-          font-family: 'Orbitron', sans-serif;
-          font-size: 0.85rem; font-weight: 800;
-          letter-spacing: 0.2em; color: #a855f7;
-          text-decoration: none;
-          text-shadow: 0 0 20px rgba(168,85,247,0.4);
-          display: inline-block;
-          transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .nav-logo:hover {
-          color: #e9d5ff;
-          text-shadow: 0 0 28px rgba(168,85,247,0.65);
-          transform: scale(1.05);
-        }
 
         .page-title {
           font-family: 'Orbitron', sans-serif;
@@ -256,143 +243,165 @@ export default function Leaderboard() {
           color: #6b7280; text-transform: uppercase; margin-left: 4px;
         }
 
-        /* ── TABLE ROWS ── */
+        /* ── CHALLENGER LIST ── */
+        .challengers-section {
+          margin-top: 4rem;
+        }
+        .challengers-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2rem;
+          padding-bottom: 1rem;
+          border-bottom: 1px solid rgba(168,85,247,0.15);
+        }
+        .challengers-title {
+          font-family: 'Orbitron', sans-serif;
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #fff;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .challengers-title .slash { color: var(--accent, #a855f7); font-weight: 900; }
+        .challengers-filters {
+          display: flex; gap: 1rem;
+        }
+        .filter-btn {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: #9ca3af;
+          padding: 0.4rem 1rem;
+          border-radius: 4px;
+          font-family: 'Rajdhani', sans-serif;
+          font-weight: 700;
+          font-size: 0.85rem;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+          background: rgba(168,85,247,0.15);
+          border-color: #a855f7;
+          color: #fff;
+          text-shadow: 0 0 10px rgba(168,85,247,0.5);
+        }
+
         .table-wrap {
-          display: flex; flex-direction: column; gap: 0.6rem;
+          display: flex; flex-direction: column; gap: 0.75rem;
         }
 
         .row-card {
           --accent: #a855f7;
-          --card-border-angle: 0deg;
           position: relative; overflow: hidden;
-          border-radius: 14px; padding: 1px;
+          border-radius: 12px; padding: 1px;
           cursor: pointer; outline: none;
           animation: cardEnter 0.5s cubic-bezier(0.22,1,0.36,1) both;
           transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
         }
-        .row-card:hover { transform: translateX(6px) scale(1.005); }
-        .row-card.is-active { transform: translateX(8px) scale(1.008); }
+        .row-card:hover { transform: translateX(8px) scale(1.01); }
+        .row-card.is-active { transform: translateX(12px) scale(1.015); }
 
-        .row-card .card-border {
-          position: absolute; inset: 0; border-radius: inherit; padding: 1px;
-          background: conic-gradient(from var(--card-border-angle), transparent 0%, var(--accent) 15%, rgba(255,255,255,0.4) 22%, var(--accent) 28%, transparent 45%);
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor; mask-composite: exclude;
-          opacity: 0; transition: opacity 0.4s ease; pointer-events: none; z-index: 2;
+        .row-card::before {
+          content: ''; position: absolute; inset: 0;
+          background: linear-gradient(90deg, var(--accent), transparent 40%);
+          opacity: 0; transition: opacity 0.4s ease; z-index: 0;
         }
-        .row-card:hover .card-border,
-        .row-card.is-active .card-border {
-          opacity: 0.7;
-          animation: spinCardBorder 3s linear infinite;
-        }
-
-        .row-card .card-shine {
-          position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-          transform: skewX(-20deg);
-          transition: left 0.5s cubic-bezier(0.22,1,0.36,1);
-          pointer-events: none; z-index: 3;
-        }
-        .row-card:hover .card-shine,
-        .row-card.is-active .card-shine { left: 150%; }
+        .row-card:hover::before, .row-card.is-active::before { opacity: 0.15; }
 
         .row-inner {
           display: grid;
-          grid-template-columns: 80px 1.5fr 1fr 120px 100px;
-          align-items: center; padding: 1.1rem 1.5rem;
-          background: rgba(255,255,255,0.022);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 13px;
+          grid-template-columns: 80px 1.5fr 1.5fr 150px;
+          align-items: center; padding: 1rem 1.5rem;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 11px;
           backdrop-filter: blur(12px);
-          transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-          position: relative;
+          position: relative; z-index: 2;
+          transition: background 0.4s ease, border-color 0.4s ease;
         }
-        .row-inner::before {
-          content: ''; position: absolute; inset: 0; border-radius: inherit;
-          background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 60%);
-          opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
+        .row-card:hover .row-inner, .row-card.is-active .row-inner {
+          background: rgba(13, 13, 18, 0.6);
+          border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+          box-shadow: inset 4px 0 0 var(--accent);
         }
-        .row-card:hover .row-inner,
-        .row-card.is-active .row-inner {
-          background: rgba(255,255,255,0.04);
-          border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-          box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 0 20px color-mix(in srgb, var(--accent) 10%, transparent);
-        }
-        .row-card:hover .row-inner::before,
-        .row-card.is-active .row-inner::before { opacity: 1; }
 
-        .row-rank {
-          font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900;
-          color: #6b7280; letter-spacing: 0.05em;
+        .row-rank-box {
+          font-family: 'Orbitron', sans-serif;
+          font-size: 1.5rem; font-weight: 900;
+          color: rgba(255,255,255,0.2);
+          font-style: italic;
+          transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+        .row-card:hover .row-rank-box, .row-card.is-active .row-rank-box {
+          color: var(--accent);
+          text-shadow: 0 0 15px color-mix(in srgb, var(--accent) 60%, transparent);
+        }
+        .rank-hash { font-size: 1rem; opacity: 0.5; margin-right: 2px; }
+
+        .row-info { display: flex; flex-direction: column; gap: 0.2rem; }
+        .row-name {
+          font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 800;
+          letter-spacing: 0.05em; color: #e5e7eb;
           transition: color 0.3s ease;
         }
-        .row-card:hover .row-rank,
-        .row-card.is-active .row-rank { color: var(--accent); }
-
-        .row-name {
-          font-family: 'Orbitron', sans-serif; font-size: 0.95rem; font-weight: 800;
-          letter-spacing: 0.02em;
-          transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
-        }
-        .row-card:hover .row-name,
-        .row-card.is-active .row-name {
-          color: #fff;
-          text-shadow: 0 0 16px color-mix(in srgb, var(--accent) 40%, transparent);
-          transform: translateX(3px);
-        }
-
+        .row-card:hover .row-name, .row-card.is-active .row-name { color: #fff; }
         .row-game {
-          font-size: 0.9rem; font-weight: 600; color: #9ca3af;
-          transition: color 0.3s ease, transform 0.3s ease;
+          font-size: 0.85rem; font-weight: 600; color: #9ca3af;
+          text-transform: uppercase; letter-spacing: 0.1em;
+          display: flex; align-items: center; gap: 0.4rem;
         }
-        .row-card:hover .row-game,
-        .row-card.is-active .row-game { color: #d1d5db; transform: translateX(3px); }
+        .row-game::before {
+          content: ''; width: 6px; height: 6px; border-radius: 50%;
+          background: var(--accent);
+        }
 
+        .row-stats {
+          display: flex; gap: 2rem;
+        }
+        .stat-box { display: flex; flex-direction: column; gap: 0.1rem; }
+        .stat-label {
+          font-size: 0.65rem; font-weight: 700; color: #6b7280;
+          letter-spacing: 0.15em; text-transform: uppercase;
+        }
+        .stat-value {
+          font-family: 'JetBrains Mono', 'Orbitron', monospace;
+          font-size: 0.95rem; font-weight: 700; color: #d1d5db;
+        }
+
+        .row-score {
+          display: flex; align-items: baseline; justify-content: flex-end; gap: 0.3rem;
+        }
         .row-points {
-          font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900;
-          color: var(--accent);
+          font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900;
+          color: #fff;
           transition: text-shadow 0.3s ease;
         }
-        .row-card:hover .row-points,
-        .row-card.is-active .row-points {
-          text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+        .row-card:hover .row-points, .row-card.is-active .row-points {
+          color: var(--accent);
+          text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 60%, transparent);
+        }
+        .row-rp-label {
+          font-size: 0.75rem; font-weight: 700; color: #6b7280;
+          letter-spacing: 0.1em; text-transform: uppercase;
         }
 
-        .row-status {
-          display: inline-flex; align-items: center; gap: 0.35rem;
-          padding: 0.3rem 0.65rem; border-radius: 6px;
-          font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-          background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.25);
-          color: #c084fc; width: fit-content;
-          transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+        @media (max-width: 900px) {
+          .row-inner { grid-template-columns: 60px 1.5fr 1fr; gap: 1rem; }
+          .row-stats { display: none; }
         }
-        .row-status::before {
-          content: ''; width: 5px; height: 5px; border-radius: 50%;
-          background: #a855f7; box-shadow: 0 0 6px #a855f7;
-          animation: statusPulse 2s ease-in-out infinite;
-        }
-        .row-card:hover .row-status,
-        .row-card.is-active .row-status {
-          transform: scale(1.05);
-          box-shadow: 0 0 16px rgba(168,85,247,0.2);
-        }
-
-        .table-header-row {
-          display: grid;
-          grid-template-columns: 80px 1.5fr 1fr 120px 100px;
-          padding: 0.5rem 1.5rem 1rem;
-          font-size: 0.65rem; font-weight: 700;
-          letter-spacing: 0.15em; text-transform: uppercase;
-          color: #52526b;
-          font-family: 'Rajdhani', sans-serif;
-        }
-
         @media (max-width: 768px) {
           .podium { grid-template-columns: 1fr; }
-          .table-header-row { display: none; }
-          .row-inner { grid-template-columns: 60px 1fr 1fr; gap: 0.5rem; }
-          .row-points, .row-status { display: none; }
           .lb-page { padding: 1.25rem 1rem 3rem; }
+        }
+        @media (max-width: 600px) {
+          .challengers-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+          .row-inner { grid-template-columns: 50px 1fr; gap: 0.5rem; }
+          .row-score { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -408,9 +417,7 @@ export default function Leaderboard() {
         <div className="glow-2" />
 
         <div className="content">
-          <div className="top-bar">
-            <Link to="/" className="nav-logo">DGL</Link>
-          </div>
+          <TopNav />
 
           <h1 className="page-title">Hall of Titans</h1>
 
@@ -438,34 +445,64 @@ export default function Leaderboard() {
             ))}
           </div>
 
-          {/* TABLE — ranks 4–10 */}
-          <div className="table-header-row">
-            <div>Rank</div>
-            <div>Player</div>
-            <div>Main Game</div>
-            <div>RP</div>
-            <div>Status</div>
-          </div>
-
-          <div className="table-wrap">
-            {players.slice(3).map((p, i) => (
-              <div
-                className={`row-card${activeId === p.rank ? " is-active" : ""}`}
-                key={p.rank}
-                style={{ "--accent": p.accent, animationDelay: `${0.24 + i * 0.06}s` }}
-                onClick={() => setActiveId(id => id === p.rank ? null : p.rank)}
-              >
-                <div className="card-border" aria-hidden />
-                <div className="card-shine" aria-hidden />
-                <div className="row-inner">
-                  <div className="row-rank">#{p.rank}</div>
-                  <div className="row-name">{p.name}</div>
-                  <div className="row-game">{p.game}</div>
-                  <div className="row-points">{p.points.toLocaleString()}</div>
-                  <div className="row-status">Active</div>
-                </div>
+          {/* CHALLENGERS — ranks 4–10 */}
+          <div className="challengers-section">
+            <div className="challengers-header">
+              <h2 className="challengers-title"><span className="slash">///</span> Global Challengers</h2>
+              <div className="challengers-filters">
+                <button className={`filter-btn ${activeFilter === "ALL" ? "active" : ""}`} onClick={() => setActiveFilter("ALL")}>ALL</button>
+                <button className={`filter-btn ${activeFilter === "FPS" ? "active" : ""}`} onClick={() => setActiveFilter("FPS")}>FPS</button>
+                <button className={`filter-btn ${activeFilter === "MOBA" ? "active" : ""}`} onClick={() => setActiveFilter("MOBA")}>MOBA</button>
               </div>
-            ))}
+            </div>
+
+            <div className="table-wrap">
+              {players.slice(3)
+                .filter(p => {
+                  if (activeFilter === "ALL") return true;
+                  const fpsGames = ["Valorant", "CS2", "Apex Legends", "The Finals", "Fortnite", "Arc Raiders"];
+                  const mobaGames = ["Marvel Rivals", "Dota 2", "League of Legends"];
+                  if (activeFilter === "FPS") return fpsGames.includes(p.game);
+                  if (activeFilter === "MOBA") return mobaGames.includes(p.game);
+                  return true;
+                })
+                .map((p, i) => {
+                const winRate = 75 - (p.rank * 1.5);
+                const matches = 500 - p.rank * 10;
+                return (
+                  <div
+                    className={`row-card${activeId === p.rank ? " is-active" : ""}`}
+                    key={p.rank}
+                    style={{ "--accent": p.accent, animationDelay: `${0.24 + i * 0.06}s` }}
+                    onClick={() => setActiveId(id => id === p.rank ? null : p.rank)}
+                  >
+                    <div className="row-inner">
+                      <div className="row-rank-box">
+                        <span className="rank-hash">#</span>{p.rank}
+                      </div>
+                      <div className="row-info">
+                        <div className="row-name">{p.name}</div>
+                        <div className="row-game">{p.game}</div>
+                      </div>
+                      <div className="row-stats">
+                        <div className="stat-box">
+                          <span className="stat-label">WIN RATE</span>
+                          <span className="stat-value">{winRate.toFixed(1)}%</span>
+                        </div>
+                        <div className="stat-box">
+                          <span className="stat-label">MATCHES</span>
+                          <span className="stat-value">{matches}</span>
+                        </div>
+                      </div>
+                      <div className="row-score">
+                        <div className="row-points">{p.points.toLocaleString()}</div>
+                        <div className="row-rp-label">RP</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
