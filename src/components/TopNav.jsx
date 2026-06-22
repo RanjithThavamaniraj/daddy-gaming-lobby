@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import BrandLogo from "./BrandLogo";
+
 export default function TopNav({ children }) {
   return (
     <>
@@ -21,7 +23,8 @@ export default function TopNav({ children }) {
         }
         .global-logo-link:hover { transform: scale(1.05); }
         .global-logo {
-          height: 24px; width: auto; mix-blend-mode: screen;
+          height: 24px; width: auto;
+          object-fit: contain;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.3));
           transition: filter 0.3s ease;
         }
@@ -64,7 +67,7 @@ export default function TopNav({ children }) {
       <div className="global-topnav">
         <div className="global-topnav-left">
           <Link to="/" className="global-logo-link">
-            <img src="/logo.png" alt="Daddy Gaming Lobby" className="global-logo" />
+            <BrandLogo className="global-logo" />
             <div className="global-logo-text">DADDY GAMING LOBBY</div>
           </Link>
           <div className="global-nav-links">

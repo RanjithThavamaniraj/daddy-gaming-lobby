@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
+import BrandLogo from "../components/BrandLogo";
+
 export default function Terms() {
   const containerRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -196,7 +198,6 @@ export default function Terms() {
         .logo-icon {
           height: clamp(32px, 5vw, 44px);
           width: auto;
-          mix-blend-mode: screen;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.25));
           transition: filter .35s ease, transform .35s var(--ease-spring);
           object-fit: contain;
@@ -426,7 +427,7 @@ export default function Terms() {
           <nav className="navbar">
             <div className="nav-left">
               <Link to="/" className="logo-link">
-                <img src="/logo.png" alt="Daddy Gaming Lobby" className="logo-icon" />
+                <BrandLogo className="logo-icon" />
                 <div className="logo-text">DADDY GAMING <span>LOBBY</span></div>
               </Link>
               <div className="nav-links">
@@ -521,7 +522,7 @@ export default function Terms() {
             <div className="footer-grid">
               <div className="footer-brand">
                 <Link to="/" className="logo-link">
-                  <img src="/logo.png" alt="Daddy Gaming Lobby" className="logo-icon" />
+                  <BrandLogo className="logo-icon" />
                   <div className="logo-text">DADDY GAMING <span>LOBBY</span></div>
                 </Link>
                 <p className="footer-desc">
