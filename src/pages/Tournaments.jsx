@@ -5,13 +5,13 @@ import FeaturedTournament from "../components/tournaments/FeaturedTournament";
 import UpcomingTournamentCard from "../components/tournaments/UpcomingTournamentCard";
 import CompletedTournamentCard from "../components/tournaments/CompletedTournamentCard";
 import {
-  featuredTournament,
-  upcomingTournaments,
-  completedTournaments,
+  getTournamentsPageLayout,
 } from "../config/tournamentConfig";
 import { tournamentsPageStyles } from "../styles/tournamentsPageStyles";
 
 export default function Tournaments() {
+  const { mainEvent, upcomingDisplay, showCompletedArchive, archivedCompleted } =
+    getTournamentsPageLayout();
   const containerRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const glowRef = useRef({ x: 0, y: 0 });
@@ -89,31 +89,35 @@ export default function Tournaments() {
           <h1 className="page-title">Titan Grindhouse</h1>
 
           <div className="layout-grid">
-            <FeaturedTournament tournament={featuredTournament} />
+            <FeaturedTournament tournament={mainEvent} />
 
-            <section className="upcoming-section">
-              <h2 className="section-heading">Upcoming Tournaments</h2>
-              <div className="hub-cards-grid">
-                {upcomingTournaments.map((tournament, index) => (
-                  <UpcomingTournamentCard
-                    key={tournament.id}
-                    tournament={{ ...tournament, index }}
-                  />
-                ))}
-              </div>
-            </section>
+            {upcomingDisplay.length > 0 ? (
+              <section className="upcoming-section">
+                <h2 className="section-heading">Upcoming Tournaments</h2>
+                <div className="hub-cards-grid">
+                  {upcomingDisplay.map((tournament, index) => (
+                    <UpcomingTournamentCard
+                      key={tournament.id}
+                      tournament={{ ...tournament, index }}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
 
-            <section className="completed-section">
-              <h2 className="section-heading">Completed Tournaments</h2>
-              <div className="hub-cards-grid">
-                {completedTournaments.map((tournament, index) => (
-                  <CompletedTournamentCard
-                    key={tournament.id}
-                    tournament={{ ...tournament, index }}
-                  />
-                ))}
-              </div>
-            </section>
+            {showCompletedArchive ? (
+              <section className="completed-section">
+                <h2 className="section-heading">Completed Tournaments</h2>
+                <div className="hub-cards-grid">
+                  {archivedCompleted.map((tournament, index) => (
+                    <CompletedTournamentCard
+                      key={tournament.id}
+                      tournament={{ ...tournament, index }}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </div>
         </div>
       </div>

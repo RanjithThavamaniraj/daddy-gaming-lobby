@@ -50,3 +50,53 @@ export const activeTournamentFallback = featuredTournament;
 
 /** @deprecated Use completedTournaments */
 export const pastChampions = [];
+
+/**
+ * Resolves Main Event vs Completed archive for the tournaments hub.
+ * Future: replace inputs with supabase.from("tournaments").select("*")
+ */
+export function getTournamentsPageLayout({
+  featured = featuredTournament,
+  upcoming = upcomingTournaments,
+  completed = completedTournaments,
+} = {}) {
+  const hasMultipleCompleted = completed.length >= 2;
+
+  if (!hasMultipleCompleted) {
+    return {
+      mainEvent: featured,
+      upcomingDisplay: upcoming,
+      showCompletedArchive: false,
+      archivedCompleted: [],
+    };
+  }
+
+  const [mainEventCandidate, ...remainingUpcoming] = upcoming;
+  const mainEvent = mainEventCandidate
+    ? toFeaturedShape(mainEventCandidate)
+    : featured;
+
+  return {
+    mainEvent,
+    upcomingDisplay: remainingUpcoming,
+    showCompletedArchive: true,
+    archivedCompleted: completed,
+  };
+}
+
+function toFeaturedShape(tournament) {
+  return {
+    id: tournament.id,
+    title: tournament.title,
+    game: tournament.game,
+    gameSlug: tournament.gameSlug,
+    format: tournament.format ?? "—",
+    matchType: tournament.matchType ?? "—",
+    prizePool: tournament.prizePool ?? "TBA",
+    status: tournament.status ?? "Coming Soon",
+    completedDate: tournament.completedDate,
+    accent: tournament.accent,
+    resultsPath: tournament.resultsPath ?? null,
+    resultsSlug: tournament.resultsSlug ?? null,
+  };
+}
