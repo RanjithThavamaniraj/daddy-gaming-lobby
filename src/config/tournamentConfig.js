@@ -1,33 +1,52 @@
-// Central configuration for Daddy Gaming Lobby tournaments
-// Update this file to configure the active tournament details and past champions list.
+/**
+ * Central tournament data for the DGL esports hub.
+ * Future: replace static exports with supabase.from("tournaments").select("*")
+ */
 
-export const activeTournamentFallback = {
+export const featuredTournament = {
   id: "dgl-valorant-championship-1",
   title: "DGL Valorant Championship #1",
   game: "Valorant",
+  gameSlug: "valorant",
   format: "5v5",
   matchType: "Best of 3",
-  prizePool: "₹1,000 Guaranteed",
-  status: "Registration Open", // Status options: 'Registration Open', 'Registration Closed', 'Teams Finalized', 'Live', 'Completed'
-  registrationLimit: 10,
-  registrationDeadline: "June 25, 2026 11:59 PM",
-  tournamentDate: "June 27, 2026 9:30 PM IST",
-  accent: "#ff4655", // Cyberpunk visual accent color
+  prizePool: "₹1,000 Awarded",
+  status: "Completed",
+  completedDate: "June 27, 2026",
+  accent: "#ff4655",
+  resultsPath: "/tournaments/valorant-1",
+  resultsSlug: "valorant-1",
 };
 
-export const pastChampions = [
+export const upcomingTournaments = [
   {
-    id: "past-1",
-    tournamentName: "DGL Valorant Alpha Cup",
-    winningTeam: "Team Vipers",
-    prizePool: "₹500",
-    date: "May 15, 2026",
-  },
-  {
-    id: "past-2",
-    tournamentName: "DGL Apex Showdown",
-    winningTeam: "Apex Predators",
-    prizePool: "₹750",
-    date: "June 02, 2026",
+    id: "dgl-cs2-championship-1",
+    title: "DGL CS2 Championship #1",
+    game: "CS2",
+    gameSlug: "cs2",
+    status: "Coming Soon",
+    accent: "#de9b35",
   },
 ];
+
+export const completedTournaments = [
+  {
+    id: "dgl-valorant-championship-1",
+    title: "DGL Valorant Championship #1",
+    game: "Valorant",
+    gameSlug: "valorant",
+    completedDate: "June 27, 2026",
+    champion: null,
+    championPlaceholder: "To be updated",
+    prizePool: "₹1,000 Awarded",
+    accent: "#ff4655",
+    resultsPath: "/tournaments/valorant-1",
+    resultsSlug: "valorant-1",
+  },
+];
+
+/** @deprecated Use featuredTournament, upcomingTournaments, completedTournaments */
+export const activeTournamentFallback = featuredTournament;
+
+/** @deprecated Use completedTournaments */
+export const pastChampions = [];

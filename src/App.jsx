@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Tournaments from "./pages/Tournaments";
+import TournamentResults from "./pages/TournamentResults";
 import Leaderboard from "./pages/Leaderboard";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
@@ -24,6 +25,11 @@ export default function App() {
       <Route
         path="/tournaments"
         element={<Tournaments />}
+      />
+
+      <Route
+        path="/tournaments/:slug"
+        element={<TournamentResults />}
       />
 
       <Route
