@@ -4,8 +4,9 @@ import GameIcon from "../tournaments/GameIcon";
  * Featured games grid for the homepage.
  * @param {object} props
  * @param {import("../../config/dglGamesConfig").DglGame[]} props.games
+ * @param {string} [props.intro]
  */
-export default function HomeFeaturedGames({ games }) {
+export default function HomeFeaturedGames({ games, intro }) {
   return (
     <section className="section">
       <div className="section-header">
@@ -14,6 +15,8 @@ export default function HomeFeaturedGames({ games }) {
           Featured <span>Games</span>
         </h2>
       </div>
+
+      {intro ? <p className="section-intro section-intro-compact">{intro}</p> : null}
 
       <div className="games-grid">
         {games.map((game, index) => (

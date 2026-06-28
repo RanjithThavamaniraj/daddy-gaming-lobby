@@ -1,15 +1,16 @@
 /**
  * Single source of truth for all DGL tournaments.
- * Add new tournaments here — numbers are permanent and auto-increment.
+ * Add new tournaments here — global numbers are permanent and auto-increment.
+ * Championship names are derived from game + per-game sequence (see tournamentModel).
  * Future: replace with supabase.from("tournaments").select("*")
  *
  * @typedef {object} TournamentRecord
- * @property {number} number - Permanent tournament number (never reassign)
+ * @property {number} number - Permanent global tournament number (never reassign)
  * @property {string} id
  * @property {string} [slug] - URL slug for dedicated results page
- * @property {string} name
- * @property {string} game
+ * @property {string} game - Display game name (e.g. "Valorant", "CS2")
  * @property {string} gameSlug
+ * @property {string} [championshipLabel] - Used in "DGL {label} Championship #N" (defaults to `game`)
  * @property {string} [format]
  * @property {string} [matchType]
  * @property {string} [prizePool]
@@ -26,7 +27,6 @@ export const TOURNAMENT_REGISTRY = [
     number: 1,
     id: "dgl-valorant-championship-1",
     slug: "valorant-1",
-    name: "DGL Valorant Championship #1",
     game: "Valorant",
     gameSlug: "valorant",
     format: "5v5",
@@ -53,14 +53,13 @@ export const TOURNAMENT_REGISTRY = [
   {
     number: 2,
     id: "dgl-cs2-championship-1",
-    name: "DGL CS2 Championship #1",
     game: "CS2",
     gameSlug: "cs2",
     status: "Coming Soon",
     accent: "#de9b35",
   },
-  // Future: Tournament #3 — DGL FC26 Championship #1
-  // Future: Tournament #4 — Marvel Rivals Championship #1
-  // Future: Tournament #5 — Rocket League Championship #1
-  // Future: Tournament #6 — Arc Raiders Championship #1
+  // Future: number 3 — gameSlug "fc-26", championshipLabel "FC26"
+  // Future: number 4 — gameSlug "valorant" → DGL Valorant Championship #2
+  // Future: number 5 — gameSlug "marvel-rivals"
+  // Future: number 6 — gameSlug "arc-raiders"
 ];

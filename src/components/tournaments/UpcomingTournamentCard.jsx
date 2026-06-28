@@ -19,7 +19,10 @@ export default function UpcomingTournamentCard({ tournament }) {
             <GameIcon slug={gameSlug} />
           </div>
           <div className="hub-card-titles">
-            <h4 className="hub-card-title">{tournament.title}</h4>
+            {tournament.tournamentNumber ? (
+              <span className="hub-card-tournament-number">{tournament.tournamentNumber}</span>
+            ) : null}
+            <h4 className="hub-card-title">{tournament.championshipName ?? tournament.title}</h4>
             <span className="hub-card-game">{tournament.game}</span>
           </div>
           <span className="status-badge-custom coming-soon">{tournament.status}</span>

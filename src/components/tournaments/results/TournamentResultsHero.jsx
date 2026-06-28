@@ -12,7 +12,7 @@ export default function TournamentResultsHero({ tournament }) {
           <div className="results-hero-header">
             <div className="results-hero-title-block">
               <span className="results-tournament-badge">{tournament.tournamentNumber}</span>
-              <h1 className="results-hero-title">🏆 {tournament.name}</h1>
+              <h1 className="results-hero-title">🏆 {tournament.championshipName}</h1>
             </div>
             <span className="results-status-badge">Tournament Completed</span>
           </div>

@@ -19,13 +19,12 @@ export default function UpcomingTournamentCard({ tournament }) {
       <div className="widget-body">
         <span className="widget-eyebrow">COMING SOON</span>
         <h3 className="widget-title">{tournament.tournamentNumber}</h3>
+        <p className="widget-championship-name">{tournament.championshipName}</p>
 
         <div className="widget-meta-row">
           <span className="widget-meta-label">Status</span>
           <span className="widget-meta-value">{tournament.status}</span>
         </div>
-
-        <p className="widget-announcement">{tournament.announcement}</p>
       </div>
     </section>
   );

@@ -5,8 +5,9 @@
  */
 export default function TournamentResultsSummary({ tournament }) {
   const rows = [
-    { label: "Tournament", value: tournament.name },
-    { label: "Tournament Number", value: tournament.tournamentNumber },
+    { label: "Championship", value: tournament.championshipName },
+    { label: "Global Tournament", value: tournament.tournamentNumber },
+    { label: "Game Championship", value: `#${tournament.gameChampionshipNumber}` },
     { label: "Game", value: tournament.game },
     { label: "Format", value: tournament.format },
     { label: "Match Type", value: tournament.matchType },

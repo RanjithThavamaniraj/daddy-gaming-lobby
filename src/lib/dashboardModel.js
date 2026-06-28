@@ -1,9 +1,10 @@
 import { DGL_POINTS } from "../config/dglPointsConfig";
 import { buildDglPointsLeaderboard } from "../config/leaderboardConfig";
 import {
-  formatTournamentNumber,
+  formatGlobalTournamentNumber,
   getCompletedTournaments,
   getUpcomingTournaments,
+  toUpcomingCardShape,
 } from "./tournamentModel";
 
 /**
@@ -126,7 +127,7 @@ export function buildCommunityActivity() {
   if (nextTournament) {
     items.push({
       id: `${nextTournament.id}-coming-soon`,
-      text: `🎮 ${formatTournamentNumber(nextTournament.number)} coming soon`,
+      text: `🎮 ${formatGlobalTournamentNumber(nextTournament.globalNumber)} coming soon`,
       time: "Upcoming",
       type: "join",
     });
@@ -147,14 +148,14 @@ export function buildCommunityActivity() {
  * Future: supabase.from("tournaments").select("*").eq("status", "Coming Soon").order("number").limit(1)
  */
 export function buildUpcomingTournamentPreview() {
-  const next = [...getUpcomingTournaments()].sort((a, b) => a.number - b.number)[0];
+  const next = [...getUpcomingTournaments()].sort(
+    (a, b) => a.globalNumber - b.globalNumber
+  )[0];
   if (!next) return null;
 
   return {
-    id: next.id,
-    tournamentNumber: formatTournamentNumber(next.number),
+    ...toUpcomingCardShape(next),
     status: "Coming Soon",
-    announcement: "Next Tournament will be announced soon.",
     accent: next.accent,
   };
 }
@@ -169,7 +170,8 @@ export function buildHallOfChampionsPreview() {
 
   return {
     tournamentNumber: latest.tournamentNumber,
-    name: latest.name,
+    championshipName: latest.championshipName,
+    name: latest.championshipName,
     status: latest.status,
     completedDate: latest.completedDate,
     resultsPath: latest.resultsPath,

@@ -586,6 +586,15 @@ export const tournamentsPageStyles = `
     min-width: 0;
   }
 
+  .hub-card-tournament-number {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #c084fc;
+  }
+
   .hub-card-title {
     font-family: 'Orbitron', sans-serif;
     font-size: 1.15rem;

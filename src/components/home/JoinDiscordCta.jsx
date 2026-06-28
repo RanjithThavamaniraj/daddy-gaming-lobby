@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 /**
- * Join Discord closing CTA section.
+ * Join Discord closing CTA — community depth (distinct from hero quick-link).
  * @param {object} props
  * @param {string} props.discordUrl
  */
@@ -11,11 +11,11 @@ export default function JoinDiscordCta({ discordUrl }) {
       <div className="discord-cta-card">
         <p className="section-eyebrow discord-eyebrow">Join the Community</p>
         <h2 className="discord-cta-title">
-          Ready to compete in <span>DGL</span>?
+          Stay event-ready on <span>Discord</span>
         </h2>
         <p className="discord-cta-text">
-          Join the Daddy Gaming Lobby Discord to stay updated on upcoming tournaments,
-          connect with players, and become part of the DGL competitive community.
+          Get tournament announcements, find teammates, and be first to know when the next
+          DGL championship opens. The community lives on Discord — that is where events begin.
         </p>
         <div className="discord-cta-actions">
           <a
@@ -24,10 +24,10 @@ export default function JoinDiscordCta({ discordUrl }) {
             rel="noopener noreferrer"
             className="primary-btn"
           >
-            Join Discord
+            Join Discord Server
           </a>
           <Link to="/tournaments" className="secondary-btn">
-            Explore Tournaments
+            Browse Tournaments
           </Link>
         </div>
       </div>

@@ -11,11 +11,15 @@ import HomeHallOfChampionsPreview from "../components/home/HomeHallOfChampionsPr
 import JoinDiscordCta from "../components/home/JoinDiscordCta";
 import {
   DISCORD_INVITE_URL,
+  communityStatsIntro,
   dglJourney,
+  featuredGamesIntro,
   homeCommunityStats,
   homeFeaturedGames,
   homeHallOfChampionsPreview,
+  homeUpcomingTeaser,
   whatIsDglHighlights,
+  whatIsDglIntro,
   whyJoinDgl,
 } from "../config/homeConfig";
 import { homePageStyles } from "../styles/homePageStyles";
@@ -181,12 +185,12 @@ export default function Home() {
             </div>
           </section>
 
+          <WhatIsDgl intro={whatIsDglIntro} highlights={whatIsDglHighlights} />
           <WhyJoinDgl features={whyJoinDgl} />
-          <WhatIsDgl highlights={whatIsDglHighlights} />
-          <HomeFeaturedGames games={homeFeaturedGames} />
-          <HomeCommunityStats stats={homeCommunityStats} />
-          <DglJourney journey={dglJourney} />
+          <HomeFeaturedGames games={homeFeaturedGames} intro={featuredGamesIntro} />
           <HomeHallOfChampionsPreview tournament={homeHallOfChampionsPreview} />
+          <HomeCommunityStats stats={homeCommunityStats} intro={communityStatsIntro} />
+          <DglJourney journey={dglJourney} upcomingTeaser={homeUpcomingTeaser} />
           <JoinDiscordCta discordUrl={DISCORD_INVITE_URL} />
 
           <footer className="home-footer">
@@ -199,8 +203,8 @@ export default function Home() {
                   </div>
                 </Link>
                 <p className="footer-desc">
-                  The ultimate competitive gaming arena. Join tournaments, climb leaderboards, and become part
-                  of the next generation of esports warriors.
+                  India&apos;s multi-game community esports platform. Compete in tournaments,
+                  earn DGL Points, and build a permanent legacy in the Hall of Champions.
                 </p>
               </div>
 

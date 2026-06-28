@@ -986,8 +986,19 @@ export const dashboardPageStyles = `
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #fff;
-    margin-bottom: 1rem;
+    margin-bottom: 0.35rem;
     line-height: 1.3;
+  }
+
+  .widget-championship-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #c084fc;
+    margin-bottom: 1rem;
+    line-height: 1.35;
   }
 
   .widget-meta-grid {

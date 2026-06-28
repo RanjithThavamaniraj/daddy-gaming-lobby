@@ -589,6 +589,126 @@ export const homePageStyles = `
           display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
         }
 
+        .section-intro-compact {
+          margin-bottom: clamp(1.5rem, 3vw, 2rem);
+        }
+
+        .pillars-grid {
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+
+        .section-footnote {
+          margin-top: 1.5rem;
+          text-align: center;
+          animation: fadeUp .6s var(--ease-smooth) both;
+        }
+
+        .section-footnote-link {
+          font-size: .85rem;
+          font-weight: 700;
+          letter-spacing: .1em;
+          text-transform: uppercase;
+          color: #c084fc;
+          text-decoration: none;
+          transition: text-shadow .25s ease, color .25s ease;
+        }
+
+        .section-footnote-link:hover {
+          color: #e9d5ff;
+          text-shadow: 0 0 16px rgba(168,85,247,.45);
+        }
+
+        .hall-preview-meta {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+
+        .hall-preview-status {
+          font-family: 'Orbitron', sans-serif;
+          font-size: .72rem;
+          font-weight: 800;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+          color: #fcd34d;
+          padding: .25rem .6rem;
+          border-radius: 4px;
+          background: rgba(245,158,11,.1);
+          border: 1px solid rgba(245,158,11,.3);
+        }
+
+        .hall-preview-date {
+          display: inline-flex;
+          align-items: center;
+          gap: .35rem;
+          font-size: .88rem;
+          font-weight: 600;
+          color: #9ca3af;
+        }
+
+        .hall-preview-actions {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1.25rem;
+          align-items: center;
+        }
+
+        .hall-preview-link.primary-link {
+          color: var(--accent, #fcd34d);
+        }
+
+        .hall-preview-link.secondary-link {
+          color: #c084fc;
+          font-size: .78rem;
+        }
+
+        .journey-teaser {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: .85rem 1.25rem;
+          padding: 1rem 1.25rem;
+          margin-bottom: 1.5rem;
+          border-radius: 14px;
+          background: rgba(168,85,247,.08);
+          border: 1px solid rgba(168,85,247,.22);
+          animation: fadeUp .6s var(--ease-smooth) both;
+        }
+
+        .journey-teaser-label {
+          font-family: 'Orbitron', sans-serif;
+          font-size: .72rem;
+          font-weight: 800;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          color: #c084fc;
+          padding: .3rem .65rem;
+          border-radius: 4px;
+          background: rgba(168,85,247,.12);
+          border: 1px solid rgba(168,85,247,.35);
+        }
+
+        .journey-teaser-text {
+          font-size: .95rem;
+          font-weight: 600;
+          color: #d1d5db;
+        }
+
+        .journey-teaser-championship {
+          font-family: 'Orbitron', sans-serif;
+          font-size: .85rem;
+          font-weight: 700;
+          letter-spacing: .04em;
+          text-transform: uppercase;
+          color: #e9d5ff;
+        }
+
         @media (max-width: 768px) {
           .journey-grid { grid-template-columns: 1fr; }
         }

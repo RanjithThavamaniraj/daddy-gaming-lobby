@@ -8,6 +8,7 @@ import {
   getUpcomingTournaments,
   toCompletedCardShape,
   toFeaturedShape,
+  toUpcomingCardShape,
 } from "../lib/tournamentModel";
 
 const completed = getCompletedTournaments();
@@ -20,14 +21,7 @@ export const featuredTournament = completed.length
     ? toFeaturedShape(upcoming[0])
     : null;
 
-export const upcomingTournaments = upcoming.map((t) => ({
-  id: t.id,
-  title: t.title,
-  game: t.game,
-  gameSlug: t.gameSlug,
-  status: t.status,
-  accent: t.accent,
-}));
+export const upcomingTournaments = upcoming.map(toUpcomingCardShape);
 
 export const completedTournaments = completed.map(toCompletedCardShape);
 

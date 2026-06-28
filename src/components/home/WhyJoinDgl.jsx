@@ -1,5 +1,5 @@
 /**
- * Why Join DGL — feature cards section.
+ * Why Join DGL — player motivation (distinct from platform overview).
  * @param {object} props
  * @param {{ id: string; icon: string; title: string; description: string }[]} props.features
  */
@@ -12,6 +12,11 @@ export default function WhyJoinDgl({ features }) {
           Why Join <span>DGL</span>?
         </h2>
       </div>
+
+      <p className="section-intro section-intro-compact">
+        Whether you are chasing your first win or building a legacy across multiple titles,
+        DGL gives every player a path to compete, earn, and be remembered.
+      </p>
 
       <div className="features-grid">
         {features.map((feature, index) => (

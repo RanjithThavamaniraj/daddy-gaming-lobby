@@ -1,9 +1,10 @@
 /**
- * DGL platform journey timeline.
+ * DGL platform journey timeline with next-event teaser.
  * @param {object} props
  * @param {{ completed: object[]; upcoming: object[] }} props.journey
+ * @param {{ tournamentNumber: string; message: string } | null} [props.upcomingTeaser]
  */
-export default function DglJourney({ journey }) {
+export default function DglJourney({ journey, upcomingTeaser }) {
   return (
     <section className="section">
       <div className="section-header">
@@ -12,6 +13,16 @@ export default function DglJourney({ journey }) {
           DGL <span>Journey</span>
         </h2>
       </div>
+
+        {upcomingTeaser ? (
+        <div className="journey-teaser">
+          <span className="journey-teaser-label">{upcomingTeaser.tournamentNumber}</span>
+          {upcomingTeaser.championshipName ? (
+            <span className="journey-teaser-championship">{upcomingTeaser.championshipName}</span>
+          ) : null}
+          <span className="journey-teaser-text">{upcomingTeaser.message}</span>
+        </div>
+      ) : null}
 
       <div className="journey-grid">
         <div className="journey-column">

@@ -1,9 +1,12 @@
+import { Link } from "react-router-dom";
+
 /**
- * High-level community statistics for the homepage.
+ * High-level community statistics with funnel to Dashboard.
  * @param {object} props
  * @param {object[]} props.stats
+ * @param {string} [props.intro]
  */
-export default function HomeCommunityStats({ stats }) {
+export default function HomeCommunityStats({ stats, intro }) {
   return (
     <section className="section">
       <div className="section-header">
@@ -12,6 +15,8 @@ export default function HomeCommunityStats({ stats }) {
           Community <span>Statistics</span>
         </h2>
       </div>
+
+      {intro ? <p className="section-intro section-intro-compact">{intro}</p> : null}
 
       <div className="stats-bar">
         {stats.map((stat, index) => (
@@ -26,6 +31,12 @@ export default function HomeCommunityStats({ stats }) {
             <div className="stat-label">{stat.label}</div>
           </div>
         ))}
+      </div>
+
+      <div className="section-footnote">
+        <Link to="/dashboard" className="section-footnote-link">
+          Explore the full Titan Dashboard →
+        </Link>
       </div>
     </section>
   );
