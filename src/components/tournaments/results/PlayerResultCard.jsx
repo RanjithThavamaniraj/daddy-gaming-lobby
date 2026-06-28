@@ -3,7 +3,7 @@
  * @param {object} props
  * @param {string} props.name
  * @param {"champion"|"runner-up"} props.variant
- * @param {number} [props.dglPoints] - shown for champions only
+ * @param {number} [props.dglPoints]
  * @param {number} [props.index] - stagger animation delay
  */
 export default function PlayerResultCard({ name, variant = "champion", dglPoints, index = 0 }) {
@@ -16,10 +16,10 @@ export default function PlayerResultCard({ name, variant = "champion", dglPoints
     >
       <div className="results-player-inner">
         <span className={`results-player-badge ${isChampion ? "champion" : "runner-up"}`}>
-          {isChampion ? "Champion" : "Runner-Up"}
+          {isChampion ? "Champion" : "Runner-up"}
         </span>
         <span className="results-player-name">{name}</span>
-        {isChampion && dglPoints != null ? (
+        {dglPoints != null ? (
           <span className="results-player-points">+{dglPoints} DGL Points</span>
         ) : null}
       </div>

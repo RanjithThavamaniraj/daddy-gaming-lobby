@@ -227,6 +227,63 @@ export const tournamentsPageStyles = `
     gap: 0.75rem;
   }
 
+  .hero-tournament-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #c084fc;
+    background: rgba(168,85,247,0.12);
+    border: 1px solid rgba(168,85,247,0.35);
+    padding: 0.3rem 0.65rem;
+    border-radius: 4px;
+    width: fit-content;
+  }
+
+  .hero-champions-block {
+    margin-bottom: 1.25rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-champions-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fcd34d;
+    margin-bottom: 0.65rem;
+  }
+
+  .hero-champions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.35rem 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hero-champions-list li {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e5e7eb;
+    padding-left: 0.85rem;
+    position: relative;
+  }
+
+  .hero-champions-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
   .hero-title {
     font-family: 'Orbitron', sans-serif;
     font-size: clamp(1.8rem, 4vw, 2.8rem);

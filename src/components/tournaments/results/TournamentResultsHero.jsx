@@ -1,7 +1,7 @@
 /**
  * Results page hero — tournament metadata header.
  * @param {object} props
- * @param {import("../../../config/tournamentResultsConfig").valorantChampionship1Results} props.tournament
+ * @param {import("../../../lib/tournamentModel").ReturnType<import("../../../lib/tournamentModel").enrichTournament>} props.tournament
  */
 export default function TournamentResultsHero({ tournament }) {
   return (

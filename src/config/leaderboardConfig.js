@@ -1,11 +1,12 @@
-import { tournamentResultsBySlug } from "./tournamentResultsConfig";
+import { DGL_POINTS } from "./dglPointsConfig";
+import { getCompletedTournaments } from "../lib/tournamentModel";
 
 /**
- * Build Hall of Champions entries from completed tournament results.
+ * Build Hall of Champions entries from completed tournaments.
  * Future: supabase.from("tournaments").select("*").eq("status", "Completed")
  */
 export function buildHallOfChampions() {
-  return Object.values(tournamentResultsBySlug).map((tournament) => ({
+  return getCompletedTournaments().map((tournament) => ({
     slug: tournament.slug,
     tournamentNumber: tournament.tournamentNumber,
     name: tournament.name,
@@ -13,25 +14,23 @@ export function buildHallOfChampions() {
     gameSlug: tournament.gameSlug,
     championPlayers: tournament.championPlayers,
     prizePool: tournament.prizePool,
-    dglPoints: tournament.dglPoints,
+    dglPoints: tournament.pointsAwarded.champion,
     completedDate: tournament.completedDate,
     accent: tournament.accent,
-    resultsPath: `/tournaments/${tournament.slug}`,
+    resultsPath: tournament.resultsPath,
   }));
 }
 
 /**
  * Aggregate DGL Points leaderboard across all completed tournaments.
- * Future: supabase.from("player_stats").select("*").order("dgl_points", { ascending: false })
+ * Sort: points desc → championships desc → name asc.
+ * Future: supabase.from("player_points").select("*").order("points", { ascending: false })
  */
 export function buildDglPointsLeaderboard() {
   const playerStats = new Map();
-  const orderIndex = new Map();
-  let order = 0;
 
-  for (const tournament of Object.values(tournamentResultsBySlug)) {
+  for (const tournament of getCompletedTournaments()) {
     for (const name of tournament.championPlayers) {
-      if (!orderIndex.has(name)) orderIndex.set(name, order++);
       const existing = playerStats.get(name) ?? {
         name,
         game: tournament.game,
@@ -40,7 +39,7 @@ export function buildDglPointsLeaderboard() {
         tournamentsPlayed: 0,
         accent: tournament.accent,
       };
-      existing.points += tournament.dglPoints;
+      existing.points += DGL_POINTS.champion;
       existing.championships += 1;
       existing.tournamentsPlayed += 1;
       existing.game = tournament.game;
@@ -49,7 +48,6 @@ export function buildDglPointsLeaderboard() {
     }
 
     for (const name of tournament.runnerUpPlayers) {
-      if (!orderIndex.has(name)) orderIndex.set(name, order++);
       const existing = playerStats.get(name) ?? {
         name,
         game: tournament.game,
@@ -58,8 +56,10 @@ export function buildDglPointsLeaderboard() {
         tournamentsPlayed: 0,
         accent: tournament.accent,
       };
+      existing.points += DGL_POINTS.runnerUp;
       existing.tournamentsPlayed += 1;
       existing.game = tournament.game;
+      existing.accent = tournament.accent;
       playerStats.set(name, existing);
     }
   }
@@ -69,7 +69,7 @@ export function buildDglPointsLeaderboard() {
       (a, b) =>
         b.points - a.points ||
         b.championships - a.championships ||
-        orderIndex.get(a.name) - orderIndex.get(b.name)
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
     )
     .map((player, index) => ({ rank: index + 1, ...player }));
 }

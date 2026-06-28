@@ -14,7 +14,7 @@ import { tournamentResultsPageStyles } from "../../../styles/tournamentResultsPa
  * Pass a tournament results object — future Supabase fetch maps into this shape.
  *
  * @param {object} props
- * @param {import("../../../config/tournamentResultsConfig").valorantChampionship1Results | null} props.tournament
+ * @param {import("../../../lib/tournamentModel").ReturnType<import("../../../lib/tournamentModel").enrichTournament> | null} props.tournament
  */
 export default function TournamentResultsView({ tournament }) {
   const containerRef = useRef(null);
@@ -123,15 +123,18 @@ export default function TournamentResultsView({ tournament }) {
 
           <TournamentResultsChampions
             players={tournament.championPlayers}
-            dglPoints={tournament.dglPoints}
+            dglPoints={tournament.pointsAwarded?.champion ?? tournament.dglPoints}
           />
 
           <TournamentResultsRewards
-            dglPoints={tournament.dglPoints}
+            dglPoints={tournament.pointsAwarded?.champion ?? tournament.dglPoints}
             prizePool={tournament.prizePool}
           />
 
-          <TournamentResultsRunnerUp players={tournament.runnerUpPlayers} />
+          <TournamentResultsRunnerUp
+            players={tournament.runnerUpPlayers}
+            dglPoints={tournament.pointsAwarded?.runnerUp ?? tournament.runnerUpDglPoints}
+          />
 
           <TournamentResultsSummary tournament={tournament} />
 

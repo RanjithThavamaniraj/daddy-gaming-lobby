@@ -10,7 +10,11 @@ import GameIcon from "./GameIcon";
  */
 export default function CompletedTournamentCard({ tournament }) {
   const gameSlug = tournament.gameSlug ?? tournament.game?.toLowerCase().replace(/\s+/g, "-");
-  const championLabel = tournament.champion ?? tournament.championPlaceholder ?? "To be updated";
+  const championPlayers = tournament.championPlayers ?? [];
+  const championLabel =
+    championPlayers.length > 0
+      ? championPlayers.join(", ")
+      : tournament.champion ?? tournament.championPlaceholder ?? "To be updated";
 
   return (
     <article

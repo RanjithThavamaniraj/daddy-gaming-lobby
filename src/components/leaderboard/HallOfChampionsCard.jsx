@@ -39,7 +39,7 @@ export default function HallOfChampionsCard({ tournament, index = 0 }) {
           </div>
           <div className="hall-meta-box">
             <span className="hall-meta-label">Reward</span>
-            <span className="hall-meta-value">+{tournament.dglPoints} DGL Points each</span>
+            <span className="hall-meta-value">+{tournament.dglPoints} DGL Points Each</span>
           </div>
           <div className="hall-meta-box">
             <span className="hall-meta-label">Completed</span>

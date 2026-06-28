@@ -11,6 +11,7 @@ import GameIcon from "./GameIcon";
 export default function FeaturedTournament({ tournament }) {
   const gameSlug = tournament.gameSlug ?? tournament.game.toLowerCase().replace(/\s+/g, "-");
   const isCompleted = tournament.status === "Completed";
+  const championPlayers = tournament.championPlayers ?? [];
 
   return (
     <section className="featured-section">
@@ -24,6 +25,9 @@ export default function FeaturedTournament({ tournament }) {
                 <GameIcon slug={gameSlug} />
               </div>
               <div className="hero-details">
+                {tournament.tournamentNumber ? (
+                  <span className="hero-tournament-badge">{tournament.tournamentNumber}</span>
+                ) : null}
                 <h3 className="hero-title">{tournament.title}</h3>
                 <div className="hero-badges">
                   <span className={`status-badge-custom ${isCompleted ? "tournament-completed" : tournament.status.toLowerCase().replace(/\s+/g, "-")}`}>
@@ -65,6 +69,19 @@ export default function FeaturedTournament({ tournament }) {
                 <div className="progress-bar-bg">
                   <div className="progress-bar-fill completed" />
                 </div>
+              </div>
+            ) : null}
+
+            {isCompleted && championPlayers.length > 0 ? (
+              <div className="hero-champions-block">
+                <span className="hero-champions-label">
+                  <Trophy size={14} /> Champion Players
+                </span>
+                <ul className="hero-champions-list">
+                  {championPlayers.map((player) => (
+                    <li key={player}>{player}</li>
+                  ))}
+                </ul>
               </div>
             ) : null}
 
