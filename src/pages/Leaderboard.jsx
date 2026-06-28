@@ -5,16 +5,23 @@ import PageMeta from "../components/PageMeta";
 import HallOfChampions from "../components/leaderboard/HallOfChampions";
 import DGLPointsLeaderboard from "../components/leaderboard/DGLPointsLeaderboard";
 import useCursorGlow from "../hooks/useCursorGlow";
+import useSupabaseData from "../hooks/useSupabaseData";
 import {
   hallOfChampions,
   dglPointsLeaderboard,
 } from "../config/leaderboardConfig";
+import {
+  fetchDglPointsLeaderboard,
+  fetchHallOfChampions,
+} from "../lib/supabase/dglRepository";
 import { PAGE_META } from "../config/siteConfig";
 import { leaderboardPageStyles } from "../styles/leaderboardPageStyles";
 
 export default function Leaderboard() {
   const containerRef = useRef(null);
   const [activeRank, setActiveRank] = useState(null);
+  const champions = useSupabaseData(hallOfChampions, fetchHallOfChampions);
+  const players = useSupabaseData(dglPointsLeaderboard, fetchDglPointsLeaderboard);
 
   useCursorGlow(containerRef, { glowLerp: 0.12, trailLerp: 0.05 });
 
@@ -35,10 +42,10 @@ export default function Leaderboard() {
 
           <h1 className="page-title">Hall of Titans</h1>
 
-          <HallOfChampions tournaments={hallOfChampions} />
+          <HallOfChampions tournaments={champions} />
 
           <DGLPointsLeaderboard
-            players={dglPointsLeaderboard}
+            players={players}
             activeRank={activeRank}
             onToggleRank={(rank) => setActiveRank((current) => (current === rank ? null : rank))}
           />

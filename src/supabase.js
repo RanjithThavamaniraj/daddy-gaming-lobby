@@ -55,12 +55,15 @@ export function getSupabaseConfigIssues() {
   return validateSupabaseConfig();
 }
 
-/** Lazy Supabase client — validates only when first used. */
+/** Lazy Supabase client — never logs in production. */
 export function getSupabaseClient() {
   if (!supabaseClient) {
     const issues = validateSupabaseConfig();
     if (issues.length > 0 && import.meta.env.DEV) {
-      console.warn("[Supabase] Configuration issues:", issues);
+      console.info(
+        "[DGL Supabase] Not configured — static registry will be used:",
+        issues
+      );
     }
     supabaseClient = createClient(supabaseUrl ?? "", supabaseAnonKey ?? "");
   }
@@ -78,7 +81,7 @@ export async function verifySupabaseConnection() {
 
   try {
     const { error } = await getSupabaseClient()
-      .from("registrations")
+      .from("games")
       .select("id", { count: "exact", head: true });
 
     if (error) {

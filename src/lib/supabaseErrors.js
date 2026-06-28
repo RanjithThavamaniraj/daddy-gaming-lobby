@@ -1,12 +1,16 @@
 /**
- * Normalize Supabase / network errors into a readable message and log details.
+ * Dev-only Supabase diagnostics. Never surfaces errors to end users.
+ */
+
+/**
+ * @param {unknown} error
+ * @returns {{ message: string; details: object | null }}
  */
 export function resolveSupabaseError(error) {
   if (!error) {
     return { message: "Unknown Supabase error.", details: null };
   }
 
-  // PostgREST / Supabase API error object
   if (typeof error === "object" && (error.code || error.details || error.hint)) {
     const parts = [error.message, error.details, error.hint].filter(Boolean);
     return {
@@ -20,11 +24,10 @@ export function resolveSupabaseError(error) {
     };
   }
 
-  // Browser network failure (project paused, bad URL, CORS, offline)
   if (error instanceof TypeError && error.message === "Failed to fetch") {
     return {
       message:
-        "Unable to reach Supabase (network error). Verify the Supabase URL, anon key, and that the project is active.",
+        "Unable to reach Supabase (network error). Check URL, anon key, and project status.",
       details: {
         name: error.name,
         message: error.message,
@@ -47,14 +50,61 @@ export function resolveSupabaseError(error) {
     };
   }
 
+  if (Array.isArray(error)) {
+    return { message: error.join(" "), details: { issues: error } };
+  }
+
   return { message: String(error), details: error };
 }
 
+/**
+ * Logs Supabase errors in development only.
+ * @param {string} context
+ * @param {unknown} error
+ * @returns {string}
+ */
 export function logSupabaseError(context, error) {
   const { message, details } = resolveSupabaseError(error);
-  console.error(`[Supabase] ${context}:`, message);
-  if (details) {
-    console.error(`[Supabase] ${context} details:`, details);
+
+  if (import.meta.env.DEV) {
+    console.warn(`[DGL Supabase] ${context}:`, message);
+    if (details) {
+      console.warn(`[DGL Supabase] ${context} details:`, details);
+    }
   }
+
   return message;
+}
+
+/**
+ * Logs a static-config fallback in development only.
+ * @param {string} context - e.g. "tournaments", "leaderboard"
+ * @param {"configuration"|"empty response"|"request failed"|"loader rejected"} reason
+ * @param {unknown} [error]
+ */
+export function logSupabaseFallback(context, reason, error) {
+  if (!import.meta.env.DEV) return;
+
+  if (reason === "configuration") {
+    console.info(
+      `[DGL Supabase] ${context}: using static registry (${error ?? "not configured"})`
+    );
+    return;
+  }
+
+  if (reason === "empty response") {
+    console.info(
+      `[DGL Supabase] ${context}: empty Supabase response — using static registry`
+    );
+    return;
+  }
+
+  const { message, details } = resolveSupabaseError(error);
+  console.warn(
+    `[DGL Supabase] ${context}: ${reason} — using static registry.`,
+    message
+  );
+  if (details) {
+    console.warn(`[DGL Supabase] ${context} details:`, details);
+  }
 }

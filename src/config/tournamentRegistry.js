@@ -1,4 +1,9 @@
 /**
+ * Static tournament registry — development and offline fallback.
+ * When Supabase is configured and reachable, pages load live data from
+ * src/lib/supabase/dglRepository.js instead. Remove this fallback in a
+ * future release once Supabase is fully validated in production.
+ *
  * Single source of truth for all DGL tournaments.
  * Add new tournaments here — global numbers are permanent and auto-increment.
  * Championship names are derived from game + per-game sequence (see tournamentModel).

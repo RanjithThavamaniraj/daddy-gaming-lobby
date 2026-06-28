@@ -3,6 +3,7 @@ import { useRef } from "react";
 import TopNav from "../components/TopNav";
 import PageMeta from "../components/PageMeta";
 import useCursorGlow from "../hooks/useCursorGlow";
+import useSupabaseData from "../hooks/useSupabaseData";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import GameRealmsGrid from "../components/dashboard/GameRealmsGrid";
 import CommunityActivity from "../components/dashboard/CommunityActivity";
@@ -17,10 +18,30 @@ import {
   leaderboardPreview,
   upcomingTournamentPreview,
 } from "../config/dashboardConfig";
+import {
+  fetchCommunityActivity,
+  fetchDashboardStats,
+  fetchHallOfChampionsPreview,
+  fetchLeaderboardPreview,
+  fetchUpcomingTournamentPreview,
+} from "../lib/supabase/dglRepository";
 import { DISCORD_INVITE_URL, PAGE_META } from "../config/siteConfig";
 import { dashboardPageStyles } from "../styles/dashboardPageStyles";
 
 export default function Dashboard() {
+  const stats = useSupabaseData(dashboardStats, fetchDashboardStats);
+  const activity = useSupabaseData(communityActivity, fetchCommunityActivity);
+  const upcomingPreview = useSupabaseData(
+    upcomingTournamentPreview,
+    fetchUpcomingTournamentPreview
+  );
+  const hallPreview = useSupabaseData(
+    hallOfChampionsPreview,
+    fetchHallOfChampionsPreview
+  );
+  const leaderboardTop = useSupabaseData(leaderboardPreview, () =>
+    fetchLeaderboardPreview(5)
+  );
   const containerRef = useRef(null);
 
   useCursorGlow(containerRef, {
@@ -74,17 +95,17 @@ export default function Dashboard() {
 
           <h1 className="page-title">Titan Dashboard</h1>
 
-          <DashboardStats stats={dashboardStats} />
+          <DashboardStats stats={stats} />
 
           <div className="dashboard-grid">
             <GameRealmsGrid games={dglGames} />
-            <CommunityActivity items={communityActivity} />
+            <CommunityActivity items={activity} />
           </div>
 
           <div className="dashboard-widgets-row">
-            <DashboardUpcomingWidget tournament={upcomingTournamentPreview} />
-            <HallOfChampionsWidget tournament={hallOfChampionsPreview} />
-            <LeaderboardPreview players={leaderboardPreview} />
+            <DashboardUpcomingWidget tournament={upcomingPreview} />
+            <HallOfChampionsWidget tournament={hallPreview} />
+            <LeaderboardPreview players={leaderboardTop} />
           </div>
         </div>
       </div>

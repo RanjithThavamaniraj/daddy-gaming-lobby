@@ -3,18 +3,22 @@ import { useRef } from "react";
 import TopNav from "../components/TopNav";
 import PageMeta from "../components/PageMeta";
 import useCursorGlow from "../hooks/useCursorGlow";
+import useSupabaseData from "../hooks/useSupabaseData";
 import FeaturedTournament from "../components/tournaments/FeaturedTournament";
 import UpcomingTournamentCard from "../components/tournaments/UpcomingTournamentCard";
 import CompletedTournamentCard from "../components/tournaments/CompletedTournamentCard";
-import {
-  getTournamentsPageLayout,
-} from "../config/tournamentConfig";
+import { getTournamentsPageLayout } from "../config/tournamentConfig";
+import { fetchTournamentsPageLayout } from "../lib/supabase/dglRepository";
 import { PAGE_META } from "../config/siteConfig";
 import { tournamentsPageStyles } from "../styles/tournamentsPageStyles";
 
 export default function Tournaments() {
+  const layout = useSupabaseData(
+    getTournamentsPageLayout(),
+    fetchTournamentsPageLayout
+  );
   const { mainEvent, upcomingDisplay, showCompletedArchive, archivedCompleted } =
-    getTournamentsPageLayout();
+    layout;
   const containerRef = useRef(null);
 
   useCursorGlow(containerRef, { glowLerp: 0.1, trailLerp: 0.04 });

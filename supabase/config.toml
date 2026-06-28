@@ -1,0 +1,17 @@
+# Daddy Gaming Lobby — linked to the existing Supabase project.
+# Do NOT run `supabase init` against a new project; link with:
+#   supabase link --project-ref <your-project-ref>
+#
+# Apply migrations:
+#   supabase db push
+# or paste files into Supabase Dashboard → SQL Editor in order.
+
+# Set after linking: supabase link --project-ref <your-existing-project-ref>
+
+[db]
+major_version = 15
+
+[api]
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000

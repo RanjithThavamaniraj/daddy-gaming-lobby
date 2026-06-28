@@ -2,12 +2,19 @@ import { useParams } from "react-router-dom";
 
 import TournamentResultsView from "../components/tournaments/results/TournamentResultsView";
 import PageMeta from "../components/PageMeta";
+import useSupabaseData from "../hooks/useSupabaseData";
 import { getTournamentResults } from "../config/tournamentResultsConfig";
+import { fetchTournamentResultsBySlug } from "../lib/supabase/dglRepository";
 import { SITE_DESCRIPTION } from "../config/siteConfig";
 
 export default function TournamentResults() {
   const { slug } = useParams();
-  const tournament = getTournamentResults(slug);
+  const staticTournament = getTournamentResults(slug);
+  const tournament = useSupabaseData(
+    staticTournament,
+    () => fetchTournamentResultsBySlug(slug),
+    [slug]
+  );
 
   return (
     <>
