@@ -1,4 +1,7 @@
+import { dglLayoutTokens } from "./dglLayoutTokens";
+
 export const dashboardPageStyles = `
+        ${dglLayoutTokens}
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap');
 
         * {
@@ -18,7 +21,7 @@ export const dashboardPageStyles = `
           background: #060608;
           position: relative;
           overflow: hidden;
-          padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 3.5rem);
+          padding: var(--dgl-page-gutter-y) var(--dgl-page-gutter-x);
         }
 
         .grid-bg {
@@ -132,7 +135,7 @@ export const dashboardPageStyles = `
         .dashboard-content {
           position: relative;
           z-index: 5;
-          max-width: 1440px;
+          max-width: var(--dgl-content-max);
           margin: 0 auto;
         }
 
@@ -281,7 +284,7 @@ export const dashboardPageStyles = `
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 1.25rem;
-          margin-bottom: 2.5rem;
+          margin-bottom: var(--dgl-title-gap);
         }
 
         .stat-card {
@@ -368,8 +371,8 @@ export const dashboardPageStyles = `
         /* ── Main grid ── */
         .dashboard-grid {
           display: grid;
-          grid-template-columns: 1fr 340px;
-          gap: 1.5rem;
+          grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+          gap: clamp(1.25rem, 2.5vw, 1.75rem);
           align-items: start;
         }
 
@@ -886,7 +889,7 @@ export const dashboardPageStyles = `
           text-shadow:
             0 0 12px rgba(168,85,247,0.45),
             0 0 40px rgba(168,85,247,0.12);
-          margin-bottom: 2.5rem;
+          margin-bottom: var(--dgl-title-gap);
           animation: fadeUp 0.6s ease both, titleGlow 4s ease-in-out infinite;
         }
 
@@ -908,7 +911,7 @@ export const dashboardPageStyles = `
           }
         }
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1024px) {
           .dashboard-grid {
             grid-template-columns: 1fr;
           }
@@ -1163,7 +1166,13 @@ export const dashboardPageStyles = `
     margin-bottom: 1rem;
   }
 
-  @media (max-width: 1100px) {
+  @media (max-width: 1280px) and (min-width: 769px) {
+    .dashboard-widgets-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
     .dashboard-widgets-row {
       grid-template-columns: 1fr;
     }

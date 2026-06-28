@@ -95,13 +95,13 @@ export default function FeaturedTournament({ tournament }) {
             ) : null}
           </div>
 
-          <div className="hero-action-container">
-            {isCompleted && tournament.resultsPath ? (
+          {isCompleted && tournament.resultsPath ? (
+            <div className="hero-action-container">
               <Link to={tournament.resultsPath} className="cyber-btn primary">
                 <span>VIEW RESULTS</span>
               </Link>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

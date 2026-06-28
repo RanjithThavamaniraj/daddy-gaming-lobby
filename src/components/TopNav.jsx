@@ -1,17 +1,23 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import BrandLogo from "./BrandLogo";
 
 export default function TopNav({ children }) {
+  const { pathname } = useLocation();
+
+  const isActive = (path) =>
+    path === "/" ? pathname === "/" : pathname.startsWith(path);
+
   return (
     <>
       <style>{`
         .global-topnav {
           display: flex; align-items: center; justify-content: space-between;
-          margin-bottom: 2.5rem;
+          margin-bottom: var(--dgl-nav-gap, 2rem);
           width: 100%;
           position: relative;
           z-index: 50;
+          gap: 1rem;
         }
         .global-topnav-left {
           display: flex; align-items: center; gap: clamp(1.5rem, 4vw, 3rem);
@@ -23,7 +29,7 @@ export default function TopNav({ children }) {
         }
         .global-logo-link:hover { transform: scale(1.05); }
         .global-logo {
-          height: 24px; width: auto;
+          height: clamp(26px, 2.2vw, 34px); width: auto;
           object-fit: contain;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.3));
           transition: filter 0.3s ease;
@@ -52,9 +58,18 @@ export default function TopNav({ children }) {
         }
         .global-nav-links a:hover { color: #fff; }
         .global-nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+        .global-nav-links a.is-active { color: #e9d5ff; }
+        .global-nav-links a.is-active::after {
+          transform: scaleX(1); transform-origin: left;
+        }
         
         .global-topnav-right {
           display: flex; align-items: center;
+        }
+
+        @media (max-width: 1024px) {
+          .global-topnav-left { gap: 1.25rem; }
+          .global-nav-links { gap: 1rem; }
         }
 
         @media (max-width: 900px) {
@@ -71,12 +86,18 @@ export default function TopNav({ children }) {
             <div className="global-logo-text">DADDY GAMING LOBBY</div>
           </Link>
           <div className="global-nav-links">
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/tournaments">Tournaments</Link>
-            <Link to="/leaderboard">Leaderboard</Link>
+            <Link to="/dashboard" className={isActive("/dashboard") ? "is-active" : ""}>
+              Dashboard
+            </Link>
+            <Link to="/tournaments" className={isActive("/tournaments") ? "is-active" : ""}>
+              Tournaments
+            </Link>
+            <Link to="/leaderboard" className={isActive("/leaderboard") ? "is-active" : ""}>
+              Leaderboard
+            </Link>
           </div>
         </div>
-        {children && <div className="global-topnav-right">{children}</div>}
+        {children ? <div className="global-topnav-right">{children}</div> : null}
       </div>
     </>
   );

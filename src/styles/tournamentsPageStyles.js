@@ -1,4 +1,7 @@
+import { dglLayoutTokens } from "./dglLayoutTokens";
+
 export const tournamentsPageStyles = `
+  ${dglLayoutTokens}
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,7 +17,7 @@ export const tournamentsPageStyles = `
     background: #060608;
     position: relative;
     overflow: hidden;
-    padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 3.5rem);
+    padding: var(--dgl-page-gutter-y) var(--dgl-page-gutter-x);
   }
 
   .grid-bg {
@@ -75,7 +78,7 @@ export const tournamentsPageStyles = `
   .content {
     position: relative;
     z-index: 5;
-    max-width: 1280px;
+    max-width: var(--dgl-content-max);
     margin: 0 auto;
   }
 
@@ -89,7 +92,7 @@ export const tournamentsPageStyles = `
     text-shadow:
       0 0 12px rgba(168,85,247,0.45),
       0 0 40px rgba(168,85,247,0.12);
-    margin-bottom: 2.5rem;
+    margin-bottom: var(--dgl-title-gap);
     animation: fadeUp 0.6s ease both, titleGlow 4s ease-in-out infinite;
   }
 
@@ -114,7 +117,7 @@ export const tournamentsPageStyles = `
   .layout-grid {
     display: flex;
     flex-direction: column;
-    gap: 4rem;
+    gap: var(--dgl-section-gap);
   }
 
   .section-heading {
@@ -174,6 +177,10 @@ export const tournamentsPageStyles = `
     justify-content: space-between;
     gap: clamp(1.5rem, 5vw, 4rem);
     overflow: hidden;
+  }
+
+  .hero-inner:not(:has(.hero-action-container)) {
+    justify-content: flex-start;
   }
 
   .hero-scanlines {
@@ -470,7 +477,7 @@ export const tournamentsPageStyles = `
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 220px;
+    flex-shrink: 0;
     z-index: 2;
   }
 

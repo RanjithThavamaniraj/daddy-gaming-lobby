@@ -8,7 +8,7 @@ export const tournamentResultsPageStyles = `
     background: #060608;
     position: relative;
     overflow: hidden;
-    padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 3.5rem);
+    padding: var(--dgl-page-gutter-y) var(--dgl-page-gutter-x);
   }
 
   .results-page.glow-active .glow-cursor,
@@ -17,11 +17,11 @@ export const tournamentResultsPageStyles = `
   .results-shell {
     position: relative;
     z-index: 5;
-    max-width: 1100px;
+    max-width: var(--dgl-content-max);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 3rem;
+    gap: var(--dgl-block-gap);
   }
 
   .results-section {
@@ -160,6 +160,10 @@ export const tournamentResultsPageStyles = `
   }
 
   @media (min-width: 900px) {
+    .results-hero-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (min-width: 1280px) {
     .results-hero-grid { grid-template-columns: repeat(5, 1fr); }
   }
 
@@ -188,7 +192,7 @@ export const tournamentResultsPageStyles = `
     .results-players-grid { grid-template-columns: repeat(3, 1fr); }
   }
 
-  @media (min-width: 1100px) {
+  @media (min-width: 1280px) {
     .results-players-grid.champions-grid { grid-template-columns: repeat(5, 1fr); }
   }
 

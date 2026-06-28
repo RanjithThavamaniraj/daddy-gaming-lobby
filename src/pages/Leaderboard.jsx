@@ -7,6 +7,7 @@ import {
   hallOfChampions,
   dglPointsLeaderboard,
 } from "../config/leaderboardConfig";
+import { dglLayoutTokens } from "../styles/dglLayoutTokens";
 
 export default function Leaderboard() {
   const containerRef = useRef(null);
@@ -70,6 +71,7 @@ export default function Leaderboard() {
   return (
     <>
       <style>{`
+        ${dglLayoutTokens}
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -80,7 +82,7 @@ export default function Leaderboard() {
           background: #060608;
           position: relative;
           overflow: hidden;
-          padding: clamp(1.25rem,3vw,2.5rem) clamp(1.25rem,4vw,3.5rem) 5rem;
+          padding: var(--dgl-page-gutter-y) var(--dgl-page-gutter-x);
         }
 
         .grid-bg {
@@ -119,13 +121,13 @@ export default function Leaderboard() {
         .lb-page.glow-active .glow-cursor,
         .lb-page.glow-active .glow-cursor-trail { opacity: 1; }
 
-        .content { position: relative; z-index: 5; max-width: 1280px; margin: 0 auto; }
+        .content { position: relative; z-index: 5; max-width: var(--dgl-content-max); margin: 0 auto; }
 
         .page-title {
           font-family: 'Orbitron', sans-serif;
           font-size: clamp(2.2rem,6vw,3.5rem); font-weight: 900;
           text-transform: uppercase; letter-spacing: 0.06em;
-          color: #a855f7; margin-bottom: 2.5rem;
+          color: #a855f7; margin-bottom: var(--dgl-title-gap);
           text-shadow: 0 0 12px rgba(168,85,247,0.45), 0 0 40px rgba(168,85,247,0.12);
           animation: fadeUp 0.6s ease both, titleGlow 4s ease-in-out infinite;
         }
@@ -173,7 +175,7 @@ export default function Leaderboard() {
           background: linear-gradient(90deg, rgba(245,158,11,0.35), transparent);
         }
 
-        .hall-section { margin-bottom: 4rem; }
+        .hall-section { margin-bottom: var(--dgl-section-gap); }
 
         .hall-grid {
           display: grid;
@@ -181,8 +183,8 @@ export default function Leaderboard() {
           gap: 1.25rem;
         }
 
-        @media (min-width: 900px) {
-          .hall-grid { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
+        @media (min-width: 768px) {
+          .hall-grid { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
         }
 
         .hall-card {
@@ -383,7 +385,7 @@ export default function Leaderboard() {
         }
 
         /* ── DGL POINTS LEADERBOARD ── */
-        .dgl-section { margin-top: 1rem; }
+        .dgl-section { margin-top: var(--dgl-block-gap); }
 
         .dgl-header {
           margin-bottom: 1.25rem;
@@ -539,7 +541,7 @@ export default function Leaderboard() {
         }
 
         @media (max-width: 768px) {
-          .lb-page { padding: 1.25rem 1rem 3rem; }
+          .lb-page { padding: var(--dgl-page-gutter-y) var(--dgl-page-gutter-x); }
           .hall-players-list { grid-template-columns: 1fr; }
         }
 

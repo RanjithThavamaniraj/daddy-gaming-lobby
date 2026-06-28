@@ -52,13 +52,21 @@ export const TOURNAMENT_REGISTRY = [
   },
   {
     number: 2,
+    id: "dgl-fc26-championship-1",
+    game: "FC 26",
+    gameSlug: "fc-26",
+    championshipLabel: "FC 26",
+    status: "Coming Soon",
+    accent: "#00c853",
+  },
+  {
+    number: 3,
     id: "dgl-cs2-championship-1",
     game: "CS2",
     gameSlug: "cs2",
     status: "Coming Soon",
     accent: "#de9b35",
   },
-  // Future: number 3 — gameSlug "fc-26", championshipLabel "FC26"
   // Future: number 4 — gameSlug "valorant" → DGL Valorant Championship #2
   // Future: number 5 — gameSlug "marvel-rivals"
   // Future: number 6 — gameSlug "arc-raiders"

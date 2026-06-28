@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 
 import TopNav from "../components/TopNav";
-import AnimatedNumber from "../components/dashboard/AnimatedNumber";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import GameRealmsGrid from "../components/dashboard/GameRealmsGrid";
 import CommunityActivity from "../components/dashboard/CommunityActivity";
@@ -25,9 +24,6 @@ export default function Dashboard() {
   const trailRef = useRef({ x: 0, y: 0 });
   const parallaxRef = useRef({ x: 0, y: 0 });
   const hasMovedRef = useRef(false);
-
-  const registeredPlayers =
-    dashboardStats.find((stat) => stat.id === "registered-players")?.value ?? 0;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -126,12 +122,6 @@ export default function Dashboard() {
                 </svg>
                 Quick Match
               </a>
-              <div className="online-box">
-                <div className="online-label">Registered Players</div>
-                <div className="online-count">
-                  <AnimatedNumber value={registeredPlayers} />
-                </div>
-              </div>
               <div className="status-pill">
                 <span className="status-dot" />
                 System Online
