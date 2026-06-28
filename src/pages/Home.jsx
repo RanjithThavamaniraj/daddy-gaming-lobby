@@ -1,30 +1,27 @@
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import BrandLogo from "../components/BrandLogo";
-import WhatIsDgl from "../components/home/WhatIsDgl";
+import PageMeta from "../components/PageMeta";
+import LatestPlatformUpdate from "../components/home/LatestPlatformUpdate";
+import WhyDgl from "../components/home/WhyDgl";
 import HomeFeaturedGames from "../components/home/HomeFeaturedGames";
-import WhyJoinDgl from "../components/home/WhyJoinDgl";
-import HomeCommunityStats from "../components/home/HomeCommunityStats";
-import DglJourney from "../components/home/DglJourney";
-import HomeHallOfChampionsPreview from "../components/home/HomeHallOfChampionsPreview";
+import CommunityProof from "../components/home/CommunityProof";
 import JoinDiscordCta from "../components/home/JoinDiscordCta";
 import {
   DISCORD_INVITE_URL,
-  communityStatsIntro,
-  dglJourney,
-  featuredGamesIntro,
-  homeCommunityStats,
+  homeCommunityProof,
   homeFeaturedGames,
-  homeHallOfChampionsPreview,
-  homeUpcomingTeaser,
-  whatIsDglHighlights,
-  whatIsDglIntro,
-  whyJoinDgl,
+  latestPlatformUpdate,
+  whyDglPillars,
 } from "../config/homeConfig";
+import { PAGE_META } from "../config/siteConfig";
 import { homePageStyles } from "../styles/homePageStyles";
 
 export default function Home() {
+  const { pathname } = useLocation();
+  const isActive = (path) =>
+    path === "/" ? pathname === "/" : pathname.startsWith(path);
   const containerRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const glowRef = useRef({ x: 0, y: 0 });
@@ -131,6 +128,7 @@ export default function Home() {
 
   return (
     <>
+      <PageMeta {...PAGE_META.home} />
       <style>{homePageStyles}</style>
 
       <div className="scanline-overlay" />
@@ -144,7 +142,7 @@ export default function Home() {
         <div className="glow-two" />
 
         <div className="page-shell">
-          <nav className="navbar">
+          <nav className="navbar" aria-label="Main navigation">
             <div className="nav-left">
               <Link to="/" className="logo-link">
                 <BrandLogo className="logo-icon" />
@@ -153,13 +151,32 @@ export default function Home() {
                 </div>
               </Link>
               <div className="nav-links">
-                <Link to="/dashboard">Dashboard</Link>
-                <Link to="/tournaments">Tournaments</Link>
-                <Link to="/leaderboard">Leaderboard</Link>
+                <Link
+                  to="/dashboard"
+                  className={isActive("/dashboard") ? "is-active" : ""}
+                  aria-current={isActive("/dashboard") ? "page" : undefined}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/tournaments"
+                  className={isActive("/tournaments") ? "is-active" : ""}
+                  aria-current={isActive("/tournaments") ? "page" : undefined}
+                >
+                  Tournaments
+                </Link>
+                <Link
+                  to="/leaderboard"
+                  className={isActive("/leaderboard") ? "is-active" : ""}
+                  aria-current={isActive("/leaderboard") ? "page" : undefined}
+                >
+                  Leaderboard
+                </Link>
               </div>
             </div>
           </nav>
 
+          <main id="main-content">
           <section className="hero-section">
             <p className="hero-eyebrow">Competitive Gaming Arena</p>
             <h1 className="hero-title">
@@ -177,7 +194,7 @@ export default function Home() {
               <a
                 href={DISCORD_INVITE_URL}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="secondary-btn"
               >
                 DISCORD
@@ -185,13 +202,12 @@ export default function Home() {
             </div>
           </section>
 
-          <WhatIsDgl intro={whatIsDglIntro} highlights={whatIsDglHighlights} />
-          <WhyJoinDgl features={whyJoinDgl} />
-          <HomeFeaturedGames games={homeFeaturedGames} intro={featuredGamesIntro} />
-          <HomeHallOfChampionsPreview tournament={homeHallOfChampionsPreview} />
-          <HomeCommunityStats stats={homeCommunityStats} intro={communityStatsIntro} />
-          <DglJourney journey={dglJourney} upcomingTeaser={homeUpcomingTeaser} />
+          <LatestPlatformUpdate update={latestPlatformUpdate} />
+          <WhyDgl pillars={whyDglPillars} />
+          <HomeFeaturedGames games={homeFeaturedGames} />
+          <CommunityProof proof={homeCommunityProof} />
           <JoinDiscordCta discordUrl={DISCORD_INVITE_URL} />
+          </main>
 
           <footer className="home-footer">
             <div className="footer-grid">
@@ -220,7 +236,7 @@ export default function Home() {
               <div className="footer-col">
                 <h3 className="footer-col-title">Community</h3>
                 <div className="footer-links">
-                  <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer">
+                  <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer">
                     Discord Server
                   </a>
                 </div>

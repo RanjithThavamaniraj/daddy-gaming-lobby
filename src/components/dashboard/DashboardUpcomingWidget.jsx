@@ -1,15 +1,17 @@
+import { DGL_DEFAULT_ACCENT } from "../../config/designTokens";
+
 /**
  * Upcoming tournament preview for the Titan Dashboard.
  * @param {object} props
  * @param {object|null} props.tournament
  */
-export default function UpcomingTournamentCard({ tournament }) {
+export default function DashboardUpcomingWidget({ tournament }) {
   if (!tournament) return null;
 
   return (
     <section
       className="glass-panel dashboard-widget upcoming-widget"
-      style={{ "--accent": tournament.accent ?? "#a855f7" }}
+      style={{ "--accent": tournament.accent ?? DGL_DEFAULT_ACCENT }}
     >
       <div className="panel-header">
         <h2 className="section-title">Upcoming Tournament</h2>

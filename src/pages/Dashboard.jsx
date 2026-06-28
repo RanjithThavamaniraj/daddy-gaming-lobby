@@ -1,10 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import TopNav from "../components/TopNav";
+import PageMeta from "../components/PageMeta";
+import useCursorGlow from "../hooks/useCursorGlow";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import GameRealmsGrid from "../components/dashboard/GameRealmsGrid";
 import CommunityActivity from "../components/dashboard/CommunityActivity";
-import UpcomingTournamentCard from "../components/dashboard/UpcomingTournamentCard";
+import DashboardUpcomingWidget from "../components/dashboard/DashboardUpcomingWidget";
 import HallOfChampionsWidget from "../components/dashboard/HallOfChampionsWidget";
 import LeaderboardPreview from "../components/dashboard/LeaderboardPreview";
 import {
@@ -15,80 +17,21 @@ import {
   leaderboardPreview,
   upcomingTournamentPreview,
 } from "../config/dashboardConfig";
+import { DISCORD_INVITE_URL, PAGE_META } from "../config/siteConfig";
 import { dashboardPageStyles } from "../styles/dashboardPageStyles";
 
 export default function Dashboard() {
   const containerRef = useRef(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
-  const glowRef = useRef({ x: 0, y: 0 });
-  const trailRef = useRef({ x: 0, y: 0 });
-  const parallaxRef = useRef({ x: 0, y: 0 });
-  const hasMovedRef = useRef(false);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const centerGlow = () => {
-      const rect = container.getBoundingClientRect();
-      const cx = rect.width / 2;
-      const cy = rect.height / 2;
-      mouseRef.current = { x: cx, y: cy };
-      glowRef.current = { x: cx, y: cy };
-      trailRef.current = { x: cx, y: cy };
-      container.style.setProperty("--glow-x", `${cx}px`);
-      container.style.setProperty("--glow-y", `${cy}px`);
-      container.style.setProperty("--glow-trail-x", `${cx}px`);
-      container.style.setProperty("--glow-trail-y", `${cy}px`);
-    };
-
-    centerGlow();
-
-    const handleMouseMove = (e) => {
-      const rect = container.getBoundingClientRect();
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-      const nx = (e.clientX - rect.left) / rect.width - 0.5;
-      const ny = (e.clientY - rect.top) / rect.height - 0.5;
-      parallaxRef.current = { x: nx * 40, y: ny * 40 };
-      if (!hasMovedRef.current) {
-        hasMovedRef.current = true;
-        container.classList.add("glow-active");
-      }
-    };
-
-    const handleResize = () => centerGlow();
-
-    let rafId;
-    const animate = () => {
-      const lerp = (c, t, f) => c + (t - c) * f;
-      glowRef.current.x = lerp(glowRef.current.x, mouseRef.current.x, 0.1);
-      glowRef.current.y = lerp(glowRef.current.y, mouseRef.current.y, 0.1);
-      trailRef.current.x = lerp(trailRef.current.x, mouseRef.current.x, 0.04);
-      trailRef.current.y = lerp(trailRef.current.y, mouseRef.current.y, 0.04);
-      container.style.setProperty("--glow-x", `${glowRef.current.x}px`);
-      container.style.setProperty("--glow-y", `${glowRef.current.y}px`);
-      container.style.setProperty("--glow-trail-x", `${trailRef.current.x}px`);
-      container.style.setProperty("--glow-trail-y", `${trailRef.current.y}px`);
-      container.style.setProperty("--parallax-x", `${parallaxRef.current.x}px`);
-      container.style.setProperty("--parallax-y", `${parallaxRef.current.y}px`);
-      rafId = requestAnimationFrame(animate);
-    };
-
-    rafId = requestAnimationFrame(animate);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("resize", handleResize);
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  useCursorGlow(containerRef, {
+    parallaxStrength: 40,
+    glowLerp: 0.1,
+    trailLerp: 0.04,
+  });
 
   return (
     <>
+      <PageMeta {...PAGE_META.dashboard} />
       <style>{dashboardPageStyles}</style>
 
       <div className="dashboard-container" ref={containerRef}>
@@ -103,7 +46,7 @@ export default function Dashboard() {
           <TopNav>
             <div className="topbar-right">
               <a
-                href="https://discord.gg/gf7Ecat6Ka"
+                href={DISCORD_INVITE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="quick-join-btn"
@@ -139,7 +82,7 @@ export default function Dashboard() {
           </div>
 
           <div className="dashboard-widgets-row">
-            <UpcomingTournamentCard tournament={upcomingTournamentPreview} />
+            <DashboardUpcomingWidget tournament={upcomingTournamentPreview} />
             <HallOfChampionsWidget tournament={hallOfChampionsPreview} />
             <LeaderboardPreview players={leaderboardPreview} />
           </div>

@@ -41,32 +41,43 @@ function validateSupabaseConfig() {
     );
   }
 
-  if (issues.length > 0) {
-    console.error("[Supabase] Configuration issues:", issues);
-  } else {
-    console.info("[Supabase] Client configured for:", supabaseUrl);
-  }
-
   return issues;
 }
 
-export const supabaseConfigIssues = validateSupabaseConfig();
+/** @type {import("@supabase/supabase-js").SupabaseClient | null} */
+let supabaseClient = null;
 
-export const supabase = createClient(
-  supabaseUrl ?? "",
-  supabaseAnonKey ?? ""
-);
+/**
+ * Returns config issues without logging to the console.
+ * Call when wiring Supabase in dev or CI.
+ */
+export function getSupabaseConfigIssues() {
+  return validateSupabaseConfig();
+}
+
+/** Lazy Supabase client — validates only when first used. */
+export function getSupabaseClient() {
+  if (!supabaseClient) {
+    const issues = validateSupabaseConfig();
+    if (issues.length > 0 && import.meta.env.DEV) {
+      console.warn("[Supabase] Configuration issues:", issues);
+    }
+    supabaseClient = createClient(supabaseUrl ?? "", supabaseAnonKey ?? "");
+  }
+  return supabaseClient;
+}
 
 export async function verifySupabaseConnection() {
-  if (supabaseConfigIssues.length > 0) {
+  const issues = getSupabaseConfigIssues();
+  if (issues.length > 0) {
     return {
       ok: false,
-      error: supabaseConfigIssues.join(" "),
+      error: issues.join(" "),
     };
   }
 
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from("registrations")
       .select("id", { count: "exact", head: true });
 

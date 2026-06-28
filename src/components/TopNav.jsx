@@ -85,14 +85,26 @@ export default function TopNav({ children }) {
             <BrandLogo className="global-logo" />
             <div className="global-logo-text">DADDY GAMING LOBBY</div>
           </Link>
-          <div className="global-nav-links">
-            <Link to="/dashboard" className={isActive("/dashboard") ? "is-active" : ""}>
+          <div className="global-nav-links" aria-label="Main navigation">
+            <Link
+              to="/dashboard"
+              className={isActive("/dashboard") ? "is-active" : ""}
+              aria-current={isActive("/dashboard") ? "page" : undefined}
+            >
               Dashboard
             </Link>
-            <Link to="/tournaments" className={isActive("/tournaments") ? "is-active" : ""}>
+            <Link
+              to="/tournaments"
+              className={isActive("/tournaments") ? "is-active" : ""}
+              aria-current={isActive("/tournaments") ? "page" : undefined}
+            >
               Tournaments
             </Link>
-            <Link to="/leaderboard" className={isActive("/leaderboard") ? "is-active" : ""}>
+            <Link
+              to="/leaderboard"
+              className={isActive("/leaderboard") ? "is-active" : ""}
+              aria-current={isActive("/leaderboard") ? "page" : undefined}
+            >
               Leaderboard
             </Link>
           </div>

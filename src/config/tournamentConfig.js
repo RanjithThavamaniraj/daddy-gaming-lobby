@@ -25,12 +25,6 @@ export const upcomingTournaments = upcoming.map(toUpcomingCardShape);
 
 export const completedTournaments = completed.map(toCompletedCardShape);
 
-/** @deprecated Use featuredTournament, upcomingTournaments, completedTournaments */
-export const activeTournamentFallback = featuredTournament;
-
-/** @deprecated Use completedTournaments */
-export const pastChampions = [];
-
 /**
  * Resolves Main Event vs Completed archive for the tournaments hub.
  * Future: replace inputs with supabase.from("tournaments").select("*")

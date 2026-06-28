@@ -1,5 +1,6 @@
 import { DGL_POINTS } from "../config/dglPointsConfig";
 import { buildDglPointsLeaderboard } from "../config/leaderboardConfig";
+import { aggregateCompletedTournamentStats } from "./tournamentStats";
 import {
   formatGlobalTournamentNumber,
   getCompletedTournaments,
@@ -13,43 +14,28 @@ import {
  */
 export function buildDashboardStats() {
   const completed = getCompletedTournaments();
-  const playerSet = new Set();
+  const stats = aggregateCompletedTournamentStats(completed);
   let dglPointsAwarded = 0;
-  let prizePoolAwarded = 0;
 
   for (const tournament of completed) {
     dglPointsAwarded +=
       tournament.championPlayers.length * DGL_POINTS.champion +
       tournament.runnerUpPlayers.length * DGL_POINTS.runnerUp;
-
-    for (const name of tournament.championPlayers) playerSet.add(name);
-    for (const name of tournament.runnerUpPlayers) playerSet.add(name);
-
-    const numericPrize = parseInt(
-      String(tournament.prizePool ?? "").replace(/[^\d]/g, ""),
-      10
-    );
-    if (!Number.isNaN(numericPrize)) prizePoolAwarded += numericPrize;
   }
-
-  const prizeDisplay =
-    prizePoolAwarded > 0
-      ? `₹${prizePoolAwarded.toLocaleString("en-IN")}`
-      : "₹0";
 
   return [
     {
       id: "tournaments-hosted",
       icon: "🏆",
       label: "Tournaments Hosted",
-      value: completed.length,
+      value: stats.tournamentsHosted,
       suffix: "",
     },
     {
       id: "registered-players",
       icon: "👥",
       label: "Registered Players",
-      value: playerSet.size,
+      value: stats.registeredPlayers,
       suffix: "",
     },
     {
@@ -63,8 +49,8 @@ export function buildDashboardStats() {
       id: "prize-pool-awarded",
       icon: "💰",
       label: "Prize Pool Awarded",
-      value: prizePoolAwarded,
-      displayValue: prizeDisplay,
+      value: stats.prizePoolAwarded,
+      displayValue: stats.prizePoolDisplay,
       suffix: "",
     },
   ];
