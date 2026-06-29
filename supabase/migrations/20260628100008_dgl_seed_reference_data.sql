@@ -245,9 +245,11 @@ upserted_players as (
   returning id, display_name_key
 ),
 all_players as (
-  select p.id, p.display_name, pn.placement
+  -- Must read from upserted_players so PostgreSQL executes the player upsert
+  -- before resolving placements (unreferenced modifying CTEs may run last).
+  select up.id, pn.display_name, pn.placement
   from player_names pn
-  join public.players p on p.display_name_key = lower(btrim(pn.display_name))
+  join upserted_players up on up.display_name_key = lower(btrim(pn.display_name))
 )
 insert into public.tournament_placements (
   tournament_id,
@@ -259,7 +261,7 @@ insert into public.tournament_placements (
 select
   t.id,
   ap.placement,
-  'player',
+  'player'::public.dgl_placement_entity_type,
   ap.id,
   case ap.placement
     when 1 then r.champion_points
