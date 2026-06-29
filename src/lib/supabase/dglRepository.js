@@ -10,10 +10,11 @@ import { getSupabaseClient } from "../../supabase";
 import { fetchWithFallback } from "./fetchWithFallback";
 import { formatInrPrize } from "../tournamentStats";
 import {
+  aggregateHallOfChampionsRows,
   mapEnrichedTournamentRow,
-  mapHallOfChampionsEntry,
   mapLeaderboardRow,
   mapTournamentResultsRow,
+  parsePlayerNameList,
 } from "./mapTournament";
 import {
   getCompletedTournaments,
@@ -31,6 +32,164 @@ import {
 } from "../dashboardModel";
 import { buildDglPointsLeaderboard } from "../../config/leaderboardConfig";
 import { getTournamentsPageLayout } from "../../config/tournamentConfig";
+import { DGL_GAMES } from "../../config/dglGamesConfig";
+import {
+  buildHomeFeaturedGames,
+  HOME_FEATURED_GAME_IDS,
+} from "../homeModel";
+import {
+  mapDashboardGameRow,
+  mapFeaturedGamesList,
+} from "./mapGames";
+
+function mapCommunityProofRpc(data) {
+  const stats = [
+    {
+      id: "tournaments-hosted",
+      icon: "🏆",
+      label: "Tournaments Hosted",
+      value: data.stats?.tournaments_hosted ?? 0,
+    },
+    {
+      id: "registered-players",
+      icon: "👥",
+      label: "Registered Players",
+      value: data.stats?.registered_players ?? 0,
+    },
+    {
+      id: "champions-crowned",
+      icon: "🏅",
+      label: "Champions Crowned",
+      value: data.stats?.champions_crowned ?? 0,
+    },
+    {
+      id: "prize-pool-awarded",
+      icon: "💰",
+      label: "Prize Pool Awarded",
+      value: data.stats?.prize_pool_awarded ?? 0,
+      displayValue: formatInrPrize(Number(data.stats?.prize_pool_awarded ?? 0)),
+    },
+  ];
+
+  return {
+    stats,
+    latestChampion: data.latest_champion
+      ? {
+          tournamentNumber: data.latest_champion.tournament_number,
+          championshipName: data.latest_champion.championship_name,
+          resultsPath: data.latest_champion.results_path,
+          accent: data.latest_champion.accent,
+        }
+      : null,
+  };
+}
+
+function mapPlatformStatsRpc(data) {
+  return [
+    {
+      id: "tournaments-hosted",
+      icon: "🏆",
+      label: "Tournaments Hosted",
+      value: data.tournaments_hosted ?? 0,
+      suffix: "",
+    },
+    {
+      id: "registered-players",
+      icon: "👥",
+      label: "Registered Players",
+      value: data.registered_players ?? 0,
+      suffix: "",
+    },
+    {
+      id: "dgl-points-awarded",
+      icon: "🏅",
+      label: "DGL Points Awarded",
+      value: data.dgl_points_awarded ?? 0,
+      suffix: "",
+    },
+    {
+      id: "prize-pool-awarded",
+      icon: "💰",
+      label: "Prize Pool Awarded",
+      value: data.prize_pool_awarded ?? 0,
+      displayValue: formatInrPrize(Number(data.prize_pool_awarded ?? 0)),
+      suffix: "",
+    },
+  ];
+}
+
+function buildPlatformUpdateFromTournaments(latestCompleted, nextUpcoming, latestResults) {
+  if (!latestCompleted && !nextUpcoming) return null;
+
+  const highlights = [];
+
+  if (latestCompleted) {
+    const completed = mapEnrichedTournamentRow(latestCompleted, latestResults);
+    const championCount =
+      completed.championPlayers.length ||
+      parsePlayerNameList(latestResults?.champion_players).length;
+
+    highlights.push({
+      id: "tournament-completed",
+      icon: "🏆",
+      text: `${completed.tournamentNumber} Completed`,
+    });
+    highlights.push({
+      id: "champions-crowned",
+      icon: "👑",
+      text: `${championCount} Champions Crowned`,
+    });
+
+    const prizeText = completed.prizePool?.replace(/\s*Awarded$/i, "") ?? "TBA";
+    highlights.push({
+      id: "prize-awarded",
+      icon: "💰",
+      text: `${prizeText} Prize Awarded`,
+    });
+  }
+
+  const next = nextUpcoming ? mapEnrichedTournamentRow(nextUpcoming) : null;
+
+  return {
+    highlights,
+    nextAnnouncement: next
+      ? {
+          tournamentNumber: next.tournamentNumber,
+          message: "Announcement Coming Soon",
+        }
+      : null,
+  };
+}
+
+function mapHallPreviewFromRpc(data) {
+  const latest = data?.latest_champion;
+  if (!latest) return null;
+
+  return {
+    tournamentNumber: latest.tournament_number,
+    championshipName: latest.championship_name,
+    name: latest.championship_name,
+    status: "Completed",
+    completedDate: null,
+    resultsPath: latest.results_path,
+    accent: latest.accent,
+  };
+}
+
+function mapActivityRows(data) {
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    text: row.title,
+    time: row.summary ?? "Recent",
+    type:
+      row.activity_type === "tournament_completed" ||
+      row.activity_type === "champion_crowned"
+        ? "win"
+        : row.activity_type === "points_awarded"
+          ? "rank"
+          : "join",
+  }));
+}
 
 /**
  * @returns {Promise<ReturnType<typeof mapEnrichedTournamentRow>[]>}
@@ -99,7 +258,7 @@ export async function fetchTournamentResultsBySlug(slug) {
   }, () => {
     const tournament = getCompletedTournaments().find((t) => t.slug === slug);
     return tournament ?? null;
-  });
+  }, { allowNull: true });
 }
 
 /**
@@ -108,22 +267,13 @@ export async function fetchTournamentResultsBySlug(slug) {
 export async function fetchHallOfChampions() {
   return fetchWithFallback("hall-of-champions", async () => {
     const { data, error } = await getSupabaseClient()
-      .from("v_tournament_results")
+      .from("v_hall_of_champions")
       .select("*")
-      .eq("status", "completed");
+      .order("global_number", { ascending: false });
 
     if (error) throw error;
-    if (!data?.length) return null;
 
-    const sorted = [...data].sort((a, b) => {
-      const aNum = Number.parseInt(String(a.tournament_number).replace(/\D/g, ""), 10) || 0;
-      const bNum = Number.parseInt(String(b.tournament_number).replace(/\D/g, ""), 10) || 0;
-      return bNum - aNum;
-    });
-
-    return sorted
-      .filter((row) => Array.isArray(row.champion_players) && row.champion_players.length > 0)
-      .map(mapHallOfChampionsEntry);
+    return aggregateHallOfChampionsRows(data ?? []);
   }, () =>
     getCompletedTournaments().map((tournament) => ({
       slug: tournament.slug,
@@ -145,24 +295,15 @@ export async function fetchHallOfChampions() {
  * @returns {Promise<object[]>}
  */
 export async function fetchDglPointsLeaderboard() {
-  const staticLeaderboard = buildDglPointsLeaderboard();
-  const staticByName = new Map(
-    staticLeaderboard.map((player) => [player.name.toLowerCase(), player])
-  );
-
   return fetchWithFallback("leaderboard", async () => {
     const { data, error } = await getSupabaseClient()
       .from("v_player_leaderboard")
       .select("*");
 
     if (error) throw error;
-    if (!data?.length) return null;
 
-    return data.map((row) => {
-      const meta = staticByName.get(String(row.display_name).toLowerCase()) ?? {};
-      return mapLeaderboardRow(row, meta);
-    });
-  }, () => staticLeaderboard);
+    return (data ?? []).map((row) => mapLeaderboardRow(row));
+  }, () => buildDglPointsLeaderboard());
 }
 
 /**
@@ -177,45 +318,7 @@ export async function fetchHomeCommunityProof() {
     if (error) throw error;
     if (!data) return null;
 
-    const stats = [
-      {
-        id: "tournaments-hosted",
-        icon: "🏆",
-        label: "Tournaments Hosted",
-        value: data.stats?.tournaments_hosted ?? 0,
-      },
-      {
-        id: "registered-players",
-        icon: "👥",
-        label: "Registered Players",
-        value: data.stats?.registered_players ?? 0,
-      },
-      {
-        id: "champions-crowned",
-        icon: "🏅",
-        label: "Champions Crowned",
-        value: data.stats?.champions_crowned ?? 0,
-      },
-      {
-        id: "prize-pool-awarded",
-        icon: "💰",
-        label: "Prize Pool Awarded",
-        value: data.stats?.prize_pool_awarded ?? 0,
-        displayValue: formatInrPrize(Number(data.stats?.prize_pool_awarded ?? 0)),
-      },
-    ];
-
-    return {
-      stats,
-      latestChampion: data.latest_champion
-        ? {
-            tournamentNumber: data.latest_champion.tournament_number,
-            championshipName: data.latest_champion.championship_name,
-            resultsPath: data.latest_champion.results_path,
-            accent: data.latest_champion.accent,
-          }
-        : null,
-    };
+    return mapCommunityProofRpc(data);
   }, () => buildHomeCommunityProof());
 }
 
@@ -224,49 +327,49 @@ export async function fetchHomeCommunityProof() {
  */
 export async function fetchLatestPlatformUpdate() {
   return fetchWithFallback("home-platform-update", async () => {
-    const { completed, upcoming } = await fetchTournamentPartitions();
-    const latestCompleted = [...completed].sort(
-      (a, b) => b.globalNumber - a.globalNumber
-    )[0];
-    const nextUpcoming = [...upcoming].sort(
-      (a, b) => a.globalNumber - b.globalNumber
-    )[0];
+    const supabase = getSupabaseClient();
 
-    if (!latestCompleted && !nextUpcoming) return null;
+    const [
+      { data: latestCompleted, error: completedError },
+      { data: nextUpcoming, error: upcomingError },
+    ] = await Promise.all([
+      supabase
+        .from("v_tournaments_enriched")
+        .select("*")
+        .eq("status", "completed")
+        .order("global_number", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("v_tournaments_enriched")
+        .select("*")
+        .in("status", ["coming_soon", "registration_open", "active"])
+        .order("global_number", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
-    const highlights = [];
+    if (completedError) throw completedError;
+    if (upcomingError) throw upcomingError;
 
-    if (latestCompleted) {
-      highlights.push({
-        id: "tournament-completed",
-        icon: "🏆",
-        text: `${latestCompleted.tournamentNumber} Completed`,
-      });
-      highlights.push({
-        id: "champions-crowned",
-        icon: "👑",
-        text: `${latestCompleted.championPlayers.length} Champions Crowned`,
-      });
+    let latestResults = null;
+    if (latestCompleted?.id) {
+      const { data, error: resultsError } = await supabase
+        .from("v_tournament_results")
+        .select("champion_players, slug")
+        .eq("tournament_id", latestCompleted.id)
+        .maybeSingle();
 
-      const prizeText =
-        latestCompleted.prizePool?.replace(/\s*Awarded$/i, "") ?? "TBA";
-      highlights.push({
-        id: "prize-awarded",
-        icon: "💰",
-        text: `${prizeText} Prize Awarded`,
-      });
+      if (resultsError) throw resultsError;
+      latestResults = data;
     }
 
-    return {
-      highlights,
-      nextAnnouncement: nextUpcoming
-        ? {
-            tournamentNumber: nextUpcoming.tournamentNumber,
-            message: "Announcement Coming Soon",
-          }
-        : null,
-    };
-  }, () => buildLatestPlatformUpdate());
+    return buildPlatformUpdateFromTournaments(
+      latestCompleted,
+      nextUpcoming,
+      latestResults
+    );
+  }, () => buildLatestPlatformUpdate(), { allowNull: true });
 }
 
 /**
@@ -278,37 +381,7 @@ export async function fetchDashboardStats() {
     if (error) throw error;
     if (!data) return null;
 
-    return [
-      {
-        id: "tournaments-hosted",
-        icon: "🏆",
-        label: "Tournaments Hosted",
-        value: data.tournaments_hosted ?? 0,
-        suffix: "",
-      },
-      {
-        id: "registered-players",
-        icon: "👥",
-        label: "Registered Players",
-        value: data.registered_players ?? 0,
-        suffix: "",
-      },
-      {
-        id: "dgl-points-awarded",
-        icon: "🏅",
-        label: "DGL Points Awarded",
-        value: data.dgl_points_awarded ?? 0,
-        suffix: "",
-      },
-      {
-        id: "prize-pool-awarded",
-        icon: "💰",
-        label: "Prize Pool Awarded",
-        value: data.prize_pool_awarded ?? 0,
-        displayValue: formatInrPrize(Number(data.prize_pool_awarded ?? 0)),
-        suffix: "",
-      },
-    ];
+    return mapPlatformStatsRpc(data);
   }, () => buildDashboardStats());
 }
 
@@ -325,20 +398,8 @@ export async function fetchCommunityActivity() {
       .limit(20);
 
     if (error) throw error;
-    if (!data?.length) return null;
 
-    return data.map((row) => ({
-      id: row.id,
-      text: row.title,
-      time: row.summary ?? "Recent",
-      type:
-        row.activity_type === "tournament_completed" ||
-        row.activity_type === "champion_crowned"
-          ? "win"
-          : row.activity_type === "points_awarded"
-            ? "rank"
-            : "join",
-    }));
+    return mapActivityRows(data);
   }, () => buildCommunityActivity());
 }
 
@@ -347,16 +408,25 @@ export async function fetchCommunityActivity() {
  */
 export async function fetchUpcomingTournamentPreview() {
   return fetchWithFallback("upcoming-tournament-preview", async () => {
-    const { upcoming } = await fetchTournamentPartitions();
-    const next = [...upcoming].sort((a, b) => a.globalNumber - b.globalNumber)[0];
-    if (!next) return null;
+    const { data, error } = await getSupabaseClient()
+      .from("v_tournaments_enriched")
+      .select("*")
+      .in("status", ["coming_soon", "registration_open", "active"])
+      .order("global_number", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return null;
+
+    const tournament = mapEnrichedTournamentRow(data);
 
     return {
-      ...toUpcomingCardShape(next),
-      status: "Coming Soon",
-      accent: next.accent,
+      ...toUpcomingCardShape(tournament),
+      status: tournament.status,
+      accent: tournament.accent,
     };
-  }, () => buildUpcomingTournamentPreview());
+  }, () => buildUpcomingTournamentPreview(), { allowNull: true });
 }
 
 /**
@@ -364,20 +434,14 @@ export async function fetchUpcomingTournamentPreview() {
  */
 export async function fetchHallOfChampionsPreview() {
   return fetchWithFallback("hall-of-champions-preview", async () => {
-    const hall = await fetchHallOfChampions();
-    const latest = hall[0];
-    if (!latest) return null;
+    const { data, error } = await getSupabaseClient().rpc(
+      "get_home_community_proof"
+    );
 
-    return {
-      tournamentNumber: latest.tournamentNumber,
-      championshipName: latest.name,
-      name: latest.name,
-      status: "Completed",
-      completedDate: latest.completedDate,
-      resultsPath: latest.resultsPath,
-      accent: latest.accent,
-    };
-  }, () => buildHallOfChampionsPreview());
+    if (error) throw error;
+
+    return mapHallPreviewFromRpc(data);
+  }, () => buildHallOfChampionsPreview(), { allowNull: true });
 }
 
 /**
@@ -394,7 +458,30 @@ export async function fetchLeaderboardPreview(limit = 5) {
  */
 export async function fetchTournamentsPageLayout() {
   return fetchWithFallback("tournaments-page", async () => {
-    const { completed, upcoming } = await fetchTournamentPartitions();
+    const supabase = getSupabaseClient();
+
+    const [{ data: tournaments, error: tournamentsError }, { data: results, error: resultsError }] =
+      await Promise.all([
+        supabase
+          .from("v_tournaments_enriched")
+          .select("*")
+          .order("global_number", { ascending: true }),
+        supabase.from("v_tournament_results").select("*"),
+      ]);
+
+    if (tournamentsError) throw tournamentsError;
+    if (resultsError) throw resultsError;
+    if (!tournaments?.length) return null;
+
+    const resultsById = new Map(
+      (results ?? []).map((row) => [row.tournament_id, row])
+    );
+
+    const all = tournaments.map((row) =>
+      mapEnrichedTournamentRow(row, resultsById.get(row.id))
+    );
+
+    const { completed, upcoming } = partitionTournaments(all);
 
     const featuredTournament = completed.length
       ? toFeaturedShape(completed[0])
@@ -411,4 +498,149 @@ export async function fetchTournamentsPageLayout() {
       completed: completedTournaments,
     });
   }, () => getTournamentsPageLayout());
+}
+
+/**
+ * Single batched fetch for the homepage — avoids duplicate tournament/RPC queries.
+ */
+export async function fetchHomePageData() {
+  return fetchWithFallback(
+    "home-page",
+    async () => {
+      const supabase = getSupabaseClient();
+
+      const [
+        { data: proof, error: proofError },
+        { data: latestCompleted, error: completedError },
+        { data: nextUpcoming, error: upcomingError },
+        { data: featuredGames, error: gamesError },
+      ] = await Promise.all([
+        supabase.rpc("get_home_community_proof"),
+        supabase
+          .from("v_tournaments_enriched")
+          .select("*")
+          .eq("status", "completed")
+          .order("global_number", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("v_tournaments_enriched")
+          .select("*")
+          .in("status", ["coming_soon", "registration_open", "active"])
+          .order("global_number", { ascending: true })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("games")
+          .select("*")
+          .in("slug", HOME_FEATURED_GAME_IDS),
+      ]);
+
+      if (proofError) throw proofError;
+      if (completedError) throw completedError;
+      if (upcomingError) throw upcomingError;
+      if (gamesError) throw gamesError;
+
+      let latestResults = null;
+      if (latestCompleted?.id) {
+        const { data, error: resultsError } = await supabase
+          .from("v_tournament_results")
+          .select("champion_players, slug")
+          .eq("tournament_id", latestCompleted.id)
+          .maybeSingle();
+
+        if (resultsError) throw resultsError;
+        latestResults = data;
+      }
+
+      return {
+        platformUpdate: buildPlatformUpdateFromTournaments(
+          latestCompleted,
+          nextUpcoming,
+          latestResults
+        ),
+        communityProof: proof ? mapCommunityProofRpc(proof) : null,
+        featuredGames: mapFeaturedGamesList(featuredGames ?? []),
+      };
+    },
+    () => ({
+      platformUpdate: buildLatestPlatformUpdate(),
+      communityProof: buildHomeCommunityProof(),
+      featuredGames: buildHomeFeaturedGames(),
+    })
+  );
+}
+
+/**
+ * Single batched fetch for the dashboard — one parallel round-trip per visit.
+ */
+export async function fetchDashboardPageData() {
+  return fetchWithFallback(
+    "dashboard-page",
+    async () => {
+      const supabase = getSupabaseClient();
+
+      const [
+        { data: stats, error: statsError },
+        { data: activity, error: activityError },
+        { data: upcoming, error: upcomingError },
+        { data: proof, error: proofError },
+        { data: leaderboard, error: leaderboardError },
+        { data: games, error: gamesError },
+      ] = await Promise.all([
+        supabase.rpc("get_platform_stats"),
+        supabase
+          .from("community_activity")
+          .select("id, title, summary, activity_type, occurred_at")
+          .eq("is_public", true)
+          .order("occurred_at", { ascending: false })
+          .limit(20),
+        supabase
+          .from("v_tournaments_enriched")
+          .select("*")
+          .in("status", ["coming_soon", "registration_open", "active"])
+          .order("global_number", { ascending: true })
+          .limit(1)
+          .maybeSingle(),
+        supabase.rpc("get_home_community_proof"),
+        supabase.from("v_player_leaderboard").select("*"),
+        supabase.from("games").select("*").order("sort_order"),
+      ]);
+
+      if (statsError) throw statsError;
+      if (activityError) throw activityError;
+      if (upcomingError) throw upcomingError;
+      if (proofError) throw proofError;
+      if (leaderboardError) throw leaderboardError;
+      if (gamesError) throw gamesError;
+
+      const mappedUpcoming = upcoming ? mapEnrichedTournamentRow(upcoming) : null;
+      const upcomingTournament = mappedUpcoming
+        ? {
+            ...toUpcomingCardShape(mappedUpcoming),
+            status: mappedUpcoming.status,
+            accent: mappedUpcoming.accent,
+          }
+        : null;
+
+      return {
+        stats: stats ? mapPlatformStatsRpc(stats) : [],
+        activity: mapActivityRows(activity),
+        upcomingPreview: upcomingTournament,
+        hallPreview: mapHallPreviewFromRpc(proof),
+        leaderboardPreview: (leaderboard ?? [])
+          .map((row) => mapLeaderboardRow(row))
+          .slice(0, 5),
+        games: (games ?? []).map(mapDashboardGameRow),
+      };
+    },
+    () => ({
+      stats: buildDashboardStats(),
+      activity: buildCommunityActivity(),
+      upcomingPreview: buildUpcomingTournamentPreview(),
+      hallPreview: buildHallOfChampionsPreview(),
+      leaderboardPreview: buildDglPointsLeaderboard().slice(0, 5),
+      games: DGL_GAMES,
+    })
+  );
 }

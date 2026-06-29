@@ -19,7 +19,7 @@ export const HOME_FEATURED_GAME_IDS = [
 ];
 
 /** One-line game blurbs — no tournament details. */
-const HOME_GAME_TAGLINES = {
+export const HOME_GAME_TAGLINES = {
   valorant: "Tactical 5v5 shooter on the DGL competitive circuit.",
   cs2: "Classic tactical FPS built for community championships.",
   "fc-26": "Competitive football joining the DGL roster.",

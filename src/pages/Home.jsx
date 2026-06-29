@@ -16,22 +16,20 @@ import {
   latestPlatformUpdate,
   whyDglPillars,
 } from "../config/homeConfig";
-import {
-  fetchHomeCommunityProof,
-  fetchLatestPlatformUpdate,
-} from "../lib/supabase/dglRepository";
+import { fetchHomePageData } from "../lib/supabase/dglRepository";
 import { PAGE_META } from "../config/siteConfig";
 import { homePageStyles } from "../styles/homePageStyles";
 
 export default function Home() {
-  const platformUpdate = useSupabaseData(
-    latestPlatformUpdate,
-    fetchLatestPlatformUpdate
+  const homeData = useSupabaseData(
+    {
+      platformUpdate: latestPlatformUpdate,
+      communityProof: homeCommunityProof,
+      featuredGames: homeFeaturedGames,
+    },
+    fetchHomePageData
   );
-  const communityProof = useSupabaseData(
-    homeCommunityProof,
-    fetchHomeCommunityProof
-  );
+  const { platformUpdate, communityProof, featuredGames } = homeData;
   const { pathname } = useLocation();
   const isActive = (path) =>
     path === "/" ? pathname === "/" : pathname.startsWith(path);
@@ -217,7 +215,7 @@ export default function Home() {
 
           <LatestPlatformUpdate update={platformUpdate} />
           <WhyDgl pillars={whyDglPillars} />
-          <HomeFeaturedGames games={homeFeaturedGames} />
+          <HomeFeaturedGames games={featuredGames} />
           <CommunityProof proof={communityProof} />
           <JoinDiscordCta discordUrl={DISCORD_INVITE_URL} />
           </main>

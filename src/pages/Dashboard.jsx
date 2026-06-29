@@ -18,30 +18,30 @@ import {
   leaderboardPreview,
   upcomingTournamentPreview,
 } from "../config/dashboardConfig";
-import {
-  fetchCommunityActivity,
-  fetchDashboardStats,
-  fetchHallOfChampionsPreview,
-  fetchLeaderboardPreview,
-  fetchUpcomingTournamentPreview,
-} from "../lib/supabase/dglRepository";
+import { fetchDashboardPageData } from "../lib/supabase/dglRepository";
 import { DISCORD_INVITE_URL, PAGE_META } from "../config/siteConfig";
 import { dashboardPageStyles } from "../styles/dashboardPageStyles";
 
 export default function Dashboard() {
-  const stats = useSupabaseData(dashboardStats, fetchDashboardStats);
-  const activity = useSupabaseData(communityActivity, fetchCommunityActivity);
-  const upcomingPreview = useSupabaseData(
-    upcomingTournamentPreview,
-    fetchUpcomingTournamentPreview
+  const dashboardData = useSupabaseData(
+    {
+      stats: dashboardStats,
+      activity: communityActivity,
+      upcomingPreview: upcomingTournamentPreview,
+      hallPreview: hallOfChampionsPreview,
+      leaderboardPreview,
+      games: dglGames,
+    },
+    fetchDashboardPageData
   );
-  const hallPreview = useSupabaseData(
-    hallOfChampionsPreview,
-    fetchHallOfChampionsPreview
-  );
-  const leaderboardTop = useSupabaseData(leaderboardPreview, () =>
-    fetchLeaderboardPreview(5)
-  );
+  const {
+    stats,
+    activity,
+    upcomingPreview,
+    hallPreview,
+    leaderboardPreview: leaderboardTop,
+    games,
+  } = dashboardData;
   const containerRef = useRef(null);
 
   useCursorGlow(containerRef, {
@@ -98,7 +98,7 @@ export default function Dashboard() {
           <DashboardStats stats={stats} />
 
           <div className="dashboard-grid">
-            <GameRealmsGrid games={dglGames} />
+            <GameRealmsGrid games={games} />
             <CommunityActivity items={activity} />
           </div>
 

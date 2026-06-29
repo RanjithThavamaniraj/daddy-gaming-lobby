@@ -13,12 +13,14 @@ let loggedConfigSkip = false;
 
 /**
  * @template T
- * @param {string} context - Human-readable label for dev logs (e.g. "tournaments")
+ * @param {string} context
  * @param {() => Promise<T | null | undefined>} fetcher
- * @param {() => T} fallback - Static registry / config builder
+ * @param {() => T} fallback
+ * @param {{ allowNull?: boolean }} [options]
  * @returns {Promise<T>}
  */
-export async function fetchWithFallback(context, fetcher, fallback) {
+export async function fetchWithFallback(context, fetcher, fallback, options = {}) {
+  const { allowNull = false } = options;
   const issues = getSupabaseConfigIssues();
 
   if (issues.length > 0) {
@@ -32,7 +34,10 @@ export async function fetchWithFallback(context, fetcher, fallback) {
   try {
     const result = await fetcher();
 
-    if (result == null) {
+    if (result === null || result === undefined) {
+      if (allowNull) {
+        return /** @type {T} */ (result ?? null);
+      }
       logSupabaseFallback(context, "empty response");
       return fallback();
     }

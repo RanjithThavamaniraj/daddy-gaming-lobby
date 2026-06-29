@@ -33,6 +33,16 @@ export function parsePlayerNameList(value) {
 }
 
 /**
+ * @param {string | null | undefined} tournamentNumber
+ * @returns {number}
+ */
+function parseGlobalNumberFromLabel(tournamentNumber) {
+  return (
+    Number.parseInt(String(tournamentNumber ?? "").replace(/\D/g, ""), 10) || 0
+  );
+}
+
+/**
  * @param {object} row - v_tournaments_enriched row
  * @param {object} [resultsRow] - v_tournament_results row
  */
@@ -45,11 +55,15 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     formatChampionshipName(championshipLabel, gameChampionshipNumber);
   const slug = row.slug ?? null;
 
-  const championPlayers = parsePlayerNameList(resultsRow?.champion_players);
-  const runnerUpPlayers = parsePlayerNameList(resultsRow?.runner_up_players);
+  const championPlayers = parsePlayerNameList(
+    resultsRow?.champion_players ?? row.champion_players
+  );
+  const runnerUpPlayers = parsePlayerNameList(
+    resultsRow?.runner_up_players ?? row.runner_up_players
+  );
 
   return {
-    id: row.external_id,
+    id: row.external_id ?? row.tournament_id ?? slug,
     number: globalNumber,
     globalNumber,
     gameChampionshipNumber,
@@ -86,46 +100,103 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
  * @param {object} row - v_tournament_results row
  */
 export function mapTournamentResultsRow(row) {
-  const enriched = mapEnrichedTournamentRow(row, row);
+  const globalNumber = parseGlobalNumberFromLabel(row.tournament_number);
+  const slug = row.slug ?? null;
+  const championshipName = row.championship_name ?? "";
+
+  const championshipMatch = championshipName.match(/#(\d+)\s*$/);
+  const gameChampionshipNumber = championshipMatch
+    ? Number.parseInt(championshipMatch[1], 10)
+    : 1;
+
   return {
-    ...enriched,
+    id: slug ?? row.tournament_id,
+    number: globalNumber,
+    globalNumber,
+    gameChampionshipNumber,
+    tournamentNumber:
+      row.tournament_number ?? formatGlobalTournamentNumber(globalNumber),
+    championshipName,
+    championshipLabel: row.game_name,
+    name: championshipName,
+    title: championshipName,
+    slug,
+    game: row.game_name,
+    gameSlug: row.game_slug,
+    format: row.format ?? undefined,
+    matchType: row.match_type ?? undefined,
+    prizePool: row.prize_pool_display ?? undefined,
+    status: mapDbTournamentStatus(row.status),
+    completedDate: row.completed_date_label ?? undefined,
+    accent: row.accent_color ?? "#a855f7",
+    resultsPath: slug ? `/tournaments/${slug}` : null,
+    resultsSlug: slug,
     championPlayers: parsePlayerNameList(row.champion_players),
     runnerUpPlayers: parsePlayerNameList(row.runner_up_players),
+    pointsAwarded: {
+      champion: DGL_POINTS.champion,
+      runnerUp: DGL_POINTS.runnerUp,
+      thirdPlace: DGL_POINTS.thirdPlace,
+    },
+    dglPoints: DGL_POINTS.champion,
+    runnerUpDglPoints: DGL_POINTS.runnerUp,
   };
 }
 
 /**
- * @param {object} row - v_tournament_results row
+ * Aggregate v_hall_of_champions rows (one row per champion player) into tournament cards.
+ * @param {object[]} rows
  */
-export function mapHallOfChampionsEntry(row) {
-  const tournament = mapTournamentResultsRow(row);
-  return {
-    slug: tournament.slug,
-    tournamentNumber: tournament.tournamentNumber,
-    name: tournament.championshipName,
-    game: tournament.game,
-    gameSlug: tournament.gameSlug,
-    championPlayers: tournament.championPlayers,
-    prizePool: tournament.prizePool,
-    dglPoints: tournament.pointsAwarded.champion,
-    completedDate: tournament.completedDate,
-    accent: tournament.accent,
-    resultsPath: tournament.resultsPath,
-  };
+export function aggregateHallOfChampionsRows(rows) {
+  /** @type {Map<string, object>} */
+  const byTournament = new Map();
+
+  for (const row of rows) {
+    const key = row.tournament_id;
+    let entry = byTournament.get(key);
+
+    if (!entry) {
+      entry = {
+        slug: row.slug,
+        tournamentNumber: row.tournament_number,
+        name: row.championship_name,
+        game: row.game_name,
+        gameSlug: row.game_slug,
+        championPlayers: [],
+        prizePool: row.prize_pool_display,
+        dglPoints: row.dgl_points ?? DGL_POINTS.champion,
+        completedDate: row.completed_date_label,
+        accent: row.accent_color ?? "#a855f7",
+        resultsPath: row.slug ? `/tournaments/${row.slug}` : null,
+        globalNumber: row.global_number ?? 0,
+      };
+      byTournament.set(key, entry);
+    }
+
+    if (row.player_name) {
+      entry.championPlayers.push(row.player_name);
+    }
+  }
+
+  return [...byTournament.values()]
+    .sort((a, b) => b.globalNumber - a.globalNumber)
+    .map((entry) => ({
+      ...entry,
+      championPlayers: sortPlayerNames(entry.championPlayers),
+    }));
 }
 
 /**
  * @param {object} row - v_player_leaderboard row
- * @param {object} [meta]
  */
-export function mapLeaderboardRow(row, meta = {}) {
+export function mapLeaderboardRow(row) {
   return {
     rank: row.rank,
     name: row.display_name,
-    game: meta.game ?? "—",
+    game: "—",
     points: row.points,
     championships: row.championships,
     tournamentsPlayed: row.tournaments_played,
-    accent: meta.accent ?? "#a855f7",
+    accent: "#a855f7",
   };
 }
