@@ -5,6 +5,11 @@
 
 begin;
 
+-- Ensure conflict target exists (created in 003; partial index requires matching ON CONFLICT predicate).
+create unique index if not exists tournament_registrations_legacy_unique
+  on public.tournament_registrations (tournament_id, legacy_registration_id)
+  where legacy_registration_id is not null;
+
 do $$
 declare
   v_tournament_id uuid;
@@ -74,7 +79,9 @@ begin
       ),
       v_legacy.id
     )
-    on conflict (tournament_id, legacy_registration_id) do nothing;
+    on conflict (tournament_id, legacy_registration_id)
+      where legacy_registration_id is not null
+    do nothing;
 
     v_inserted := v_inserted + 1;
   end loop;
