@@ -4,7 +4,8 @@
 begin;
 
 -- Enriched tournaments (matches app tournamentModel fields)
-create or replace view public.v_tournaments_enriched as
+create or replace view public.v_tournaments_enriched
+with (security_invoker = true) as
 select
   t.id,
   t.global_number,
@@ -47,7 +48,8 @@ left join public.v_tournament_registration_counts rc
   on rc.tournament_id = t.id;
 
 -- Hall of Champions (placement 1 player rows per completed tournament)
-create or replace view public.v_hall_of_champions as
+create or replace view public.v_hall_of_champions
+with (security_invoker = true) as
 select
   te.id as tournament_id,
   te.slug,
@@ -73,7 +75,8 @@ where te.status = 'completed'::public.dgl_tournament_status
 order by te.global_number desc, p.display_name;
 
 -- Leaderboard read model
-create or replace view public.v_player_leaderboard as
+create or replace view public.v_player_leaderboard
+with (security_invoker = true) as
 select
   row_number() over (
     order by s.total_points desc, s.championships desc, p.display_name asc
@@ -91,7 +94,8 @@ join public.players p on p.id = s.player_id
 where s.total_points > 0 or s.tournaments_played > 0;
 
 -- Tournament results bundle (champion + runner-up player names)
-create or replace view public.v_tournament_results as
+create or replace view public.v_tournament_results
+with (security_invoker = true) as
 select
   te.id as tournament_id,
   te.slug,
@@ -145,7 +149,8 @@ do $$
 begin
   if to_regclass('public.registrations') is not null then
     execute $view$
-      create or replace view public.v_legacy_registrations as
+      create or replace view public.v_legacy_registrations
+      with (security_invoker = true) as
       select
         r.id,
         r.discord_name,
@@ -165,7 +170,6 @@ create or replace function public.get_platform_stats()
 returns jsonb
 language sql
 stable
-security definer
 set search_path = public
 as $$
   with completed as (
@@ -200,7 +204,6 @@ create or replace function public.get_home_community_proof_stats()
 returns jsonb
 language sql
 stable
-security definer
 set search_path = public
 as $$
   with completed as (
@@ -239,7 +242,6 @@ create or replace function public.get_home_community_proof()
 returns jsonb
 language sql
 stable
-security definer
 set search_path = public
 as $$
   with stats as (

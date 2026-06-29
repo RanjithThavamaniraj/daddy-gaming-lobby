@@ -139,7 +139,7 @@ create policy "player_game_profiles_anon_insert"
   to anon, authenticated
   with check (true);
 
--- Views inherit underlying table policies when security_invoker is default.
+-- Views use security_invoker so anon/authenticated queries respect RLS on base tables.
 -- Grant SELECT on views explicitly for PostgREST.
 grant select on public.v_tournaments_enriched to anon, authenticated;
 grant select on public.v_hall_of_champions to anon, authenticated;

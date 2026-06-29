@@ -457,7 +457,8 @@ comment on table public.tournament_registrations is
   'Canonical registration ledger. Replaces game-specific public.registrations for new events.';
 
 -- Convenience view: active headcount per tournament (matches old UI counters)
-create or replace view public.v_tournament_registration_counts as
+create or replace view public.v_tournament_registration_counts
+with (security_invoker = true) as
 select
   tr.tournament_id,
   count(*) filter (
@@ -801,7 +802,8 @@ commit;
 begin;
 
 -- Enriched tournaments (matches app tournamentModel fields)
-create or replace view public.v_tournaments_enriched as
+create or replace view public.v_tournaments_enriched
+with (security_invoker = true) as
 select
   t.id,
   t.global_number,
@@ -844,7 +846,8 @@ left join public.v_tournament_registration_counts rc
   on rc.tournament_id = t.id;
 
 -- Hall of Champions (placement 1 player rows per completed tournament)
-create or replace view public.v_hall_of_champions as
+create or replace view public.v_hall_of_champions
+with (security_invoker = true) as
 select
   te.id as tournament_id,
   te.slug,
@@ -870,7 +873,8 @@ where te.status = 'completed'::public.dgl_tournament_status
 order by te.global_number desc, p.display_name;
 
 -- Leaderboard read model
-create or replace view public.v_player_leaderboard as
+create or replace view public.v_player_leaderboard
+with (security_invoker = true) as
 select
   row_number() over (
     order by s.total_points desc, s.championships desc, p.display_name asc
@@ -888,7 +892,8 @@ join public.players p on p.id = s.player_id
 where s.total_points > 0 or s.tournaments_played > 0;
 
 -- Tournament results bundle (champion + runner-up player names)
-create or replace view public.v_tournament_results as
+create or replace view public.v_tournament_results
+with (security_invoker = true) as
 select
   te.id as tournament_id,
   te.slug,
@@ -942,7 +947,8 @@ do $$
 begin
   if to_regclass('public.registrations') is not null then
     execute $view$
-      create or replace view public.v_legacy_registrations as
+      create or replace view public.v_legacy_registrations
+      with (security_invoker = true) as
       select
         r.id,
         r.discord_name,
@@ -962,7 +968,6 @@ create or replace function public.get_platform_stats()
 returns jsonb
 language sql
 stable
-security definer
 set search_path = public
 as $$
   with completed as (
@@ -997,7 +1002,6 @@ create or replace function public.get_home_community_proof_stats()
 returns jsonb
 language sql
 stable
-security definer
 set search_path = public
 as $$
   with completed as (
@@ -1036,7 +1040,6 @@ create or replace function public.get_home_community_proof()
 returns jsonb
 language sql
 stable
-security definer
 set search_path = public
 as $$
   with stats as (
@@ -1215,7 +1218,7 @@ create policy "player_game_profiles_anon_insert"
   to anon, authenticated
   with check (true);
 
--- Views inherit underlying table policies when security_invoker is default.
+-- Views use security_invoker so anon/authenticated queries respect RLS on base tables.
 -- Grant SELECT on views explicitly for PostgREST.
 grant select on public.v_tournaments_enriched to anon, authenticated;
 grant select on public.v_hall_of_champions to anon, authenticated;
@@ -1703,6 +1706,54 @@ where not exists (
   where tp.tournament_id = t.id
     and tp.player_id = ap.id
 );
+
+commit;
+
+-- >>> 20260628100011_dgl_security_invoker_views_and_rpcs.sql
+-- DGL security hardening — views and RPCs
+-- Converts public API views/RPCs to SECURITY INVOKER so RLS applies to anon/authenticated.
+-- Keeps SECURITY DEFINER only on internal trigger helpers that must write system tables.
+
+begin;
+
+-- ---------------------------------------------------------------------------
+-- Views: enforce security_invoker (Splinter 0010 — security definer view)
+-- ---------------------------------------------------------------------------
+
+alter view public.v_tournament_registration_counts set (security_invoker = true);
+alter view public.v_tournaments_enriched set (security_invoker = true);
+alter view public.v_hall_of_champions set (security_invoker = true);
+alter view public.v_player_leaderboard set (security_invoker = true);
+alter view public.v_tournament_results set (security_invoker = true);
+
+do $$
+begin
+  if to_regclass('public.v_legacy_registrations') is not null then
+    execute 'alter view public.v_legacy_registrations set (security_invoker = true)';
+  end if;
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- Public RPCs: SECURITY INVOKER (aggregate only public RLS-visible rows)
+-- ---------------------------------------------------------------------------
+
+alter function public.get_platform_stats() security invoker;
+alter function public.get_home_community_proof_stats() security invoker;
+alter function public.get_home_community_proof() security invoker;
+
+-- ---------------------------------------------------------------------------
+-- Internal trigger functions: keep SECURITY DEFINER, revoke API execution
+-- (must write ledger/summary/activity without granting anon INSERT policies)
+-- ---------------------------------------------------------------------------
+
+revoke all on function public.dgl_refresh_player_points_summary(uuid)
+  from public, anon, authenticated;
+
+revoke all on function public.dgl_sync_points_for_player_placement()
+  from public, anon, authenticated;
+
+revoke all on function public.dgl_log_tournament_completed_activity()
+  from public, anon, authenticated;
 
 commit;
 

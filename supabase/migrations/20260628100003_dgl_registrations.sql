@@ -51,7 +51,8 @@ comment on table public.tournament_registrations is
   'Canonical registration ledger. Replaces game-specific public.registrations for new events.';
 
 -- Convenience view: active headcount per tournament (matches old UI counters)
-create or replace view public.v_tournament_registration_counts as
+create or replace view public.v_tournament_registration_counts
+with (security_invoker = true) as
 select
   tr.tournament_id,
   count(*) filter (
