@@ -19,7 +19,8 @@
  * @property {string} [format]
  * @property {string} [matchType]
  * @property {string} [prizePool]
- * @property {"Completed"|"Coming Soon"|"Active"} status
+ * @property {string} [entryFee] - Display string e.g. "Free"
+ * @property {"Completed"|"Coming Soon"|"Registrations Open"|"Live"} status
  * @property {string} [completedDate]
  * @property {string} accent
  * @property {string[]} [championPlayers]
@@ -58,10 +59,16 @@ export const TOURNAMENT_REGISTRY = [
   {
     number: 2,
     id: "dgl-fc26-championship-1",
-    game: "FC 26",
+    slug: "fc26-1",
+    game: "EA SPORTS FC 26",
     gameSlug: "fc-26",
     championshipLabel: "FC 26",
-    status: "Coming Soon",
+    format: "11 vs 11",
+    matchType: "Best of 3",
+    prizePool: "₹2,000",
+    entryFee: "Free",
+    status: "Registrations Open",
+    startsAt: "2026-07-11T15:30:00Z",
     accent: "#00c853",
   },
   {

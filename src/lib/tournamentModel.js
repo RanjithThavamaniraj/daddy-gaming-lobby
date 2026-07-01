@@ -119,9 +119,11 @@ export function enrichTournament(tournament, identifiers) {
 
   return {
     ...tournament,
+    tournamentId: tournament.tournamentId ?? null,
     ...ids,
     name: ids.championshipName,
     title: ids.championshipName,
+    entryFee: tournament.entryFee ?? null,
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,
     championPlayers,
@@ -153,7 +155,10 @@ export function getCompletedTournaments() {
 /** @returns {ReturnType<typeof enrichTournament>[]} */
 export function getUpcomingTournaments() {
   return getAllTournaments().filter(
-    (t) => t.status === "Coming Soon" || t.status === "Active"
+    (t) =>
+      t.status === "Coming Soon" ||
+      t.status === "Registrations Open" ||
+      t.status === "Live"
   );
 }
 
@@ -164,6 +169,14 @@ export function getUpcomingTournaments() {
 export function getTournamentResultsBySlug(slug) {
   const tournament = getCompletedTournaments().find((t) => t.slug === slug);
   return tournament ?? null;
+}
+
+/**
+ * @param {string} slug
+ * @returns {ReturnType<typeof enrichTournament> | null}
+ */
+export function getTournamentBySlug(slug) {
+  return getAllTournaments().find((t) => t.slug === slug) ?? null;
 }
 
 /** @returns {string[]} */
@@ -180,6 +193,8 @@ export function getAllTournamentResultsSlugs() {
 export function toFeaturedShape(tournament) {
   return {
     id: tournament.id,
+    tournamentId: tournament.tournamentId ?? null,
+    slug: tournament.slug ?? tournament.resultsSlug ?? null,
     number: tournament.globalNumber,
     globalNumber: tournament.globalNumber,
     gameChampionshipNumber: tournament.gameChampionshipNumber,
@@ -191,13 +206,47 @@ export function toFeaturedShape(tournament) {
     format: tournament.format ?? "—",
     matchType: tournament.matchType ?? "—",
     prizePool: tournament.prizePool ?? "TBA",
+    entryFee: tournament.entryFee ?? null,
     status: tournament.status ?? "Coming Soon",
     completedDate: tournament.completedDate,
     accent: tournament.accent,
+    registrationLimit: tournament.registrationLimit ?? null,
+    registeredCount: tournament.registeredCount ?? null,
     resultsPath: tournament.resultsPath ?? null,
     resultsSlug: tournament.resultsSlug ?? null,
     championPlayers: tournament.championPlayers ?? [],
   };
+}
+
+/**
+ * Featured tournament priority order:
+ *   1. Live  2. Registrations Open  3. Upcoming (Coming Soon)  4. Latest Completed
+ *
+ * @param {ReturnType<typeof enrichTournament>[]} tournaments
+ * @returns {ReturnType<typeof enrichTournament> | null}
+ */
+export function selectFeaturedTournament(tournaments) {
+  if (!tournaments?.length) return null;
+
+  const live = tournaments
+    .filter((t) => t.status === "Live")
+    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+  if (live) return live;
+
+  const open = tournaments
+    .filter((t) => t.status === "Registrations Open")
+    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+  if (open) return open;
+
+  const upcoming = tournaments
+    .filter((t) => t.status === "Coming Soon")
+    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+  if (upcoming) return upcoming;
+
+  const completed = tournaments
+    .filter((t) => t.status === "Completed")
+    .sort((a, b) => b.globalNumber - a.globalNumber)[0];
+  return completed ?? null;
 }
 
 /**
@@ -207,6 +256,8 @@ export function toFeaturedShape(tournament) {
 export function toCompletedCardShape(tournament) {
   return {
     id: tournament.id,
+    tournamentId: tournament.tournamentId ?? null,
+    slug: tournament.slug ?? tournament.resultsSlug ?? null,
     number: tournament.globalNumber,
     globalNumber: tournament.globalNumber,
     gameChampionshipNumber: tournament.gameChampionshipNumber,
@@ -231,6 +282,8 @@ export function toCompletedCardShape(tournament) {
 export function toUpcomingCardShape(tournament) {
   return {
     id: tournament.id,
+    tournamentId: tournament.tournamentId ?? null,
+    slug: tournament.slug ?? tournament.resultsSlug ?? null,
     globalNumber: tournament.globalNumber,
     gameChampionshipNumber: tournament.gameChampionshipNumber,
     tournamentNumber: tournament.tournamentNumber,
@@ -240,5 +293,9 @@ export function toUpcomingCardShape(tournament) {
     gameSlug: tournament.gameSlug,
     status: tournament.status,
     accent: tournament.accent,
+    entryFee: tournament.entryFee ?? null,
+    prizePool: tournament.prizePool ?? null,
+    format: tournament.format ?? null,
+    matchType: tournament.matchType ?? null,
   };
 }

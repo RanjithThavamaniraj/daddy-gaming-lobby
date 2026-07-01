@@ -7,6 +7,7 @@ import GameIcon from "./GameIcon";
  */
 export default function UpcomingTournamentCard({ tournament }) {
   const gameSlug = tournament.gameSlug ?? tournament.game.toLowerCase().replace(/\s+/g, "-");
+  const statusKey = tournament.status.toLowerCase().replace(/\s+/g, "-");
 
   return (
     <article
@@ -25,7 +26,7 @@ export default function UpcomingTournamentCard({ tournament }) {
             <h4 className="hub-card-title">{tournament.championshipName ?? tournament.title}</h4>
             <span className="hub-card-game">{tournament.game}</span>
           </div>
-          <span className="status-badge-custom coming-soon">{tournament.status}</span>
+          <span className={`status-badge-custom ${statusKey}`}>{tournament.status}</span>
         </div>
         <div className="hub-card-action">
           <button type="button" className="cyber-btn disabled" disabled>

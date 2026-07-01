@@ -6,6 +6,7 @@
 import {
   getCompletedTournaments,
   getUpcomingTournaments,
+  selectFeaturedTournament,
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
@@ -13,20 +14,21 @@ import {
 
 const completed = getCompletedTournaments();
 const upcoming = getUpcomingTournaments();
+const all = [...completed, ...upcoming];
 
-/** Main Event when a single completed tournament is featured */
-export const featuredTournament = completed.length
-  ? toFeaturedShape(completed[0])
-  : upcoming.length
-    ? toFeaturedShape(upcoming[0])
-    : null;
+/** Main Event — highest priority tournament (Live > Open > Upcoming > Completed) */
+export const featuredTournament = (() => {
+  const featured = selectFeaturedTournament(all);
+  return featured ? toFeaturedShape(featured) : null;
+})();
 
 export const upcomingTournaments = upcoming.map(toUpcomingCardShape);
 
 export const completedTournaments = completed.map(toCompletedCardShape);
 
 /**
- * Resolves Main Event vs Completed archive for the tournaments hub.
+ * Resolves Main Event vs Upcoming vs Completed archive for the tournaments hub.
+ * The featured tournament is never duplicated across sections.
  * Future: replace inputs with supabase.from("tournaments").select("*")
  */
 export function getTournamentsPageLayout({
@@ -34,30 +36,16 @@ export function getTournamentsPageLayout({
   upcoming: upcomingList = upcomingTournaments,
   completed: completedList = completedTournaments,
 } = {}) {
-  const hasMultipleCompleted = completedList.length >= 2;
+  const featuredId = featured?.id ?? null;
 
-  if (!hasMultipleCompleted) {
-    return {
-      mainEvent: featured,
-      upcomingDisplay: upcomingList,
-      showCompletedArchive: false,
-      archivedCompleted: [],
-    };
-  }
-
-  const [mainEventCandidate, ...remainingUpcoming] = upcomingList;
-  const mainEvent = mainEventCandidate
-    ? toFeaturedShape(
-        getUpcomingTournaments().find((t) => t.id === mainEventCandidate.id) ??
-          mainEventCandidate
-      )
-    : featured;
+  const upcomingDisplay = upcomingList.filter((t) => t.id !== featuredId);
+  const archivedCompleted = completedList.filter((t) => t.id !== featuredId);
 
   return {
-    mainEvent,
-    upcomingDisplay: remainingUpcoming,
-    showCompletedArchive: true,
-    archivedCompleted: completedList,
+    mainEvent: featured,
+    upcomingDisplay,
+    showCompletedArchive: archivedCompleted.length > 0,
+    archivedCompleted,
   };
 }
 

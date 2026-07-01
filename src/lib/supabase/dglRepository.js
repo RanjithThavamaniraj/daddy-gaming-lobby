@@ -11,6 +11,7 @@ import { fetchWithFallback } from "./fetchWithFallback";
 import { formatInrPrize } from "../tournamentStats";
 import {
   aggregateHallOfChampionsRows,
+  mapDbTournamentStatus,
   mapEnrichedTournamentRow,
   mapLeaderboardRow,
   mapTournamentResultsRow,
@@ -18,7 +19,9 @@ import {
 } from "./mapTournament";
 import {
   getCompletedTournaments,
+  getTournamentBySlug,
   getUpcomingTournaments,
+  selectFeaturedTournament,
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
@@ -227,7 +230,10 @@ export async function fetchAllTournaments() {
 function partitionTournaments(tournaments) {
   const completed = tournaments.filter((t) => t.status === "Completed");
   const upcoming = tournaments.filter(
-    (t) => t.status === "Coming Soon" || t.status === "Active"
+    (t) =>
+      t.status === "Coming Soon" ||
+      t.status === "Registrations Open" ||
+      t.status === "Live"
   );
   return { completed, upcoming, all: tournaments };
 }
@@ -256,9 +262,42 @@ export async function fetchTournamentResultsBySlug(slug) {
 
     return mapTournamentResultsRow(data);
   }, () => {
-    const tournament = getCompletedTournaments().find((t) => t.slug === slug);
+    const tournament = getTournamentBySlug(slug);
     return tournament ?? null;
   }, { allowNull: true });
+}
+
+/**
+ * Single tournament fetch by slug — used for the dedicated tournament page
+ * (results for completed events, registration for open/active events).
+ * @returns {Promise<object | null>}
+ */
+export async function fetchTournamentBySlug(slug) {
+  return fetchWithFallback("tournament-by-slug", async () => {
+    const supabase = getSupabaseClient();
+
+    const { data: row, error } = await supabase
+      .from("v_tournaments_enriched")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!row) return null;
+
+    let resultsRow = null;
+    if (mapDbTournamentStatus(row.status) === "Completed") {
+      const { data, error: resultsError } = await supabase
+        .from("v_tournament_results")
+        .select("champion_players, runner_up_players, third_place_players")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (resultsError) throw resultsError;
+      resultsRow = data;
+    }
+
+    return mapEnrichedTournamentRow(row, resultsRow);
+  }, () => getTournamentBySlug(slug), { allowNull: true });
 }
 
 /**
@@ -483,17 +522,14 @@ export async function fetchTournamentsPageLayout() {
 
     const { completed, upcoming } = partitionTournaments(all);
 
-    const featuredTournament = completed.length
-      ? toFeaturedShape(completed[0])
-      : upcoming.length
-        ? toFeaturedShape(upcoming[0])
-        : null;
+    const featuredTournament = selectFeaturedTournament(all);
+    const featuredShape = featuredTournament ? toFeaturedShape(featuredTournament) : null;
 
     const upcomingTournaments = upcoming.map(toUpcomingCardShape);
     const completedTournaments = completed.map(toCompletedCardShape);
 
     return getTournamentsPageLayout({
-      featured: featuredTournament,
+      featured: featuredShape,
       upcoming: upcomingTournaments,
       completed: completedTournaments,
     });

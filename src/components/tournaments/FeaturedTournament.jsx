@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Calendar, Trophy } from "lucide-react";
 
 import GameIcon from "./GameIcon";
+import { isRegisteredForTournament } from "../../lib/registrationSession";
 
 /**
  * Featured / Main Event tournament hero card.
@@ -11,7 +12,14 @@ import GameIcon from "./GameIcon";
 export default function FeaturedTournament({ tournament }) {
   const gameSlug = tournament.gameSlug ?? tournament.game.toLowerCase().replace(/\s+/g, "-");
   const isCompleted = tournament.status === "Completed";
+  const isRegistrationOpen =
+    tournament.status === "Registrations Open" || tournament.status === "Live";
   const championPlayers = tournament.championPlayers ?? [];
+  const alreadyRegistered = isRegisteredForTournament(tournament.id);
+  const registrationPath =
+    tournament.slug ?? tournament.resultsSlug
+      ? `/tournaments/${tournament.slug ?? tournament.resultsSlug}`
+      : null;
 
   return (
     <section className="featured-section">
@@ -54,6 +62,12 @@ export default function FeaturedTournament({ tournament }) {
                 <span className="stat-label">PRIZE POOL</span>
                 <span className="stat-value text-accent">{tournament.prizePool}</span>
               </div>
+              {tournament.entryFee ? (
+                <div className="hero-stat-box">
+                  <span className="stat-label">ENTRY</span>
+                  <span className="stat-value">{tournament.entryFee}</span>
+                </div>
+              ) : null}
             </div>
 
             {isCompleted ? (
@@ -100,6 +114,20 @@ export default function FeaturedTournament({ tournament }) {
               <Link to={tournament.resultsPath} className="cyber-btn primary">
                 <span>VIEW RESULTS</span>
               </Link>
+            </div>
+          ) : null}
+
+          {isRegistrationOpen && registrationPath ? (
+            <div className="hero-action-container">
+              {alreadyRegistered ? (
+                <button type="button" className="cyber-btn disabled registered-cta" disabled>
+                  <span>✓ REGISTERED</span>
+                </button>
+              ) : (
+                <Link to={registrationPath} className="cyber-btn primary">
+                  <span>REGISTER NOW</span>
+                </Link>
+              )}
             </div>
           ) : null}
         </div>

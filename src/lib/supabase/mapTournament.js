@@ -9,8 +9,8 @@ import {
 const DB_STATUS_TO_APP = {
   completed: "Completed",
   coming_soon: "Coming Soon",
-  registration_open: "Active",
-  active: "Active",
+  registration_open: "Registrations Open",
+  active: "Live",
   draft: "Draft",
   cancelled: "Cancelled",
 };
@@ -64,6 +64,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
 
   return {
     id: row.external_id ?? row.tournament_id ?? slug,
+    tournamentId: row.id ?? row.tournament_id ?? null,
     number: globalNumber,
     globalNumber,
     gameChampionshipNumber,
@@ -79,9 +80,15 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     format: row.format ?? undefined,
     matchType: row.match_type ?? undefined,
     prizePool: row.prize_pool_display ?? undefined,
+    entryFee: row.metadata?.entry_fee ?? undefined,
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
     accent: row.accent_color ?? row.game_accent ?? "#a855f7",
+    registrationLimit: row.registration_limit ?? undefined,
+    registeredCount: row.registered_count ?? undefined,
+    registrationOpensAt: row.registration_opens_at ?? undefined,
+    registrationClosesAt: row.registration_closes_at ?? undefined,
+    startsAt: row.starts_at ?? undefined,
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,
     championPlayers,
@@ -111,6 +118,7 @@ export function mapTournamentResultsRow(row) {
 
   return {
     id: slug ?? row.tournament_id,
+    tournamentId: row.tournament_id ?? null,
     number: globalNumber,
     globalNumber,
     gameChampionshipNumber,

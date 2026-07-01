@@ -335,6 +335,28 @@ export const tournamentsPageStyles = `
     white-space: nowrap;
   }
 
+  .status-badge-custom.registrations-open {
+    background: rgba(0,200,83,0.12);
+    border: 1px solid rgba(0,200,83,0.55);
+    color: #5ef08a;
+    text-shadow: 0 0 8px rgba(0,200,83,0.4);
+    white-space: nowrap;
+  }
+
+  .status-badge-custom.live {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.55);
+    color: #fca5a5;
+    text-shadow: 0 0 8px rgba(239,68,68,0.4);
+    white-space: nowrap;
+    animation: livePulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(239,68,68,0.25); }
+    50% { box-shadow: 0 0 14px rgba(239,68,68,0.5); }
+  }
+
   .hero-stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -348,7 +370,7 @@ export const tournamentsPageStyles = `
   }
 
   @media (min-width: 900px) {
-    .featured-stats-grid { grid-template-columns: repeat(4, 1fr); }
+    .featured-stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
   }
 
   .hero-stat-box {

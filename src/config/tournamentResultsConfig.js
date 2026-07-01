@@ -1,9 +1,10 @@
 /**
- * Tournament results — derived from the central registry.
- * Future: supabase.from("tournament_results").select("*, players(*)")
+ * Tournament pages — derived from the central registry and Supabase.
+ * Future: supabase.from("v_tournaments_enriched").select("*").eq("slug", slug)
  */
 
 export {
-  getTournamentResultsBySlug as getTournamentResults,
+  getTournamentBySlug as getTournamentResults,
+  getTournamentBySlug,
   getAllTournamentResultsSlugs,
 } from "../lib/tournamentModel";
