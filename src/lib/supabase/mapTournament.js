@@ -83,6 +83,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     entryFee: row.metadata?.entry_fee ?? undefined,
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
+    isFeatured: row.is_featured ?? false,
     accent: row.accent_color ?? row.game_accent ?? "#a855f7",
     registrationLimit: row.registration_limit ?? undefined,
     registeredCount: row.registered_count ?? undefined,

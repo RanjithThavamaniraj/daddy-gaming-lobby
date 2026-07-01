@@ -228,6 +228,11 @@ export function toFeaturedShape(tournament) {
 export function selectFeaturedTournament(tournaments) {
   if (!tournaments?.length) return null;
 
+  const featured = tournaments
+    .filter((t) => t.isFeatured)
+    .sort((a, b) => (a.globalNumber ?? 0) - (b.globalNumber ?? 0))[0];
+  if (featured) return featured;
+
   const live = tournaments
     .filter((t) => t.status === "Live")
     .sort((a, b) => a.globalNumber - b.globalNumber)[0];
