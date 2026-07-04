@@ -6,6 +6,7 @@ import { getTournamentBySlug } from "../config/tournamentResultsConfig";
 import { fetchTournamentBySlug } from "../lib/supabase/dglRepository";
 import TournamentResultsView from "../components/tournaments/results/TournamentResultsView";
 import TournamentRegistrationView from "../components/tournaments/registration/TournamentRegistrationView";
+import RegistrationErrorBoundary from "../components/tournaments/registration/RegistrationErrorBoundary";
 import { SITE_DESCRIPTION } from "../config/siteConfig";
 
 export default function TournamentResults() {
@@ -28,7 +29,9 @@ export default function TournamentResults() {
               : SITE_DESCRIPTION
           }
         />
-        <TournamentRegistrationView tournament={tournament} />
+        <RegistrationErrorBoundary>
+          <TournamentRegistrationView tournament={tournament} />
+        </RegistrationErrorBoundary>
       </>
     );
   }

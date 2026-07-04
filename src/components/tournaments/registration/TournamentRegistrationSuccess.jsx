@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistrationStyles";
+
 /**
  * Success state after a tournament registration.
  *
@@ -10,16 +13,8 @@
  * @param {import("../lib/tournamentModel").ReturnType<import("../lib/tournamentModel").enrichTournament>} props.tournament
  */
 export default function TournamentRegistrationSuccess({ tournament }) {
-  // July 11 is hardcoded per the mandate description
-  const tournamentDate = new Date('2026-07-11');
-  const formattedDate = tournamentDate.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-  });
-
   return (
     <>
-      import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistrationStyles";
       <style>{tournamentRegistrationStyles}</style>
       <div className="tournament-page success-page" data-game-slug="fc-26">
         <div className="page-shell">
@@ -31,10 +26,8 @@ export default function TournamentRegistrationSuccess({ tournament }) {
                     <path d="M16 12 L20 28 L36 16 M24 44 C12.954 44 4 35.046 4 24 C4 12.954 12.954 4 24 4 C35.046 4 44 12.954 44 24 C44 35.046 35.046 44 24 44 Z" />
                   </svg>
                 </div>
-                <h1 className="success-title">✅ Registration Received!</h1>
-                <p className="success-message">
-                  See you on <strong>{formattedDate}</strong> for the <strong>{tournament.title}</strong>.
-                </p>
+                <h1 className="success-title">Registration Successful!</h1>
+                <p className="success-message">See you on 11 July at 11:00 PM IST.</p>
                 <p className="success-copy">Good luck, and we'll see you on the pitch! ⚽</p>
 
                 <div className="success-meta">
@@ -59,10 +52,10 @@ export default function TournamentRegistrationSuccess({ tournament }) {
                 <div className="success-cta">
                   <button
                     type="button"
-                    className="cyber-btn primary"
+                    className="submit-btn"
                     onClick={() => (window.location.href = '/tournaments')}
                   >
-                    <span>✓ REGISTERED</span>
+                    <span className="btn-text">✓ REGISTERED</span>
                   </button>
                 </div>
               </div>

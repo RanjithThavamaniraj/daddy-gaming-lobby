@@ -126,3 +126,32 @@ export function isRegisteredForTournament(tournamentId) {
     return false;
   }
 }
+
+/**
+ * Fetch the list of registrations for a tournament, oldest first
+ * (first-come-first-served order).
+ *
+ * The registration count for the page is derived from this same dataset
+ * (`registrations.length`) so the list and the count never disagree.
+ *
+ * @param {string} tournamentId - Tournament UUID (tournaments.id)
+ * @returns {Promise<Array<{ name: string; registeredAt: string }>>}
+ */
+export async function fetchTournamentRegistrations(tournamentId) {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase
+    .from("tournament_registrations")
+    .select("form_data, registered_at")
+    .eq("tournament_id", tournamentId)
+    .order("registered_at", { ascending: true });
+
+  if (error) throw error;
+
+  if (!data) return [];
+
+  return data.map((row) => ({
+    name: row.form_data?.discord_username ?? "Player",
+    registeredAt: row.registered_at,
+  }));
+}

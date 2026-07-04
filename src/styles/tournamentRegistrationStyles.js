@@ -319,6 +319,59 @@ html, body {
   text-shadow: 0 0 12px rgba(0,200,131,0.3);
 }
 
+/* Registration status (live slot count) */
+.registration-status {
+  position: relative;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(4px);
+}
+
+.registration-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #d1d5db;
+  margin-bottom: 0.75rem;
+}
+
+.registration-status-row .value {
+  color: var(--accent);
+}
+
+.registration-progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+.registration-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 50%, transparent);
+  transition: width 0.4s ease;
+}
+
+.registration-full-notice {
+  text-align: center;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
 /* Form */
 .form-group {
   display: flex;
@@ -442,6 +495,73 @@ html, body {
 @keyframes buttonPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.8; transform: scale(0.98); }
+}
+
+/* Registered players list (live, one Supabase dataset shared with the count) */
+.registered-players {
+  position: relative;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 8px;
+  padding: 1.75rem;
+  backdrop-filter: blur(4px);
+  animation: fadeUp 0.6s ease both 0.15s;
+}
+
+.registered-players h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #d1d5db;
+  margin-bottom: 1.25rem;
+}
+
+.registered-players-empty {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.registered-players-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.registered-player-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.registered-player-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.registered-player-item:first-child {
+  padding-top: 0;
+}
+
+.registered-player-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.registered-player-time {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #9ca3af;
 }
 
 /* Back link */
