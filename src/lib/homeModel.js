@@ -21,8 +21,8 @@ export const HOME_FEATURED_GAME_IDS = [
 /** One-line game blurbs — no tournament details. */
 export const HOME_GAME_TAGLINES = {
   valorant: "Tactical 5v5 shooter on the DGL competitive circuit.",
-  cs2: "Classic tactical FPS built for community championships.",
-  "fc-26": "Competitive football joining the DGL roster.",
+  cs2: "Competitive tactical shooter with active DGL tournaments.",
+  "fc-26": "Competitive football with active DGL championships.",
   "marvel-rivals": "Hero team battles in the multi-game lineup.",
   "apex-legends": "Battle royale squads on the DGL roadmap.",
   "delta-force": "Tactical military FPS scheduled for DGL events.",
@@ -78,11 +78,8 @@ function deriveGameRoadmapStatus(gameSlug) {
   const hasCompleted = getCompletedTournaments().some((t) => t.gameSlug === gameSlug);
   const hasUpcoming = getUpcomingTournaments().some((t) => t.gameSlug === gameSlug);
 
-  if (hasCompleted) {
+  if (hasCompleted || hasUpcoming) {
     return { status: "available", label: "Available" };
-  }
-  if (hasUpcoming) {
-    return { status: "coming-soon", label: "Coming Soon" };
   }
   return { status: "planned", label: "Planned" };
 }
