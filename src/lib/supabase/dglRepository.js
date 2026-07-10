@@ -157,8 +157,9 @@ function buildPlatformUpdateFromTournaments(latestCompleted, nextUpcoming, lates
     highlights,
     nextAnnouncement: next
       ? {
-          tournamentNumber: next.tournamentNumber,
-          message: "Announcement Coming Soon",
+          label: "NEXT EVENT",
+          title: `⚽ ${(next.championshipLabel ?? next.game).replace(/\s+/g, '')} TOURNAMENT #${next.globalNumber}`,
+          time: "Tomorrow • 9:30 PM IST",
         }
       : null,
   };

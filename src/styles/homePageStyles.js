@@ -327,6 +327,10 @@ export const homePageStyles = `
           letter-spacing: .12em; text-transform: uppercase;
           color: #fcd34d;
         }
+        .platform-update-next-title {
+          font-size: 1rem; font-weight: 700; color: #fff;
+          letter-spacing: .02em;
+        }
         .platform-update-next-message {
           font-size: .85rem; font-weight: 600; color: #9ca3af;
           letter-spacing: .04em;

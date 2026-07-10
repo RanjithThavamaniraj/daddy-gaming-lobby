@@ -1,7 +1,7 @@
 /**
  * Compact platform announcement strip below the hero.
  * @param {object} props
- * @param {{ highlights: { id: string; icon: string; text: string }[]; nextAnnouncement: { tournamentNumber: string; message: string } | null } | null} props.update
+ * @param {{ highlights: { id: string; icon: string; text: string }[]; nextAnnouncement: { label: string; title: string; time: string } | null } | null} props.update
  */
 export default function LatestPlatformUpdate({ update }) {
   if (!update) return null;
@@ -29,10 +29,13 @@ export default function LatestPlatformUpdate({ update }) {
         {nextAnnouncement ? (
           <div className="platform-update-next">
             <span className="platform-update-next-label">
-              {nextAnnouncement.tournamentNumber}
+              {nextAnnouncement.label}
+            </span>
+            <span className="platform-update-next-title">
+              {nextAnnouncement.title}
             </span>
             <span className="platform-update-next-message">
-              {nextAnnouncement.message}
+              {nextAnnouncement.time}
             </span>
           </div>
         ) : null}
