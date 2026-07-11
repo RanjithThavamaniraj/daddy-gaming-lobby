@@ -26,7 +26,7 @@ import {
   toFeaturedShape,
   toUpcomingCardShape,
 } from "../tournamentModel";
-import { buildHomeCommunityProof, buildLatestPlatformUpdate } from "../homeModel";
+import { buildHomeCommunityProof, buildLatestPlatformUpdate, formatNextEventTitle } from "../homeModel";
 import {
   buildDashboardStats,
   buildCommunityActivity,
@@ -158,7 +158,7 @@ function buildPlatformUpdateFromTournaments(latestCompleted, nextUpcoming, lates
     nextAnnouncement: next
       ? {
           label: "NEXT EVENT",
-          title: `⚽ ${(next.championshipLabel ?? next.game).replace(/\s+/g, '')} TOURNAMENT #${next.globalNumber}`,
+          title: formatNextEventTitle(next),
         }
       : null,
   };

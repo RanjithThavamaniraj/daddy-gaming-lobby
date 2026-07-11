@@ -1,5 +1,5 @@
 -- DGL combined migrations — apply in order via Supabase SQL Editor
--- Generated: 2026-07-12T00:17:00Z
+-- Generated: 2026-07-12
 
 -- >>> 20260628100000_dgl_extensions_and_enums.sql
 -- DGL schema extension — migration 1 of 8
@@ -2058,6 +2058,24 @@ where t.external_id = 'dgl-fc26-championship-1'
     where ca.tournament_id = t.id
       and ca.activity_type = 'tournament_completed'
   );
+
+commit;
+
+-- >>> 20260712110000_dgl_unfeature_completed_tournaments.sql
+-- Completed tournaments should never hold the Main Event slot.
+--
+-- FC 26 Championship #1 kept is_featured = true after completion, pinning it
+-- as the Main Event. Clearing the flag lets selectFeaturedTournament's
+-- status-driven priority (Live → Registrations Open → Registrations Closed →
+-- Coming Soon → Latest Completed) promote the next event automatically —
+-- currently CS2 Championship #1 (coming_soon). No manual UI changes needed.
+
+begin;
+
+update public.tournaments
+set is_featured = false
+where is_featured = true
+  and status = 'completed';
 
 commit;
 

@@ -6,6 +6,26 @@ import {
 import { buildHallOfChampionsPreview } from "./dashboardModel";
 import { aggregateCompletedTournamentStats } from "./tournamentStats";
 
+/** Per-game hero emoji for the home Next Event announcement. */
+const GAME_EMOJI = {
+  "fc-26": "⚽",
+  cs2: "🎮",
+  valorant: "🎯",
+};
+
+/**
+ * "NEXT EVENT" hero title, e.g. "🎮 CS2 TOURNAMENT #1".
+ * Uses the per-game championship number (falls back to global number).
+ * @param {object} tournament - enriched tournament
+ * @returns {string}
+ */
+export function formatNextEventTitle(tournament) {
+  const emoji = GAME_EMOJI[tournament.gameSlug] ?? "🎮";
+  const label = (tournament.championshipLabel ?? tournament.game).replace(/\s+/g, "");
+  const number = tournament.gameChampionshipNumber ?? tournament.globalNumber;
+  return `${emoji} ${label} TOURNAMENT #${number}`;
+}
+
 /** Game slugs featured on the homepage (subset of DGL roadmap). */
 export const HOME_FEATURED_GAME_IDS = [
   "valorant",
@@ -146,7 +166,7 @@ export function buildLatestPlatformUpdate() {
     nextAnnouncement: nextUpcoming
       ? {
           label: "NEXT EVENT",
-          title: `⚽ ${(nextUpcoming.championshipLabel ?? nextUpcoming.game).replace(/\s+/g, '')} TOURNAMENT #${nextUpcoming.globalNumber}`,
+          title: formatNextEventTitle(nextUpcoming),
         }
       : null,
   };
