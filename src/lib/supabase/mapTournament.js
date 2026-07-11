@@ -207,10 +207,11 @@ export function mapLeaderboardRow(row) {
   return {
     rank: row.rank,
     name: row.display_name,
-    game: "—",
+    game: row.game_name ?? "—",
+    gameSlug: row.game_slug ?? null,
     points: row.points,
     championships: row.championships,
     tournamentsPlayed: row.tournaments_played,
-    accent: "#a855f7",
+    accent: row.game_accent ?? "#a855f7",
   };
 }
