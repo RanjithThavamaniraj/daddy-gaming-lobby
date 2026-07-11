@@ -128,13 +128,13 @@ export function enrichTournament(tournament, identifiers) {
     resultsSlug: slug,
     championPlayers,
     runnerUpPlayers,
-    pointsAwarded: tournament.pointsAwarded ?? {
-      champion: DGL_POINTS.champion,
-      runnerUp: DGL_POINTS.runnerUp,
-      thirdPlace: DGL_POINTS.thirdPlace,
+    pointsAwarded: {
+      champion: tournament.pointsAwarded?.champion ?? DGL_POINTS.champion,
+      runnerUp: tournament.pointsAwarded?.runnerUp ?? DGL_POINTS.runnerUp,
+      thirdPlace: tournament.pointsAwarded?.thirdPlace ?? DGL_POINTS.thirdPlace,
     },
-    dglPoints: (tournament.pointsAwarded?.champion ?? DGL_POINTS.champion),
-    runnerUpDglPoints: (tournament.pointsAwarded?.runnerUp ?? DGL_POINTS.runnerUp),
+    dglPoints: tournament.pointsAwarded?.champion ?? DGL_POINTS.champion,
+    runnerUpDglPoints: tournament.pointsAwarded?.runnerUp ?? DGL_POINTS.runnerUp,
   };
 }
 

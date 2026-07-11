@@ -17,7 +17,6 @@ export default function FeaturedTournament({ tournament }) {
   const isLive = status === "Live";
   const isRegistrationOpen = status === "Registrations Open";
   const isRegistrationClosed = status === "Registrations Closed";
-  const isComingSoon = status === "Coming Soon";
   const championPlayers = tournament.championPlayers ?? [];
   const alreadyRegistered = isRegisteredForTournament(tournament.id);
   const registrationPath =
@@ -93,7 +92,7 @@ export default function FeaturedTournament({ tournament }) {
             {isCompleted && championPlayers.length > 0 ? (
               <div className="hero-champions-block">
                 <span className="hero-champions-label">
-                  <Trophy size={14} /> Champion Players
+                  <Trophy size={14} /> Champions
                 </span>
                 <ul className="hero-champions-list">
                   {championPlayers.map((player) => (

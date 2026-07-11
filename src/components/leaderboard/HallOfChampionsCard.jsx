@@ -52,7 +52,7 @@ export default function HallOfChampionsCard({ tournament, index = 0 }) {
 
         <div className="hall-champions-block">
           <span className="hall-champions-label">
-            <Trophy size={14} /> Champion Players
+            <Trophy size={14} /> Champions
           </span>
           <ul className="hall-players-list">
             {tournament.championPlayers.map((player) => (

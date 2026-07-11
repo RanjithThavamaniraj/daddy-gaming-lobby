@@ -25,7 +25,7 @@
  * @property {string} accent
  * @property {string[]} [championPlayers]
  * @property {string[]} [runnerUpPlayers]
- * @property {{ champion: number; runnerUp: number; thirdPlace: number }} [pointsAwarded]
+ * @property {{ champion?: number; runnerUp?: number; thirdPlace?: number }} [pointsAwarded] - Per-tournament override; missing fields fall back to DGL_POINTS
  */
 
 /** @type {TournamentRecord[]} */
@@ -42,6 +42,10 @@ export const TOURNAMENT_REGISTRY = [
     status: "Completed",
     completedDate: "June 27, 2026",
     accent: "#ff4655",
+    pointsAwarded: {
+      champion: 50,
+      runnerUp: 20,
+    },
     championPlayers: [
       "Girish",
       "Bumble_Bee",
@@ -64,7 +68,7 @@ export const TOURNAMENT_REGISTRY = [
     game: "EA SPORTS FC 26",
     gameSlug: "fc-26",
     championshipLabel: "FC 26",
-    format: "11 vs 11",
+    format: "11v11",
     matchType: "Best of 3",
     prizePool: "₹2,000",
     entryFee: "Free",
@@ -74,7 +78,6 @@ export const TOURNAMENT_REGISTRY = [
     pointsAwarded: {
       champion: 150,
       runnerUp: 100,
-      thirdPlace: 50,
     },
     championPlayers: [
       "viddy1485",
@@ -84,14 +87,14 @@ export const TOURNAMENT_REGISTRY = [
       "iambalas",
       "ak4642",
       "danish01769",
-      "ash4u",
-      "K2K",
+      "Ash4U",
+      "K2k",
       "vinsonxavier12",
     ],
     runnerUpPlayers: [
       "atlas.key",
-      "limbo",
-      "Naveen Kumar",
+      "Limbo",
+      "Naveen kumar",
       "Frez",
       "Richie",
       "Palnikumar",

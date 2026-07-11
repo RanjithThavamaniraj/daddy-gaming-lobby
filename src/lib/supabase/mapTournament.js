@@ -95,13 +95,17 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     resultsSlug: slug,
     championPlayers,
     runnerUpPlayers,
-    pointsAwarded: row.points_awarded ?? {
-      champion: DGL_POINTS.champion,
-      runnerUp: DGL_POINTS.runnerUp,
+    pointsAwarded: {
+      champion:
+        resultsRow?.champion_points ?? row.champion_points ?? DGL_POINTS.champion,
+      runnerUp:
+        resultsRow?.runner_up_points ?? row.runner_up_points ?? DGL_POINTS.runnerUp,
       thirdPlace: DGL_POINTS.thirdPlace,
     },
-    dglPoints: row.points_awarded?.champion ?? DGL_POINTS.champion,
-    runnerUpDglPoints: row.points_awarded?.runnerUp ?? DGL_POINTS.runnerUp,
+    dglPoints:
+      resultsRow?.champion_points ?? row.champion_points ?? DGL_POINTS.champion,
+    runnerUpDglPoints:
+      resultsRow?.runner_up_points ?? row.runner_up_points ?? DGL_POINTS.runnerUp,
   };
 }
 
@@ -143,13 +147,13 @@ export function mapTournamentResultsRow(row) {
     resultsSlug: slug,
     championPlayers: parsePlayerNameList(row.champion_players),
     runnerUpPlayers: parsePlayerNameList(row.runner_up_players),
-    pointsAwarded: row.points_awarded ?? {
-      champion: DGL_POINTS.champion,
-      runnerUp: DGL_POINTS.runnerUp,
+    pointsAwarded: {
+      champion: row.champion_points ?? DGL_POINTS.champion,
+      runnerUp: row.runner_up_points ?? DGL_POINTS.runnerUp,
       thirdPlace: DGL_POINTS.thirdPlace,
     },
-    dglPoints: row.points_awarded?.champion ?? DGL_POINTS.champion,
-    runnerUpDglPoints: row.points_awarded?.runnerUp ?? DGL_POINTS.runnerUp,
+    dglPoints: row.champion_points ?? DGL_POINTS.champion,
+    runnerUpDglPoints: row.runner_up_points ?? DGL_POINTS.runnerUp,
   };
 }
 

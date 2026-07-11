@@ -1,4 +1,5 @@
 import { getCompletedTournaments } from "../lib/tournamentModel";
+import { DGL_POINTS } from "./dglPointsConfig";
 
 /**
  * Build Hall of Champions entries from completed tournaments.
@@ -38,7 +39,7 @@ export function buildDglPointsLeaderboard() {
         tournamentsPlayed: 0,
         accent: tournament.accent,
       };
-      const championPoints = tournament.pointsAwarded?.champion ?? 50;
+      const championPoints = tournament.pointsAwarded?.champion ?? DGL_POINTS.champion;
       existing.points += championPoints;
       existing.championships += 1;
       existing.tournamentsPlayed += 1;
@@ -56,7 +57,7 @@ export function buildDglPointsLeaderboard() {
         tournamentsPlayed: 0,
         accent: tournament.accent,
       };
-      const runnerUpPoints = tournament.pointsAwarded?.runnerUp ?? 20;
+      const runnerUpPoints = tournament.pointsAwarded?.runnerUp ?? DGL_POINTS.runnerUp;
       existing.points += runnerUpPoints;
       existing.tournamentsPlayed += 1;
       existing.game = tournament.game;

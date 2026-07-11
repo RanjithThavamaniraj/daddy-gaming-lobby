@@ -1,4 +1,3 @@
-import { DGL_POINTS } from "../config/dglPointsConfig";
 import { buildDglPointsLeaderboard } from "../config/leaderboardConfig";
 import { aggregateCompletedTournamentStats } from "./tournamentStats";
 import {
@@ -19,8 +18,8 @@ export function buildDashboardStats() {
 
   for (const tournament of completed) {
     dglPointsAwarded +=
-      tournament.championPlayers.length * DGL_POINTS.champion +
-      tournament.runnerUpPlayers.length * DGL_POINTS.runnerUp;
+      tournament.championPlayers.length * tournament.pointsAwarded.champion +
+      tournament.runnerUpPlayers.length * tournament.pointsAwarded.runnerUp;
   }
 
   return [
@@ -78,13 +77,13 @@ export function buildCommunityActivity() {
       },
       {
         id: `${tournament.id}-champions-points`,
-        text: `🥇 ${tournament.championPlayers.length} Champions earned +${DGL_POINTS.champion} DGL Points`,
+        text: `🥇 ${tournament.championPlayers.length} Champions earned +${tournament.pointsAwarded.champion} DGL Points`,
         time: tournament.completedDate ?? "Recent",
         type: "win",
       },
       {
         id: `${tournament.id}-runner-up-points`,
-        text: `🥈 ${tournament.runnerUpPlayers.length} Runner-up players earned +${DGL_POINTS.runnerUp} DGL Points`,
+        text: `🥈 ${tournament.runnerUpPlayers.length} Runner-up players earned +${tournament.pointsAwarded.runnerUp} DGL Points`,
         time: tournament.completedDate ?? "Recent",
         type: "win",
       },

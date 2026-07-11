@@ -290,7 +290,9 @@ export async function fetchTournamentBySlug(slug) {
     if (mapDbTournamentStatus(row.status) === "Completed") {
       const { data, error: resultsError } = await supabase
         .from("v_tournament_results")
-        .select("champion_players, runner_up_players, third_place_players")
+        .select(
+          "champion_players, runner_up_players, third_place_players, champion_points, runner_up_points"
+        )
         .eq("slug", slug)
         .maybeSingle();
       if (resultsError) throw resultsError;
