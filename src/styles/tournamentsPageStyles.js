@@ -352,6 +352,13 @@ export const tournamentsPageStyles = `
     animation: livePulse 1.8s ease-in-out infinite;
   }
 
+  .status-badge-custom.registrations-closed {
+    background: rgba(250,204,21,0.1);
+    border: 1px solid rgba(250,204,21,0.3);
+    color: #fde047;
+    white-space: nowrap;
+  }
+
   @keyframes livePulse {
     0%, 100% { box-shadow: 0 0 6px rgba(239,68,68,0.25); }
     50% { box-shadow: 0 0 14px rgba(239,68,68,0.5); }

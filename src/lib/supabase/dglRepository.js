@@ -233,6 +233,7 @@ function partitionTournaments(tournaments) {
     (t) =>
       t.status === "Coming Soon" ||
       t.status === "Registrations Open" ||
+      t.status === "Registrations Closed" ||
       t.status === "Live"
   );
   return { completed, upcoming, all: tournaments };

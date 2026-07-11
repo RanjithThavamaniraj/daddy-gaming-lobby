@@ -10,6 +10,7 @@ const DB_STATUS_TO_APP = {
   completed: "Completed",
   coming_soon: "Coming Soon",
   registration_open: "Registrations Open",
+  registration_closed: "Registrations Closed",
   active: "Live",
   draft: "Draft",
   cancelled: "Cancelled",

@@ -6,14 +6,18 @@ import { isRegisteredForTournament } from "../../lib/registrationSession";
 
 /**
  * Featured / Main Event tournament hero card.
+ * Renders based entirely on tournament.status — no hardcoded behaviour.
  * @param {object} props
  * @param {object} props.tournament
  */
 export default function FeaturedTournament({ tournament }) {
   const gameSlug = tournament.gameSlug ?? tournament.game.toLowerCase().replace(/\s+/g, "-");
-  const isCompleted = tournament.status === "Completed";
-  const isRegistrationOpen =
-    tournament.status === "Registrations Open" || tournament.status === "Live";
+  const status = tournament.status;
+  const isCompleted = status === "Completed";
+  const isLive = status === "Live";
+  const isRegistrationOpen = status === "Registrations Open";
+  const isRegistrationClosed = status === "Registrations Closed";
+  const isComingSoon = status === "Coming Soon";
   const championPlayers = tournament.championPlayers ?? [];
   const alreadyRegistered = isRegisteredForTournament(tournament.id);
   const registrationPath =
@@ -38,8 +42,8 @@ export default function FeaturedTournament({ tournament }) {
                 ) : null}
                 <h3 className="hero-title">{tournament.title}</h3>
                 <div className="hero-badges">
-                  <span className={`status-badge-custom ${isCompleted ? "tournament-completed" : tournament.status.toLowerCase().replace(/\s+/g, "-")}`}>
-                    {isCompleted ? "🏆 Tournament Completed" : tournament.status}
+                  <span className={`status-badge-custom ${isCompleted ? "tournament-completed" : status.toLowerCase().replace(/\s+/g, "-")}`}>
+                    {isCompleted ? "🏆 Tournament Completed" : status}
                   </span>
                 </div>
               </div>
@@ -107,29 +111,37 @@ export default function FeaturedTournament({ tournament }) {
                 </div>
               </div>
             ) : null}
-          </div>
 
-          {isCompleted && tournament.resultsPath ? (
-            <div className="hero-action-container">
-              <Link to={tournament.resultsPath} className="cyber-btn primary">
-                <span>VIEW RESULTS</span>
-              </Link>
-            </div>
-          ) : null}
+            {(isLive || isRegistrationOpen) && registrationPath ? (
+              <div className="hero-action-container">
+                {alreadyRegistered ? (
+                  <button type="button" className="cyber-btn disabled registered-cta" disabled>
+                    <span>✓ REGISTERED</span>
+                  </button>
+                ) : (
+                  <Link to={registrationPath} className="cyber-btn primary">
+                    <span>{isLive ? "VIEW BRACKET" : "REGISTER NOW"}</span>
+                  </Link>
+                )}
+              </div>
+            ) : null}
 
-          {isRegistrationOpen && registrationPath ? (
-            <div className="hero-action-container">
-              {alreadyRegistered ? (
-                <button type="button" className="cyber-btn disabled registered-cta" disabled>
-                  <span>✓ REGISTERED</span>
+            {isRegistrationClosed ? (
+              <div className="hero-action-container">
+                <button type="button" className="cyber-btn disabled" disabled>
+                  <span>REGISTRATIONS CLOSED</span>
                 </button>
-              ) : (
-                <Link to={registrationPath} className="cyber-btn primary">
-                  <span>REGISTER NOW</span>
+              </div>
+            ) : null}
+
+            {isCompleted && tournament.resultsPath ? (
+              <div className="hero-action-container">
+                <Link to={tournament.resultsPath} className="cyber-btn primary">
+                  <span>VIEW RESULTS</span>
                 </Link>
-              )}
-            </div>
-          ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </section>

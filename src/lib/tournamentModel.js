@@ -157,6 +157,7 @@ export function getUpcomingTournaments() {
     (t) =>
       t.status === "Coming Soon" ||
       t.status === "Registrations Open" ||
+      t.status === "Registrations Closed" ||
       t.status === "Live"
   );
 }
@@ -219,7 +220,8 @@ export function toFeaturedShape(tournament) {
 
 /**
  * Featured tournament priority order:
- *   1. Live  2. Registrations Open  3. Upcoming (Coming Soon)  4. Latest Completed
+ *   0. isFeatured (manual override — exceptional cases only)
+ *   1. Live  2. Registrations Open  3. Registrations Closed  4. Coming Soon  5. Latest Completed
  *
  * @param {ReturnType<typeof enrichTournament>[]} tournaments
  * @returns {ReturnType<typeof enrichTournament> | null}
@@ -242,6 +244,11 @@ export function selectFeaturedTournament(tournaments) {
     .sort((a, b) => a.globalNumber - b.globalNumber)[0];
   if (open) return open;
 
+  const closed = tournaments
+    .filter((t) => t.status === "Registrations Closed")
+    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+  if (closed) return closed;
+
   const upcoming = tournaments
     .filter((t) => t.status === "Coming Soon")
     .sort((a, b) => a.globalNumber - b.globalNumber)[0];
@@ -249,7 +256,7 @@ export function selectFeaturedTournament(tournaments) {
 
   const completed = tournaments
     .filter((t) => t.status === "Completed")
-    .sort((a, b) => b.globalNumber - a.globalNumber)[0];
+    .sort((a, b) => (b.globalNumber ?? 0) - (a.globalNumber ?? 0))[0];
   return completed ?? null;
 }
 
