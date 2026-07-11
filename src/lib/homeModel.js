@@ -147,7 +147,6 @@ export function buildLatestPlatformUpdate() {
       ? {
           label: "NEXT EVENT",
           title: `⚽ ${(nextUpcoming.championshipLabel ?? nextUpcoming.game).replace(/\s+/g, '')} TOURNAMENT #${nextUpcoming.globalNumber}`,
-          time: "Tomorrow • 9:30 PM IST",
         }
       : null,
   };

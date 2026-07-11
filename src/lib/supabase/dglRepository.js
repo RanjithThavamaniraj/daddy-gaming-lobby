@@ -159,7 +159,6 @@ function buildPlatformUpdateFromTournaments(latestCompleted, nextUpcoming, lates
       ? {
           label: "NEXT EVENT",
           title: `⚽ ${(next.championshipLabel ?? next.game).replace(/\s+/g, '')} TOURNAMENT #${next.globalNumber}`,
-          time: "Tomorrow • 9:30 PM IST",
         }
       : null,
   };
