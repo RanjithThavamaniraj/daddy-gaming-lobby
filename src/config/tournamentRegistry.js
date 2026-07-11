@@ -25,6 +25,7 @@
  * @property {string} accent
  * @property {string[]} [championPlayers]
  * @property {string[]} [runnerUpPlayers]
+ * @property {{ champion: number; runnerUp: number; thirdPlace: number }} [pointsAwarded]
  */
 
 /** @type {TournamentRecord[]} */
@@ -67,9 +68,36 @@ export const TOURNAMENT_REGISTRY = [
     matchType: "Best of 3",
     prizePool: "₹2,000",
     entryFee: "Free",
-    status: "Registrations Open",
-    startsAt: "2026-07-11T15:30:00Z",
+    status: "Completed",
+    completedDate: "July 11, 2026",
     accent: "#00c853",
+    pointsAwarded: {
+      champion: 150,
+      runnerUp: 100,
+      thirdPlace: 50,
+    },
+    championPlayers: [
+      "viddy1485",
+      "noisyboy96",
+      "sabaresh9801",
+      "ironfist3525",
+      "iambalas",
+      "ak4642",
+      "danish01769",
+      "ash4u",
+      "K2K",
+      "vinsonxavier12",
+    ],
+    runnerUpPlayers: [
+      "atlas.key",
+      "limbo",
+      "Naveen Kumar",
+      "Frez",
+      "Richie",
+      "Palnikumar",
+      "Herooo",
+      "Jai",
+    ],
   },
   {
     number: 3,

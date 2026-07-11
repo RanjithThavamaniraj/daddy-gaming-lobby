@@ -1,4 +1,3 @@
-import { DGL_POINTS } from "./dglPointsConfig";
 import { getCompletedTournaments } from "../lib/tournamentModel";
 
 /**
@@ -39,7 +38,8 @@ export function buildDglPointsLeaderboard() {
         tournamentsPlayed: 0,
         accent: tournament.accent,
       };
-      existing.points += DGL_POINTS.champion;
+      const championPoints = tournament.pointsAwarded?.champion ?? 50;
+      existing.points += championPoints;
       existing.championships += 1;
       existing.tournamentsPlayed += 1;
       existing.game = tournament.game;
@@ -56,7 +56,8 @@ export function buildDglPointsLeaderboard() {
         tournamentsPlayed: 0,
         accent: tournament.accent,
       };
-      existing.points += DGL_POINTS.runnerUp;
+      const runnerUpPoints = tournament.pointsAwarded?.runnerUp ?? 20;
+      existing.points += runnerUpPoints;
       existing.tournamentsPlayed += 1;
       existing.game = tournament.game;
       existing.accent = tournament.accent;

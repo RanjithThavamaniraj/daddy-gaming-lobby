@@ -36,7 +36,7 @@ export default function CompletedTournamentCard({ tournament }) {
 
         <div className="hub-card-stats">
           <div className="hub-stat-box">
-            <span className="hub-stat-label">CHAMPION TEAM</span>
+            <span className="hub-stat-label">CHAMPIONS</span>
             <span className="hub-stat-value">
               <Trophy size={14} className="hub-stat-icon" />
               {championLabel}

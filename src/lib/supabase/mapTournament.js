@@ -94,13 +94,13 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     resultsSlug: slug,
     championPlayers,
     runnerUpPlayers,
-    pointsAwarded: {
+    pointsAwarded: row.points_awarded ?? {
       champion: DGL_POINTS.champion,
       runnerUp: DGL_POINTS.runnerUp,
       thirdPlace: DGL_POINTS.thirdPlace,
     },
-    dglPoints: DGL_POINTS.champion,
-    runnerUpDglPoints: DGL_POINTS.runnerUp,
+    dglPoints: row.points_awarded?.champion ?? DGL_POINTS.champion,
+    runnerUpDglPoints: row.points_awarded?.runnerUp ?? DGL_POINTS.runnerUp,
   };
 }
 
@@ -142,13 +142,13 @@ export function mapTournamentResultsRow(row) {
     resultsSlug: slug,
     championPlayers: parsePlayerNameList(row.champion_players),
     runnerUpPlayers: parsePlayerNameList(row.runner_up_players),
-    pointsAwarded: {
+    pointsAwarded: row.points_awarded ?? {
       champion: DGL_POINTS.champion,
       runnerUp: DGL_POINTS.runnerUp,
       thirdPlace: DGL_POINTS.thirdPlace,
     },
-    dglPoints: DGL_POINTS.champion,
-    runnerUpDglPoints: DGL_POINTS.runnerUp,
+    dglPoints: row.points_awarded?.champion ?? DGL_POINTS.champion,
+    runnerUpDglPoints: row.points_awarded?.runnerUp ?? DGL_POINTS.runnerUp,
   };
 }
 
