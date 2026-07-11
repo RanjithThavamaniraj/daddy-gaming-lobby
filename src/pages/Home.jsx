@@ -12,10 +12,10 @@ import useSupabaseData from "../hooks/useSupabaseData";
 import {
   DISCORD_INVITE_URL,
   homeCommunityProof,
-  homeFeaturedGames,
   latestPlatformUpdate,
   whyDglPillars,
 } from "../config/homeConfig";
+import { buildHomeFeaturedGames } from "../lib/homeModel";
 import { fetchHomePageData } from "../lib/supabase/dglRepository";
 import { PAGE_META } from "../config/siteConfig";
 import { homePageStyles } from "../styles/homePageStyles";
@@ -25,7 +25,7 @@ export default function Home() {
     {
       platformUpdate: latestPlatformUpdate,
       communityProof: homeCommunityProof,
-      featuredGames: homeFeaturedGames,
+      featuredGames: buildHomeFeaturedGames(),
     },
     fetchHomePageData
   );
