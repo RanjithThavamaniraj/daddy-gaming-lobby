@@ -28,7 +28,7 @@ function formatRegisteredAt(registeredAt) {
 /**
  * Tournament registration page for individual players.
  *
- * Collects a Name / Discord Username field as required by the mandate.
+ * Collects a Discord Username field as required by the mandate.
  *
  * Follows the existing Supabase architecture:
  *   - Stores in `tournament_registrations`
@@ -97,7 +97,7 @@ export default function TournamentRegistrationView({ tournament }) {
       return;
     }
     if (!trimmedName) {
-      setError('Please enter your name or Discord username.');
+      setError('Please enter your Discord username.');
       return;
     }
     if (!acceptedRules) {
@@ -209,7 +209,7 @@ export default function TournamentRegistrationView({ tournament }) {
 
                   <div className="form-group discord-group">
                     <label htmlFor="discordUsername" className="form-label">
-                      Name / Discord Username <span className="required">Required</span>
+                      Discord Username <span className="required">*</span>
                     </label>
                     <div className="input-wrapper">
                       <div className="input-icon">
@@ -221,14 +221,14 @@ export default function TournamentRegistrationView({ tournament }) {
                         id="discordUsername"
                         type="text"
                         className="form-control"
-                        placeholder="Your name or Discord username"
+                        placeholder="Enter your Discord username"
                         value={formData.discordUsername}
                         onChange={handleInputChange}
                         disabled={status === 'submitting' || isFull}
                         required
                       />
                     </div>
-                    <p className="form-hint">Enter your Discord username, nickname, or real name.</p>
+                    <p className="form-hint">Enter the username you use in the Daddy Gaming Lobby Discord server.</p>
                     <p className="form-hint" style={{ opacity: 0.7, marginTop: '4px' }}>This helps us identify you on the Daddy Gaming Lobby Discord server.</p>
                   </div>
 
