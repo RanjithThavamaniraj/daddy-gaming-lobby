@@ -4,7 +4,7 @@ import { registerForTournament, markRegisteredForTournament, fetchTournamentRegi
 import TournamentRegistrationSuccess from "./TournamentRegistrationSuccess";
 import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistrationStyles";
 
-const REGISTRATION_CAPACITY = 22;
+const DEFAULT_REGISTRATION_CAPACITY = 22;
 
 /**
  * Format a registered_at timestamp for display, e.g. "Jul 4, 8:01 PM".
@@ -40,7 +40,11 @@ function formatRegisteredAt(registeredAt) {
  * @param {import("../lib/tournamentModel").ReturnType<import("../lib/tournamentModel").enrichTournament>} props.tournament
  */
 export default function TournamentRegistrationView({ tournament }) {
-  const { id, tournamentId, slug, format, matchType, prizePool, entryFee, game } = tournament;
+  const { id, tournamentId, slug, format, matchType, prizePool, entryFee, game, gameSlug, accent, registrationLimit, startsAt, title, tournamentNumber, number } = tournament;
+
+  const capacity = registrationLimit ?? DEFAULT_REGISTRATION_CAPACITY;
+  const tsGameSlug = gameSlug ?? (game ? game.toLowerCase().replace(/\s+/g, "-") : "dgl");
+  const tsAccent = accent || "#a855f7";
 
   const [formData, setFormData] = useState({ discordUsername: '' });
   const [status, setStatus] = useState('idle'); // idle | submitting | success
@@ -49,7 +53,7 @@ export default function TournamentRegistrationView({ tournament }) {
 
   const trimmedName = formData.discordUsername.trim();
   const registrationCount = registrations === null ? null : registrations.length;
-  const isFull = registrationCount !== null && registrationCount >= REGISTRATION_CAPACITY;
+  const isFull = registrationCount !== null && registrationCount >= capacity;
 
   const refreshRegistrations = async (tid) => {
     if (!tid) return;
@@ -117,15 +121,19 @@ export default function TournamentRegistrationView({ tournament }) {
 
   const slotsRemaining = registrationCount === null
     ? null
-    : Math.max(0, REGISTRATION_CAPACITY - registrationCount);
+    : Math.max(0, capacity - registrationCount);
   const progressPct = registrationCount === null
     ? 0
-    : Math.min(100, (registrationCount / REGISTRATION_CAPACITY) * 100);
+    : Math.min(100, (registrationCount / capacity) * 100);
 
   return (
     <>
       <style>{tournamentRegistrationStyles}</style>
-      <div className="tournament-page" data-game-slug="fc-26">
+      <div
+        className="tournament-page"
+        data-game-slug={tsGameSlug}
+        style={{ "--accent": tsAccent }}
+      >
         <div className="page-shell">
           <div className="page-content">
             <div className="register-card">
@@ -168,7 +176,7 @@ export default function TournamentRegistrationView({ tournament }) {
                 {registrationCount !== null && (
                   <div className="registration-status">
                     <div className="registration-status-row">
-                      <span>Registered Players: <span className="value">{registrationCount} / {REGISTRATION_CAPACITY}</span></span>
+                      <span>Registered Players: <span className="value">{registrationCount} / {capacity}</span></span>
                       <span>Slots Remaining: <span className="value">{slotsRemaining}</span></span>
                     </div>
                     <div className="registration-progress">

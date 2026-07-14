@@ -13,10 +13,17 @@ import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistra
  * @param {import("../lib/tournamentModel").ReturnType<import("../lib/tournamentModel").enrichTournament>} props.tournament
  */
 export default function TournamentRegistrationSuccess({ tournament }) {
+  const gameSlug = tournament.gameSlug ?? (tournament.game ? tournament.game.toLowerCase().replace(/\s+/g, "-") : "dgl");
+  const accent = tournament.accent || "#a855f7";
+
   return (
     <>
       <style>{tournamentRegistrationStyles}</style>
-      <div className="tournament-page success-page" data-game-slug="fc-26">
+      <div
+        className="tournament-page success-page"
+        data-game-slug={gameSlug}
+        style={{ "--accent": accent }}
+      >
         <div className="page-shell">
           <div className="page-content">
             <div className="register-card success-card">
@@ -27,8 +34,8 @@ export default function TournamentRegistrationSuccess({ tournament }) {
                   </svg>
                 </div>
                 <h1 className="success-title">Registration Successful!</h1>
-                <p className="success-message">See you on 11 July at 11:00 PM IST.</p>
-                <p className="success-copy">Good luck, and we'll see you on the pitch! ⚽</p>
+                <p className="success-message">You're registered for {tournament.title}.</p>
+                <p className="success-copy">Good luck, and we'll see you in the arena!</p>
 
                 <div className="success-meta">
                   <div className="success-stat">

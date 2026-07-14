@@ -319,6 +319,16 @@ html, body {
   text-shadow: 0 0 12px rgba(0,200,131,0.3);
 }
 
+/* CS2 tactical overlay (gold accent) */
+.tournament-page[data-game-slug="cs2"] .register-info {
+  background: linear-gradient(135deg, rgba(222,155,53,0.05), rgba(168,85,247,0.05));
+  border: 1px solid color-mix(in srgb, var(--accent, #de9b35) 30%, transparent);
+}
+
+.tournament-page[data-game-slug="cs2"] .register-info h3 {
+  text-shadow: 0 0 12px rgba(222,155,53,0.3);
+}
+
 /* Registration status (live slot count) */
 .registration-status {
   position: relative;

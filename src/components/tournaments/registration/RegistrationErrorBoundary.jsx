@@ -33,7 +33,7 @@ export default class RegistrationErrorBoundary extends Component {
       return (
         <>
           <style>{tournamentRegistrationStyles}</style>
-          <div className="tournament-page" data-game-slug="fc-26">
+          <div className="tournament-page" data-game-slug="dgl">
             <div className="page-shell">
               <div className="page-content">
                 <div className="register-card">

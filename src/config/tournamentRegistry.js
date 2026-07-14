@@ -105,9 +105,16 @@ export const TOURNAMENT_REGISTRY = [
   {
     number: 3,
     id: "dgl-cs2-championship-1",
-    game: "CS2",
+    slug: "cs2-1",
+    game: "Counter Strike 2",
     gameSlug: "cs2",
-    status: "Coming Soon",
+    format: "5v5",
+    matchType: "Best of 3",
+    prizePool: "₹2,000 Team Prize",
+    entryFee: "Free",
+    registrationLimit: 10,
+    status: "Registrations Open",
+    startsAt: "2026-07-25T19:30:00Z",
     accent: "#de9b35",
   },
   // Future: number 4 — gameSlug "valorant" → DGL Valorant Championship #2
