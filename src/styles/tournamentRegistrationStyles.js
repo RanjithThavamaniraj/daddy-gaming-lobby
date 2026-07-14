@@ -502,6 +502,44 @@ html, body {
   animation: buttonPulse 1.5s ease-in-out infinite;
 }
 
+.submit-btn.outline {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.submit-btn.outline:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  transform: scale(1.03);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.form-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: #d1d5db;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.form-checkbox-label input[type="checkbox"] {
+  margin-top: 0.15rem;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.form-checkbox-label a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 @keyframes buttonPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.8; transform: scale(0.98); }
@@ -708,6 +746,28 @@ html, body {
 .success-cta {
   margin: 3rem auto 0;
   max-width: 320px;
+}
+
+.success-actions {
+  margin: 3rem auto 0;
+  max-width: 460px;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.success-actions .submit-btn {
+  flex: 1;
+  min-width: 160px;
+}
+
+.success-registrant {
+  margin-top: 1rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
 }
 
 /* Animations */

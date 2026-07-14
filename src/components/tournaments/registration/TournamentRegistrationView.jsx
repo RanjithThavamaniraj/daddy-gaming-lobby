@@ -40,7 +40,7 @@ function formatRegisteredAt(registeredAt) {
  * @param {import("../lib/tournamentModel").ReturnType<import("../lib/tournamentModel").enrichTournament>} props.tournament
  */
 export default function TournamentRegistrationView({ tournament }) {
-  const { id, tournamentId, slug, format, matchType, prizePool, entryFee, game, gameSlug, accent, registrationLimit, startsAt, title, tournamentNumber, number } = tournament;
+  const { id, tournamentId, slug, format, matchType, prizePool, entryFee, game, gameSlug, accent, registrationLimit } = tournament;
 
   const capacity = registrationLimit ?? DEFAULT_REGISTRATION_CAPACITY;
   const tsGameSlug = gameSlug ?? (game ? game.toLowerCase().replace(/\s+/g, "-") : "dgl");
@@ -50,18 +50,22 @@ export default function TournamentRegistrationView({ tournament }) {
   const [status, setStatus] = useState('idle'); // idle | submitting | success
   const [error, setError] = useState(null);
   const [registrations, setRegistrations] = useState(null);
+  const [acceptedRules, setAcceptedRules] = useState(false);
+  const [lastRegistrantNumber, setLastRegistrantNumber] = useState(null);
 
   const trimmedName = formData.discordUsername.trim();
   const registrationCount = registrations === null ? null : registrations.length;
   const isFull = registrationCount !== null && registrationCount >= capacity;
 
   const refreshRegistrations = async (tid) => {
-    if (!tid) return;
+    if (!tid) return null;
     try {
       const rows = await fetchTournamentRegistrations(tid);
       setRegistrations(rows);
+      return rows;
     } catch (err) {
       console.error('Failed to fetch registrations:', err);
+      return null;
     }
   };
 
@@ -96,6 +100,10 @@ export default function TournamentRegistrationView({ tournament }) {
       setError('Please enter your name or Discord username.');
       return;
     }
+    if (!acceptedRules) {
+      setError('Please accept the Tournament Rules to continue.');
+      return;
+    }
 
     setStatus('submitting');
     setError(null);
@@ -107,8 +115,12 @@ export default function TournamentRegistrationView({ tournament }) {
       });
 
       markRegisteredForTournament(tournamentId || slug || id);
+      const rows = await refreshRegistrations(tournament.tournamentId);
+      const registrantNumber = rows
+        ? (rows.map((r) => r.name.trim().toLowerCase()).lastIndexOf(trimmedName.toLowerCase()) + 1) || rows.length
+        : null;
+      setLastRegistrantNumber(registrantNumber);
       setStatus('success');
-      refreshRegistrations(tournament.tournamentId);
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
       setStatus('idle');
@@ -116,7 +128,14 @@ export default function TournamentRegistrationView({ tournament }) {
   };
 
   if (status === 'success') {
-    return <TournamentRegistrationSuccess tournament={tournament} />;
+    return (
+      <TournamentRegistrationSuccess
+        tournament={tournament}
+        capacity={capacity}
+        registrationCount={registrations ? registrations.length : null}
+        registrantNumber={lastRegistrantNumber}
+      />
+    );
   }
 
   const slotsRemaining = registrationCount === null
@@ -213,6 +232,25 @@ export default function TournamentRegistrationView({ tournament }) {
                     <p className="form-hint" style={{ opacity: 0.7, marginTop: '4px' }}>This helps us identify you on the Daddy Gaming Lobby Discord server.</p>
                   </div>
 
+                  <div className="form-group rules-group">
+                    <label className="form-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={acceptedRules}
+                        onChange={(e) => {
+                          setAcceptedRules(e.target.checked);
+                          if (error) setError(null);
+                        }}
+                        disabled={status === 'submitting' || isFull}
+                      />
+                      <span>
+                        I accept the{" "}
+                        <Link to="/terms" target="_blank" rel="noopener noreferrer">Tournament Rules</Link>
+                        {" "}<span className="required">Required</span>
+                      </span>
+                    </label>
+                  </div>
+
                   {error && (
                     <div className="alert alert-error">
                       <span>⚠️ {error}</span>
@@ -220,17 +258,17 @@ export default function TournamentRegistrationView({ tournament }) {
                   )}
 
                   {isFull ? (
-                    <div className="registration-full-notice">Registrations Full</div>
+                    <div className="registration-full-notice">Tournament Full</div>
                   ) : null}
 
                   <button
                     type="submit"
                     className={`submit-btn ${status === 'submitting' ? 'loading' : ''}`}
-                    disabled={status === 'submitting' || !trimmedName || isFull}
+                    disabled={status === 'submitting' || !trimmedName || !acceptedRules || isFull}
                   >
                     <span className="btn-text">
                       {isFull
-                        ? 'Registrations Full'
+                        ? 'Tournament Full'
                         : status === 'submitting'
                           ? 'Registering...'
                           : '✓ REGISTER NOW'}
