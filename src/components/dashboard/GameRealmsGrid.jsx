@@ -68,7 +68,7 @@ export default function GameRealmsGrid({ games }) {
                 </div>
                 <div className="game-status">
                   <span className="game-status-dot" />
-                  Supported
+                  FEATURED
                 </div>
               </div>
             </div>
