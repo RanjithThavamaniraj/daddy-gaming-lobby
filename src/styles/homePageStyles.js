@@ -16,7 +16,7 @@ export const homePageStyles = `
           --border: rgba(168,85,247,0.12);
           --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
           --ease-smooth: cubic-bezier(0.22,1,0.36,1);
-          --space-section: clamp(2.75rem, 5vw, 4rem);
+          --space-section: 4rem; /* 64px — 8px spacing system; steps to 48px ≤768px */
           --space-inline: var(--dgl-page-gutter-x);
         }
 
@@ -265,8 +265,8 @@ export const homePageStyles = `
         /* ── SECTIONS ── */
         .section { padding-block: var(--space-section); }
         .section:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,.04); }
-        .section-compact { padding-block: clamp(1.25rem, 3vw, 2rem); }
-        .section-header { margin-bottom: clamp(1.5rem, 3vw, 2.25rem); max-width: 36rem; }
+        .section-compact { padding-block: 1.5rem; } /* 24px */
+        .section-header { margin-bottom: 2rem; max-width: 36rem; } /* 32px; steps to 24px ≤768px */
         .section-eyebrow {
           font-family: 'JetBrains Mono', monospace;
           font-size: .7rem; font-weight: 700; letter-spacing: .22em;
@@ -291,12 +291,12 @@ export const homePageStyles = `
           background: linear-gradient(135deg, rgba(168,85,247,.08), rgba(255,255,255,.02));
           border: 1px solid rgba(168,85,247,.18);
           border-radius: 20px;
-          padding: clamp(1.25rem, 3vw, 1.75rem) clamp(1.25rem, 3vw, 2rem);
+          padding: 1.5rem 2rem; /* 24px / 32px; steps to 24px ≤768px */
           backdrop-filter: blur(16px);
           animation: fadeUp .6s var(--ease-smooth) both;
         }
         .platform-update-highlights {
-          display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem;
+          display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; /* 8px / 16px */
           flex: 1; min-width: min(100%, 280px);
         }
         .platform-update-item {
@@ -465,7 +465,7 @@ export const homePageStyles = `
         .community-proof-grid {
           display: grid;
           grid-template-columns: 1fr minmax(280px, 360px);
-          gap: 1.25rem;
+          gap: 1rem; /* 16px — matches every other section grid */
           align-items: stretch;
         }
         .community-proof-stats {
@@ -476,7 +476,7 @@ export const homePageStyles = `
         .proof-stat-card {
           position: relative; overflow: hidden;
           background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.07);
-          border-radius: 16px; padding: 1.35rem 1.25rem;
+          border-radius: 16px; padding: 1.5rem; /* 24px — matches why-dgl/game cards */
           transition: transform .35s var(--ease-spring), border-color .35s ease, box-shadow .35s ease;
           animation: statCount .6s var(--ease-smooth) both;
         }
@@ -529,7 +529,7 @@ export const homePageStyles = `
           font-family: 'Orbitron', sans-serif;
           font-size: clamp(1rem, 2.5vw, 1.2rem); font-weight: 800;
           letter-spacing: .04em; text-transform: uppercase;
-          color: #fff; line-height: 1.3; margin-bottom: 1.25rem;
+          color: #fff; line-height: 1.3; margin-bottom: 1.5rem; /* 24px */
         }
         .community-proof-link {
           position: relative; z-index: 1; align-self: flex-start;
@@ -742,13 +742,15 @@ export const homePageStyles = `
           text-shadow: 0 0 16px color-mix(in srgb, var(--accent, #f59e0b) 45%, transparent);
         }
 
-        .discord-cta-section { padding-bottom: clamp(2rem, 4vw, 2.75rem); border-bottom: none; }
+        /* 48px: with the footer's own top margin this matches the 2×section
+           inter-section boundary at both desktop (48+80=128) and mobile (48+48=96). */
+        .discord-cta-section { padding-bottom: 3rem; border-bottom: none; }
 
         .discord-cta-card {
           position: relative; overflow: hidden; text-align: center;
           background: linear-gradient(160deg, rgba(168,85,247,.12), rgba(255,255,255,.02));
           border: 1px solid rgba(168,85,247,.22);
-          border-radius: 24px; padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2.5rem);
+          border-radius: 24px; padding: 3rem 2rem; /* 48px / 32px; steps to 32px/24px ≤768px */
           animation: fadeUp .6s var(--ease-smooth) both;
         }
 
@@ -768,7 +770,7 @@ export const homePageStyles = `
 
         .discord-cta-text {
           position: relative; z-index: 1;
-          max-width: 36rem; margin: 0 auto 1.75rem;
+          max-width: 36rem; margin: 0 auto 1.5rem; /* 24px */
           color: #9ca3af; font-size: clamp(.95rem, 2vw, 1.05rem);
           line-height: 1.7; font-weight: 500;
         }
@@ -1012,6 +1014,10 @@ export const homePageStyles = `
         }
 
         @media (max-width: 768px) {
+          :root { --space-section: 3rem; } /* 48px */
+          .section-header { margin-bottom: 1.5rem; } /* 24px */
+          .platform-update-inner { padding: 1.5rem; } /* 24px */
+          .discord-cta-card { padding: 2rem 1.5rem; } /* 32px / 24px */
           .hero-section { min-height: auto; padding-block: 3rem 2rem; }
           .community-proof-stats { grid-template-columns: 1fr 1fr; }
           .platform-update-text { white-space: normal; font-size: .68rem; }
