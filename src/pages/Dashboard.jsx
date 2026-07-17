@@ -12,9 +12,9 @@ import HallOfChampionsWidget from "../components/dashboard/HallOfChampionsWidget
 import LeaderboardPreview from "../components/dashboard/LeaderboardPreview";
 import {
   communityActivity,
+  completedTournamentsPreview,
   dashboardStats,
   dglGames,
-  hallOfChampionsPreview,
   leaderboardPreview,
   upcomingTournamentPreview,
 } from "../config/dashboardConfig";
@@ -28,7 +28,7 @@ export default function Dashboard() {
       stats: dashboardStats,
       activity: communityActivity,
       upcomingPreview: upcomingTournamentPreview,
-      hallPreview: hallOfChampionsPreview,
+      completedPreview: completedTournamentsPreview,
       leaderboardPreview,
       games: dglGames,
     },
@@ -38,7 +38,7 @@ export default function Dashboard() {
     stats,
     activity,
     upcomingPreview,
-    hallPreview,
+    completedPreview,
     leaderboardPreview: leaderboardTop,
     games,
   } = dashboardData;
@@ -104,7 +104,7 @@ export default function Dashboard() {
 
           <div className="dashboard-widgets-row">
             <DashboardUpcomingWidget tournament={upcomingPreview} />
-            <HallOfChampionsWidget tournament={hallPreview} />
+            <HallOfChampionsWidget tournaments={completedPreview} />
             <LeaderboardPreview players={leaderboardTop} />
           </div>
         </div>

@@ -32,6 +32,7 @@ import {
   buildCommunityActivity,
   buildUpcomingTournamentPreview,
   buildHallOfChampionsPreview,
+  buildCompletedTournamentsPreview,
 } from "../dashboardModel";
 import { buildDglPointsLeaderboard } from "../../config/leaderboardConfig";
 import { getTournamentsPageLayout } from "../../config/tournamentConfig";
@@ -626,6 +627,7 @@ export async function fetchDashboardPageData() {
         { data: proof, error: proofError },
         { data: leaderboard, error: leaderboardError },
         { data: games, error: gamesError },
+        { data: completedRows, error: completedError },
       ] = await Promise.all([
         supabase.rpc("get_platform_stats"),
         supabase
@@ -644,6 +646,11 @@ export async function fetchDashboardPageData() {
         supabase.rpc("get_home_community_proof"),
         supabase.from("v_player_leaderboard").select("*"),
         supabase.from("games").select("*").order("sort_order"),
+        supabase
+          .from("v_tournaments_enriched")
+          .select("*")
+          .eq("status", "completed")
+          .order("global_number", { ascending: false }),
       ]);
 
       if (statsError) throw statsError;
@@ -652,6 +659,7 @@ export async function fetchDashboardPageData() {
       if (proofError) throw proofError;
       if (leaderboardError) throw leaderboardError;
       if (gamesError) throw gamesError;
+      if (completedError) throw completedError;
 
       const mappedUpcoming = upcoming ? mapEnrichedTournamentRow(upcoming) : null;
       const upcomingTournament = mappedUpcoming
@@ -667,6 +675,10 @@ export async function fetchDashboardPageData() {
         activity: mapActivityRows(activity),
         upcomingPreview: upcomingTournament,
         hallPreview: mapHallPreviewFromRpc(proof),
+        completedPreview: (completedRows ?? []).map((row) => {
+          const mapped = mapEnrichedTournamentRow(row);
+          return { id: mapped.id, name: mapped.championshipName };
+        }),
         leaderboardPreview: (leaderboard ?? [])
           .map((row) => mapLeaderboardRow(row))
           .slice(0, 5),
@@ -678,6 +690,7 @@ export async function fetchDashboardPageData() {
       activity: buildCommunityActivity(),
       upcomingPreview: buildUpcomingTournamentPreview(),
       hallPreview: buildHallOfChampionsPreview(),
+      completedPreview: buildCompletedTournamentsPreview(),
       leaderboardPreview: buildDglPointsLeaderboard().slice(0, 5),
       games: DGL_GAMES,
     })

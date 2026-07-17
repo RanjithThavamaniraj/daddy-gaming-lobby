@@ -146,6 +146,20 @@ export function buildUpcomingTournamentPreview() {
 }
 
 /**
+ * All completed tournaments, newest first, for the dashboard
+ * Completed Tournaments widget.
+ * Future: supabase.from("tournaments").select("*").eq("status", "Completed").order("number", { ascending: false })
+ */
+export function buildCompletedTournamentsPreview() {
+  return [...getCompletedTournaments()]
+    .sort((a, b) => b.number - a.number)
+    .map((tournament) => ({
+      id: tournament.id,
+      name: tournament.championshipName,
+    }));
+}
+
+/**
  * Latest completed tournament for the Hall of Champions widget.
  * Future: supabase.from("tournaments").select("*").eq("status", "Completed").order("number", { ascending: false }).limit(1)
  */

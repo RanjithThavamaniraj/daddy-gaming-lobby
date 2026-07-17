@@ -6,6 +6,7 @@
 import { DGL_GAMES } from "./dglGamesConfig";
 import {
   buildCommunityActivity,
+  buildCompletedTournamentsPreview,
   buildDashboardStats,
   buildHallOfChampionsPreview,
   buildLeaderboardPreview,
@@ -17,4 +18,5 @@ export const communityActivity = buildCommunityActivity();
 export const dglGames = DGL_GAMES;
 export const upcomingTournamentPreview = buildUpcomingTournamentPreview();
 export const hallOfChampionsPreview = buildHallOfChampionsPreview();
+export const completedTournamentsPreview = buildCompletedTournamentsPreview();
 export const leaderboardPreview = buildLeaderboardPreview(5);
