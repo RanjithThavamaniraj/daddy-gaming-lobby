@@ -63,7 +63,7 @@ export default function FeaturedTournament({ tournament }) {
               </div>
               <div className="hero-stat-box">
                 <span className="stat-label">PRIZE POOL</span>
-                <span className="stat-value text-accent">{tournament.prizePool}</span>
+                <span className="stat-value text-completed">{tournament.prizePool}</span>
               </div>
               {tournament.entryFee ? (
                 <div className="hero-stat-box">

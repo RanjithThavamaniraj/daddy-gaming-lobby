@@ -6,12 +6,10 @@ import useCursorGlow from "../hooks/useCursorGlow";
 import useSupabaseData from "../hooks/useSupabaseData";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import GameRealmsGrid from "../components/dashboard/GameRealmsGrid";
-import CommunityActivity from "../components/dashboard/CommunityActivity";
 import DashboardUpcomingWidget from "../components/dashboard/DashboardUpcomingWidget";
 import HallOfChampionsWidget from "../components/dashboard/HallOfChampionsWidget";
 import LeaderboardPreview from "../components/dashboard/LeaderboardPreview";
 import {
-  communityActivity,
   completedTournamentsPreview,
   dashboardStats,
   dglGames,
@@ -26,7 +24,6 @@ export default function Dashboard() {
   const dashboardData = useSupabaseData(
     {
       stats: dashboardStats,
-      activity: communityActivity,
       upcomingPreview: upcomingTournamentPreview,
       completedPreview: completedTournamentsPreview,
       leaderboardPreview,
@@ -36,7 +33,6 @@ export default function Dashboard() {
   );
   const {
     stats,
-    activity,
     upcomingPreview,
     completedPreview,
     leaderboardPreview: leaderboardTop,
@@ -99,12 +95,11 @@ export default function Dashboard() {
 
           <div className="dashboard-grid">
             <GameRealmsGrid games={games} />
-            <CommunityActivity items={activity} />
+            <HallOfChampionsWidget tournaments={completedPreview} />
           </div>
 
           <div className="dashboard-widgets-row">
             <DashboardUpcomingWidget tournament={upcomingPreview} />
-            <HallOfChampionsWidget tournaments={completedPreview} />
             <LeaderboardPreview players={leaderboardTop} />
           </div>
         </div>

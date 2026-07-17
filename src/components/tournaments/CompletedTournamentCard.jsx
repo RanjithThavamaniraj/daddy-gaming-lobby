@@ -44,7 +44,7 @@ export default function CompletedTournamentCard({ tournament }) {
           </div>
           <div className="hub-stat-box">
             <span className="hub-stat-label">PRIZE POOL</span>
-            <span className="hub-stat-value text-accent">{tournament.prizePool}</span>
+            <span className="hub-stat-value text-completed">{tournament.prizePool}</span>
           </div>
         </div>
 

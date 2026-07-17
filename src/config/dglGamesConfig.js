@@ -41,13 +41,6 @@ export const DGL_GAMES = [
     glow: "rgba(245, 197, 24, 0.4)",
   },
   {
-    id: "apex-legends",
-    name: "Apex Legends",
-    category: "Battle Royale",
-    accent: "#da2f3d",
-    glow: "rgba(218, 47, 61, 0.45)",
-  },
-  {
     id: "arc-raiders",
     name: "Arc Raiders",
     category: "Extraction",
@@ -55,32 +48,11 @@ export const DGL_GAMES = [
     glow: "rgba(255, 107, 74, 0.45)",
   },
   {
-    id: "delta-force",
-    name: "Delta Force",
-    category: "Tactical FPS",
-    accent: "#4ade80",
-    glow: "rgba(74, 222, 128, 0.4)",
-  },
-  {
-    id: "rainbow-six-siege",
-    name: "Rainbow Six Siege",
-    category: "Tactical FPS",
-    accent: "#f97316",
-    glow: "rgba(249, 115, 22, 0.45)",
-  },
-  {
     id: "rocket-league",
     name: "Rocket League",
     category: "Sports",
     accent: "#38bdf8",
     glow: "rgba(56, 189, 248, 0.4)",
-  },
-  {
-    id: "pubg",
-    name: "PUBG: Battlegrounds",
-    category: "Battle Royale",
-    accent: "#facc15",
-    glow: "rgba(250, 204, 21, 0.4)",
   },
   {
     id: "among-us",

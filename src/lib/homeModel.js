@@ -32,8 +32,6 @@ export const HOME_FEATURED_GAME_IDS = [
   "cs2",
   "fc-26",
   "marvel-rivals",
-  "apex-legends",
-  "delta-force",
   "rocket-league",
   "arc-raiders",
   "among-us",
@@ -46,8 +44,6 @@ export const HOME_GAME_TAGLINES = {
   cs2: "Competitive tactical shooter with active DGL tournaments.",
   "fc-26": "Competitive football with active DGL championships.",
   "marvel-rivals": "Hero team battles in the multi-game lineup.",
-  "apex-legends": "Battle royale squads on the DGL roadmap.",
-  "delta-force": "Tactical military FPS scheduled for DGL events.",
   "rocket-league": "High-speed sports action on the DGL roadmap.",
   "arc-raiders": "Extraction co-op title planned for DGL play.",
   "among-us": "Social deduction party game for community events.",
@@ -95,21 +91,7 @@ export const WHY_DGL_PILLARS = [
 ];
 
 /**
- * @param {string} gameSlug
- * @returns {{ status: string; label: string }}
- */
-function deriveGameRoadmapStatus(gameSlug) {
-  const hasCompleted = getCompletedTournaments().some((t) => t.gameSlug === gameSlug);
-  const hasUpcoming = getUpcomingTournaments().some((t) => t.gameSlug === gameSlug);
-
-  if (hasCompleted || hasUpcoming) {
-    return { status: "available", label: "Available" };
-  }
-  return { status: "planned", label: "Planned" };
-}
-
-/**
- * Featured games with roadmap status — no tournament details.
+ * Featured games — every supported title is AVAILABLE.
  * Future: supabase.from("games").select("*").eq("featured", true).order("sort_order")
  */
 export function buildHomeFeaturedGames() {
@@ -117,13 +99,11 @@ export function buildHomeFeaturedGames() {
     const game = DGL_GAMES.find((g) => g.id === id);
     if (!game) return null;
 
-    const { status, label } = deriveGameRoadmapStatus(id);
-
     return {
       ...game,
       tagline: HOME_GAME_TAGLINES[id] ?? game.category,
-      status,
-      statusLabel: label,
+      status: "available",
+      statusLabel: "Available",
     };
   }).filter(Boolean);
 }

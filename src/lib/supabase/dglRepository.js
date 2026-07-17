@@ -33,16 +33,16 @@ import {
   buildUpcomingTournamentPreview,
   buildHallOfChampionsPreview,
   buildCompletedTournamentsPreview,
+  buildDashboardGames,
 } from "../dashboardModel";
 import { buildDglPointsLeaderboard } from "../../config/leaderboardConfig";
 import { getTournamentsPageLayout } from "../../config/tournamentConfig";
-import { DGL_GAMES } from "../../config/dglGamesConfig";
 import {
   buildHomeFeaturedGames,
   HOME_FEATURED_GAME_IDS,
 } from "../homeModel";
 import {
-  mapDashboardGameRow,
+  mapDashboardGamesList,
   mapFeaturedGamesList,
 } from "./mapGames";
 
@@ -622,7 +622,6 @@ export async function fetchDashboardPageData() {
 
       const [
         { data: stats, error: statsError },
-        { data: activity, error: activityError },
         { data: upcoming, error: upcomingError },
         { data: proof, error: proofError },
         { data: leaderboard, error: leaderboardError },
@@ -630,12 +629,6 @@ export async function fetchDashboardPageData() {
         { data: completedRows, error: completedError },
       ] = await Promise.all([
         supabase.rpc("get_platform_stats"),
-        supabase
-          .from("community_activity")
-          .select("id, title, summary, activity_type, occurred_at")
-          .eq("is_public", true)
-          .order("occurred_at", { ascending: false })
-          .limit(20),
         supabase
           .from("v_tournaments_enriched")
           .select("*")
@@ -654,7 +647,6 @@ export async function fetchDashboardPageData() {
       ]);
 
       if (statsError) throw statsError;
-      if (activityError) throw activityError;
       if (upcomingError) throw upcomingError;
       if (proofError) throw proofError;
       if (leaderboardError) throw leaderboardError;
@@ -672,27 +664,29 @@ export async function fetchDashboardPageData() {
 
       return {
         stats: stats ? mapPlatformStatsRpc(stats) : [],
-        activity: mapActivityRows(activity),
         upcomingPreview: upcomingTournament,
         hallPreview: mapHallPreviewFromRpc(proof),
         completedPreview: (completedRows ?? []).map((row) => {
           const mapped = mapEnrichedTournamentRow(row);
-          return { id: mapped.id, name: mapped.championshipName };
+          return {
+            id: mapped.id,
+            name: mapped.championshipName,
+            completedDate: mapped.completedDate ?? null,
+          };
         }),
         leaderboardPreview: (leaderboard ?? [])
           .map((row) => mapLeaderboardRow(row))
           .slice(0, 5),
-        games: (games ?? []).map(mapDashboardGameRow),
+        games: mapDashboardGamesList(games ?? []),
       };
     },
     () => ({
       stats: buildDashboardStats(),
-      activity: buildCommunityActivity(),
       upcomingPreview: buildUpcomingTournamentPreview(),
       hallPreview: buildHallOfChampionsPreview(),
       completedPreview: buildCompletedTournamentsPreview(),
       leaderboardPreview: buildDglPointsLeaderboard().slice(0, 5),
-      games: DGL_GAMES,
+      games: buildDashboardGames(),
     })
   );
 }

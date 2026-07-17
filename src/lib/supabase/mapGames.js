@@ -1,12 +1,8 @@
+import { DGL_GAMES } from "../../config/dglGamesConfig";
 import { HOME_FEATURED_GAME_IDS, HOME_GAME_TAGLINES } from "../homeModel";
 
-/** @type {Record<string, string>} */
-const GAME_STATUS_LABELS = {
-  available: "Available",
-  coming_soon: "Coming Soon",
-  planned: "Planned",
-  archived: "Archived",
-};
+/** Frontend-supported game lineup (excludes titles removed from DGL listings). */
+const SUPPORTED_GAME_IDS = new Set(DGL_GAMES.map((game) => game.id));
 
 /**
  * @param {object} row - games table row
@@ -18,15 +14,24 @@ export function mapDashboardGameRow(row) {
     category: row.category,
     accent: row.accent_color,
     glow: row.glow_color,
+    status: "available",
+    statusLabel: "Available",
   };
+}
+
+/**
+ * @param {object[]} rows
+ */
+export function mapDashboardGamesList(rows) {
+  return (rows ?? [])
+    .map(mapDashboardGameRow)
+    .filter((game) => SUPPORTED_GAME_IDS.has(game.id));
 }
 
 /**
  * @param {object} row - games table row
  */
 export function mapFeaturedGameRow(row) {
-  const statusKey = row.status === "coming_soon" ? "coming-soon" : row.status;
-
   return {
     id: row.slug,
     name: row.name,
@@ -34,8 +39,8 @@ export function mapFeaturedGameRow(row) {
     accent: row.accent_color,
     glow: row.glow_color,
     tagline: HOME_GAME_TAGLINES[row.slug] ?? row.category ?? "",
-    status: statusKey,
-    statusLabel: GAME_STATUS_LABELS[row.status] ?? "Planned",
+    status: "available",
+    statusLabel: "Available",
   };
 }
 

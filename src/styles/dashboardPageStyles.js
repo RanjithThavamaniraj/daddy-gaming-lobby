@@ -785,6 +785,40 @@ export const dashboardPageStyles = `
           animation: statusBlink 1.5s ease-in-out infinite;
         }
 
+        .game-status-available {
+          background: rgba(34,197,94,.1);
+          border: 1px solid rgba(34,197,94,.3);
+          color: #86efac;
+        }
+
+        .game-status-available .game-status-dot {
+          background: #22c55e;
+          box-shadow: 0 0 8px #22c55e;
+        }
+
+        .game-status-coming-soon {
+          background: rgba(168,85,247,.1);
+          border: 1px solid rgba(168,85,247,.25);
+          color: #c084fc;
+        }
+
+        .game-status-coming-soon .game-status-dot {
+          background: #a855f7;
+          box-shadow: 0 0 8px #a855f7;
+        }
+
+        .game-status-planned {
+          background: rgba(255,255,255,.04);
+          border: 1px solid rgba(255,255,255,.1);
+          color: #9ca3af;
+        }
+
+        .game-status-planned .game-status-dot {
+          background: #6b7280;
+          box-shadow: none;
+          animation: none;
+        }
+
         /* ── Activity feed ── */
         .activity-list {
           display: flex;
@@ -937,7 +971,7 @@ export const dashboardPageStyles = `
   /* ── Dashboard widgets ── */
   .dashboard-widgets-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
     margin-top: 1.5rem;
   }
@@ -1040,6 +1074,27 @@ export const dashboardPageStyles = `
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+  }
+
+  .completed-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .completed-list-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .completed-list-date {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+    padding-left: 1.5rem;
   }
 
   .widget-status-completed {

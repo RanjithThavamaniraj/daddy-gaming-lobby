@@ -177,6 +177,11 @@ export const tournamentResultsPageStyles = `
     gap: 0.25rem;
   }
 
+  .results-hero-stat .text-completed {
+    color: #fcd34d;
+    text-shadow: 0 0 8px rgba(245,158,11,0.35);
+  }
+
   /* Player cards */
   .results-players-grid {
     display: grid;

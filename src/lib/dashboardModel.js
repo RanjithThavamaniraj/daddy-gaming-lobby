@@ -1,4 +1,5 @@
 import { buildDglPointsLeaderboard } from "../config/leaderboardConfig";
+import { DGL_GAMES } from "../config/dglGamesConfig";
 import { aggregateCompletedTournamentStats } from "./tournamentStats";
 import {
   formatGlobalTournamentNumber,
@@ -7,6 +8,17 @@ import {
   toUpcomingCardShape,
 } from "./tournamentModel";
 
+/**
+ * Supported games for Active Realms — every supported title is AVAILABLE.
+ * @returns {object[]}
+ */
+export function buildDashboardGames() {
+  return DGL_GAMES.map((game) => ({
+    ...game,
+    status: "available",
+    statusLabel: "Available",
+  }));
+}
 /**
  * Platform statistics for the dashboard command center.
  * Future: supabase.rpc("get_platform_stats")
@@ -156,6 +168,7 @@ export function buildCompletedTournamentsPreview() {
     .map((tournament) => ({
       id: tournament.id,
       name: tournament.championshipName,
+      completedDate: tournament.completedDate ?? null,
     }));
 }
 

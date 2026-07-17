@@ -3,10 +3,10 @@
  * Future: load via Supabase and pass into dashboard components as props.
  */
 
-import { DGL_GAMES } from "./dglGamesConfig";
 import {
   buildCommunityActivity,
   buildCompletedTournamentsPreview,
+  buildDashboardGames,
   buildDashboardStats,
   buildHallOfChampionsPreview,
   buildLeaderboardPreview,
@@ -15,7 +15,7 @@ import {
 
 export const dashboardStats = buildDashboardStats();
 export const communityActivity = buildCommunityActivity();
-export const dglGames = DGL_GAMES;
+export const dglGames = buildDashboardGames();
 export const upcomingTournamentPreview = buildUpcomingTournamentPreview();
 export const hallOfChampionsPreview = buildHallOfChampionsPreview();
 export const completedTournamentsPreview = buildCompletedTournamentsPreview();

@@ -263,8 +263,8 @@ body { background: #060608; color: white; font-family: 'Rajdhani', Arial, sans-s
 }
 
 .hall-meta-value.hall-accent {
-  color: var(--accent);
-  text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 40%, transparent);
+  color: #fcd34d;
+  text-shadow: 0 0 10px rgba(245,158,11,0.4);
 }
 
 .hall-meta-inline {

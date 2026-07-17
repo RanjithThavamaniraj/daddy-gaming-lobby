@@ -36,7 +36,7 @@ export default function TournamentResultsHero({ tournament }) {
             </div>
             <div className="results-hero-stat">
               <span className="stat-label">Prize Pool</span>
-              <span className="stat-value text-accent">{tournament.prizePool}</span>
+              <span className="stat-value text-completed">{tournament.prizePool}</span>
             </div>
           </div>
         </div>
