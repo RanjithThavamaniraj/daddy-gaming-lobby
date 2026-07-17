@@ -59,6 +59,18 @@ export default function GameIcon({ slug }) {
         <circle cx="16" cy="16" r="3" fill="currentColor" />
       </svg>
     ),
+    "among-us": (
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden>
+        <path d="M12 6h6a8 8 0 018 8v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-8a8 8 0 018-8z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M17 11h6v5h-6z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    ),
+    "fall-guys": (
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden>
+        <circle cx="16" cy="13" r="7" stroke="currentColor" strokeWidth="2" />
+        <path d="M6 26l5-5 5 5 5-5 5 5" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      </svg>
+    ),
   };
 
   return icons[slug] ?? icons.valorant;

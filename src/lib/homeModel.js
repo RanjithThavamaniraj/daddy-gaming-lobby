@@ -36,6 +36,8 @@ export const HOME_FEATURED_GAME_IDS = [
   "delta-force",
   "rocket-league",
   "arc-raiders",
+  "among-us",
+  "fall-guys",
 ];
 
 /** One-line game blurbs — no tournament details. */
@@ -48,6 +50,8 @@ export const HOME_GAME_TAGLINES = {
   "delta-force": "Tactical military FPS scheduled for DGL events.",
   "rocket-league": "High-speed sports action on the DGL roadmap.",
   "arc-raiders": "Extraction co-op title planned for DGL play.",
+  "among-us": "Social deduction party game for community events.",
+  "fall-guys": "Competitive party platformer with fun community tournaments.",
 };
 
 /** Combined platform value props — short copy only. */

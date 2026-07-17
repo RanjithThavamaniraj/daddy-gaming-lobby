@@ -82,4 +82,18 @@ export const DGL_GAMES = [
     accent: "#facc15",
     glow: "rgba(250, 204, 21, 0.4)",
   },
+  {
+    id: "among-us",
+    name: "Among Us",
+    category: "Social Deduction",
+    accent: "#14b8a6",
+    glow: "rgba(20, 184, 166, 0.4)",
+  },
+  {
+    id: "fall-guys",
+    name: "Fall Guys",
+    category: "Party Platformer",
+    accent: "#ec4899",
+    glow: "rgba(236, 72, 153, 0.4)",
+  },
 ];
