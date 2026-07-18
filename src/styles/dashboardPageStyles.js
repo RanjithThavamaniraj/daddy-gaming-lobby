@@ -144,6 +144,7 @@ export const dashboardPageStyles = `
           align-items: center;
           gap: 1.25rem;
           flex-wrap: wrap;
+          justify-content: flex-end;
         }
 
         .quick-join-btn {
@@ -282,7 +283,7 @@ export const dashboardPageStyles = `
         .stats-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1.25rem;
+          gap: 1.5rem;
           margin-bottom: var(--dgl-title-gap);
         }
 
@@ -371,7 +372,7 @@ export const dashboardPageStyles = `
         .dashboard-grid {
           display: grid;
           grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
-          gap: clamp(1.25rem, 2.5vw, 1.75rem);
+          gap: 1.5rem;
           align-items: start;
         }
 
@@ -458,7 +459,7 @@ export const dashboardPageStyles = `
         .games-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-          gap: 1.25rem;
+          gap: 1.5rem;
           position: relative;
           z-index: 1;
         }
@@ -1080,7 +1081,7 @@ export const dashboardPageStyles = `
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
+    gap: 0.5rem;
   }
 
   .completed-list-item {

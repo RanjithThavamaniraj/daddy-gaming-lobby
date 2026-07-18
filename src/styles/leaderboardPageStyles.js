@@ -110,7 +110,7 @@ body { background: #060608; color: white; font-family: 'Rajdhani', Arial, sans-s
 .hall-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 @media (min-width: 768px) {
@@ -160,7 +160,7 @@ body { background: #060608; color: white; font-family: 'Rajdhani', Arial, sans-s
 .hall-card:hover .card-glow { opacity: 1; transform: scale(1.2); }
 
 .hall-card-inner {
-  position: relative; border-radius: 19px; padding: 1.75rem;
+  position: relative; border-radius: 19px; padding: 1.5rem;
   background: rgba(255,255,255,0.025);
   border: 1px solid rgba(255,255,255,0.07);
   backdrop-filter: blur(16px); height: 100%;

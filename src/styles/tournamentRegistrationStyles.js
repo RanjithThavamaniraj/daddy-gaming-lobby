@@ -149,7 +149,7 @@ html, body {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 3rem);
+  padding: 3rem 2.5rem;
   background: rgba(10,10,14,0.6);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -244,7 +244,7 @@ html, body {
 .register-body {
   position: relative;
   z-index: 2;
-  padding: clamp(2rem, 5vw, 3rem);
+  padding: 3rem;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
@@ -335,7 +335,7 @@ html, body {
   background: rgba(255,255,255,0.02);
   border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   border-radius: 8px;
-  padding: 1.25rem 1.5rem;
+  padding: 1.5rem;
   margin-bottom: 2rem;
   backdrop-filter: blur(4px);
 }
@@ -551,7 +551,7 @@ html, body {
   background: rgba(255,255,255,0.02);
   border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   border-radius: 8px;
-  padding: 1.75rem;
+  padding: 1.5rem;
   backdrop-filter: blur(4px);
   animation: fadeUp 0.6s ease both 0.15s;
 }

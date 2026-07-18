@@ -170,7 +170,7 @@ export const tournamentsPageStyles = `
     position: relative;
     background: linear-gradient(135deg, rgba(10,10,15,0.96), rgba(20,10,30,0.96));
     clip-path: polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px);
-    padding: clamp(1.5rem, 4vw, 3.5rem);
+    padding: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -581,11 +581,11 @@ export const tournamentsPageStyles = `
 
   .tournament-hub-card-inner {
     background: rgba(10,10,14,0.95);
-    padding: 1.75rem;
+    padding: 1.5rem;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
     min-height: 100%;
   }
 
