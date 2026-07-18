@@ -22,6 +22,7 @@ import {
   getTournamentBySlug,
   getUpcomingTournaments,
   selectFeaturedTournament,
+  selectNextTournament,
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
@@ -529,11 +530,15 @@ export async function fetchTournamentsPageLayout() {
     const featuredTournament = selectFeaturedTournament(all);
     const featuredShape = featuredTournament ? toFeaturedShape(featuredTournament) : null;
 
+    const nextTournament = selectNextTournament(all, featuredTournament);
+    const nextShape = nextTournament ? toFeaturedShape(nextTournament) : null;
+
     const upcomingTournaments = upcoming.map(toUpcomingCardShape);
     const completedTournaments = completed.map(toCompletedCardShape);
 
     return getTournamentsPageLayout({
       featured: featuredShape,
+      next: nextShape,
       upcoming: upcomingTournaments,
       completed: completedTournaments,
     });

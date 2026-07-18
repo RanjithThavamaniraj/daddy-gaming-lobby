@@ -117,7 +117,22 @@ export const TOURNAMENT_REGISTRY = [
     startsAt: "2026-07-25T19:30:00Z",
     accent: "#de9b35",
   },
-  // Future: number 4 — gameSlug "valorant" → DGL Valorant Championship #2
-  // Future: number 5 — gameSlug "marvel-rivals"
-  // Future: number 6 — gameSlug "arc-raiders"
+  {
+    number: 4,
+    id: "dgl-fc26-championship-2",
+    slug: "fc26-2",
+    game: "EA SPORTS FC 26",
+    gameSlug: "fc-26",
+    championshipLabel: "FC 26",
+    format: "1v1",
+    matchType: "Group Stage → Knockout",
+    prizePool: "₹2,000",
+    entryFee: "Free",
+    registrationLimit: 16,
+    status: "Coming Soon",
+    accent: "#00c853",
+  },
+  // Future: number 5 — gameSlug "valorant" → DGL Valorant Championship #2
+  // Future: number 6 — gameSlug "marvel-rivals"
+  // Future: number 7 — gameSlug "arc-raiders"
 ];

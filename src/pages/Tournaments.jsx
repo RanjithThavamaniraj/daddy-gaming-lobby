@@ -5,6 +5,7 @@ import PageMeta from "../components/PageMeta";
 import useCursorGlow from "../hooks/useCursorGlow";
 import useSupabaseData from "../hooks/useSupabaseData";
 import FeaturedTournament from "../components/tournaments/FeaturedTournament";
+import NextTournamentCard from "../components/tournaments/NextTournamentCard";
 import UpcomingTournamentCard from "../components/tournaments/UpcomingTournamentCard";
 import CompletedTournamentCard from "../components/tournaments/CompletedTournamentCard";
 import { getTournamentsPageLayout } from "../config/tournamentConfig";
@@ -17,8 +18,13 @@ export default function Tournaments() {
     getTournamentsPageLayout(),
     fetchTournamentsPageLayout
   );
-  const { mainEvent, upcomingDisplay, showCompletedArchive, archivedCompleted } =
-    layout;
+  const {
+    mainEvent,
+    nextTournament,
+    upcomingDisplay,
+    showCompletedArchive,
+    archivedCompleted,
+  } = layout;
   const containerRef = useRef(null);
 
   useCursorGlow(containerRef, { glowLerp: 0.1, trailLerp: 0.04 });
@@ -42,6 +48,10 @@ export default function Tournaments() {
 
           <div className="layout-grid">
             <FeaturedTournament tournament={mainEvent} />
+
+            {nextTournament ? (
+              <NextTournamentCard tournament={nextTournament} mainEvent={mainEvent} />
+            ) : null}
 
             {upcomingDisplay.length > 0 ? (
               <section className="upcoming-section">

@@ -220,8 +220,16 @@ export function toFeaturedShape(tournament) {
 
 /**
  * Featured tournament priority order:
- *   0. isFeatured (manual override — exceptional cases only)
- *   1. Live  2. Registrations Open  3. Registrations Closed  4. Coming Soon  5. Latest Completed
+ *   0. isFeatured (manual override — set explicitly by promote_next_tournament)
+ *   1. Live  2. Registrations Open  3. Registrations Closed  4. Latest Completed
+ *
+ * Deliberately excludes "Coming Soon": a coming_soon tournament (e.g. the
+ * Next Tournament) must never become the Main Event on its own. Promotion
+ * only happens via an explicit admin action, which sets is_featured=true
+ * (tier 0) at the same time it opens registration (tier 2) — so once
+ * promoted, a tournament is always caught by an earlier tier anyway. This
+ * is what keeps "finish the current Main Event" from silently promoting
+ * whatever is next.
  *
  * @param {ReturnType<typeof enrichTournament>[]} tournaments
  * @returns {ReturnType<typeof enrichTournament> | null}
@@ -249,15 +257,50 @@ export function selectFeaturedTournament(tournaments) {
     .sort((a, b) => a.globalNumber - b.globalNumber)[0];
   if (closed) return closed;
 
-  const upcoming = tournaments
-    .filter((t) => t.status === "Coming Soon")
-    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
-  if (upcoming) return upcoming;
-
   const completed = tournaments
     .filter((t) => t.status === "Completed")
     .sort((a, b) => (b.globalNumber ?? 0) - (a.globalNumber ?? 0))[0];
   return completed ?? null;
+}
+
+/**
+ * Next Tournament selection — same status-priority rule as
+ * selectFeaturedTournament, applied to whatever is left once the current
+ * Main Event and completed tournaments are excluded. Purely derived: a
+ * tournament becomes "next" automatically the moment it outranks any other
+ * non-featured, non-completed tournament, with no manual flag and no code
+ * changes required for future championships.
+ *
+ * @param {ReturnType<typeof enrichTournament>[]} tournaments
+ * @param {ReturnType<typeof enrichTournament> | null} mainEvent - the tournament already selected as Main Event
+ * @returns {ReturnType<typeof enrichTournament> | null}
+ */
+export function selectNextTournament(tournaments, mainEvent) {
+  if (!tournaments?.length) return null;
+
+  const candidates = tournaments.filter(
+    (t) => t.status !== "Completed" && t.id !== mainEvent?.id
+  );
+
+  const live = candidates
+    .filter((t) => t.status === "Live")
+    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+  if (live) return live;
+
+  const open = candidates
+    .filter((t) => t.status === "Registrations Open")
+    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+  if (open) return open;
+
+  const closed = candidates
+    .filter((t) => t.status === "Registrations Closed")
+    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+  if (closed) return closed;
+
+  const upcoming = candidates
+    .filter((t) => t.status === "Coming Soon")
+    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+  return upcoming ?? null;
 }
 
 /**
