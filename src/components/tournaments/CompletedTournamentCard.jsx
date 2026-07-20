@@ -1,20 +1,20 @@
 import { Link } from "react-router-dom";
-import { Trophy } from "lucide-react";
 
 import GameIcon from "./GameIcon";
 
 /**
  * Card for a finished tournament with results link.
+ * Preview only — full champion roster lives on the results page.
  * @param {object} props
  * @param {object} props.tournament
  */
 export default function CompletedTournamentCard({ tournament }) {
   const gameSlug = tournament.gameSlug ?? tournament.game?.toLowerCase().replace(/\s+/g, "-");
-  const championPlayers = tournament.championPlayers ?? [];
-  const championLabel =
-    championPlayers.length > 0
-      ? championPlayers.join(", ")
-      : tournament.champion ?? tournament.championPlaceholder ?? "To be updated";
+  const winnerCount = (tournament.championPlayers ?? []).length;
+  const winnersSummary =
+    winnerCount > 0
+      ? `${winnerCount} Winner${winnerCount === 1 ? "" : "s"} Crowned`
+      : tournament.championPlaceholder ?? "To be updated";
 
   return (
     <article
@@ -36,14 +36,11 @@ export default function CompletedTournamentCard({ tournament }) {
 
         <div className="hub-card-stats">
           <div className="hub-stat-box">
-            <span className="hub-stat-label">CHAMPIONS</span>
-            <span className="hub-stat-value">
-              <Trophy size={14} className="hub-stat-icon" />
-              {championLabel}
-            </span>
+            <span className="hub-stat-label">🏆 Champions</span>
+            <span className="hub-stat-value">{winnersSummary}</span>
           </div>
           <div className="hub-stat-box">
-            <span className="hub-stat-label">PRIZE POOL</span>
+            <span className="hub-stat-label">💰 Prize Pool</span>
             <span className="hub-stat-value text-completed">{tournament.prizePool}</span>
           </div>
         </div>
