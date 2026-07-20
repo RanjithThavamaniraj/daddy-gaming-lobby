@@ -742,15 +742,16 @@ export const homePageStyles = `
           text-shadow: 0 0 16px color-mix(in srgb, var(--accent, #f59e0b) 45%, transparent);
         }
 
-        /* 48px: with the footer's own top margin this matches the 2×section
-           inter-section boundary at both desktop (48+80=128) and mobile (48+48=96). */
-        .discord-cta-section { padding-bottom: 3rem; border-bottom: none; }
+        /* CTA closes into the footer panel — keep ~32px between them so they
+           feel continuous without stacking as identical cards. */
+        .discord-cta-section { padding-bottom: 0.75rem; border-bottom: none; }
 
         .discord-cta-card {
           position: relative; overflow: hidden; text-align: center;
           background: linear-gradient(160deg, rgba(168,85,247,.12), rgba(255,255,255,.02));
           border: 1px solid rgba(168,85,247,.22);
           border-radius: 24px; padding: 3rem 2rem; /* 48px / 32px; steps to 32px/24px ≤768px */
+          box-shadow: 0 20px 48px rgba(0,0,0,.28), 0 0 32px rgba(168,85,247,.08);
           animation: fadeUp .6s var(--ease-smooth) both;
         }
 
@@ -903,40 +904,43 @@ export const homePageStyles = `
         @media (max-width: 480px) {
           .community-proof-stats { grid-template-columns: 1fr; }
         }
-        /* ── FOOTER ── */
+        /* ── FOOTER — quieter glass panel in the CTA material language ── */
         .home-footer {
-          margin-top: 5rem; /* 80px: pairs with .discord-cta-section's 48px bottom padding = 128px, the standard desktop section boundary */
-          padding: 3rem 0 1.5rem; /* 48px / 24px */
-          background: linear-gradient(180deg, transparent, rgba(168,85,247,0.05));
-          border-top: none;
           position: relative;
           z-index: 10;
+          overflow: hidden;
+          margin-top: 1.25rem; /* ~20px + CTA 12px ≈ 32px CTA→footer gap */
+          margin-bottom: 1.5rem;
+          padding: 2rem 2rem 1.5rem;
+          background: linear-gradient(160deg, rgba(168,85,247,.06), rgba(255,255,255,.02));
+          border: 1px solid rgba(168,85,247,.14);
+          border-radius: 24px;
+          box-shadow: 0 16px 40px rgba(0,0,0,.22), 0 0 24px rgba(168,85,247,.05);
         }
         .home-footer::before {
           content: '';
           position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent);
+          inset: 0;
+          background: radial-gradient(ellipse at 50% 0%, rgba(168,85,247,.08), transparent 55%);
+          pointer-events: none;
         }
         .home-footer::after {
-          content: '';
-          position: absolute;
-          top: 0; left: 50%;
-          transform: translateX(-50%);
-          width: min(640px, 80%);
-          height: 96px;
-          background: radial-gradient(ellipse at top, rgba(168,85,247,0.08), transparent 70%);
-          pointer-events: none;
+          display: none;
         }
         .footer-grid {
           position: relative;
           z-index: 1;
           display: grid;
-          grid-template-columns: minmax(280px, 420px) auto auto;
-          justify-content: space-between;
-          gap: 3rem 4rem; /* 48px / 64px */
-          margin-bottom: 3rem; /* 48px */
+          grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+          align-items: start;
+          gap: 2rem 2.5rem;
+          margin-bottom: 1.75rem;
+        }
+        .footer-brand {
+          max-width: 28rem;
+        }
+        .footer-col {
+          min-width: 0;
         }
         .footer-brand .logo-link {
           display: inline-flex;
@@ -973,7 +977,7 @@ export const homePageStyles = `
           font-size: 0.8rem;
           font-weight: 800;
           letter-spacing: 0.18em;
-          margin-bottom: 1rem; /* 16px */
+          margin-bottom: 1rem;
           text-transform: uppercase;
         }
         .footer-col-title::after {
@@ -1005,18 +1009,24 @@ export const homePageStyles = `
         .footer-bottom {
           position: relative;
           z-index: 1;
-          padding-top: 1.5rem; /* 24px */
-          border-top: 1px solid transparent;
-          border-image: linear-gradient(90deg, transparent, rgba(168,85,247,0.3), transparent) 1;
-          display: flex;
-          justify-content: space-between;
+          padding-top: 1.25rem;
+          margin-top: 0;
+          border-top: 1px solid rgba(168,85,247,.12);
+          display: grid;
+          grid-template-columns: minmax(0, 2fr) minmax(0, 2fr);
           align-items: center;
+          gap: 1rem 2.5rem;
           color: #6b7280;
           font-size: 0.85rem;
           font-weight: 500;
         }
+        .footer-copyright {
+          min-width: 0;
+        }
         .footer-socials {
           display: flex;
+          justify-content: flex-end;
+          flex-wrap: wrap;
           gap: 1.5rem;
         }
         .footer-socials a {
@@ -1051,17 +1061,25 @@ export const homePageStyles = `
           .hero-section { min-height: auto; padding-block: 3rem 2rem; }
           .community-proof-stats { grid-template-columns: 1fr 1fr; }
           .platform-update-text { white-space: normal; font-size: .68rem; }
+          .home-footer {
+            margin-top: 1rem;
+            margin-bottom: 1.25rem;
+            padding: 1.5rem 1.25rem 1.25rem;
+          }
           .footer-grid {
             grid-template-columns: 1fr;
-            justify-content: start;
-            gap: 2rem; /* 32px */
+            gap: 1.75rem;
+            margin-bottom: 1.5rem;
           }
           .footer-bottom {
-            flex-direction: column;
-            gap: 1rem; /* 16px */
+            grid-template-columns: 1fr;
+            justify-items: center;
             text-align: center;
+            gap: 1rem;
           }
-          .home-footer { margin-top: 3rem; }
+          .footer-socials {
+            justify-content: center;
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           * { animation: none !important; transition: none !important; }

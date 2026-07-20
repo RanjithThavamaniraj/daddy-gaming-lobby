@@ -219,22 +219,42 @@ canvas.bg-particles {
   font-weight: 700;
 }
 
-/* ── FOOTER ── */
+/* ── FOOTER — quieter glass panel matching homepage CTA materials ── */
 .home-footer {
+  position: relative;
+  overflow: hidden;
   margin-top: auto;
-  border-top: 1px solid rgba(168,85,247,0.08);
-  padding-block: 3rem 2rem;
+  margin-bottom: 1.5rem;
+  padding: 2rem 2rem 1.5rem;
+  background: linear-gradient(160deg, rgba(168,85,247,.06), rgba(255,255,255,.02));
+  border: 1px solid rgba(168,85,247,.14);
+  border-radius: 24px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.22), 0 0 24px rgba(168,85,247,.05);
+}
+.home-footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(168,85,247,.08), transparent 55%);
+  pointer-events: none;
 }
 .footer-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 4rem;
-  margin-bottom: 3rem;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 2rem 2.5rem;
+  margin-bottom: 1.75rem;
 }
 .footer-brand {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-width: 28rem;
+}
+.footer-col {
+  min-width: 0;
 }
 .footer-desc {
   color: #6b7280;
@@ -249,12 +269,12 @@ canvas.bg-particles {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: #fff;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 .footer-links {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 .footer-links a {
   color: #6b7280;
@@ -266,15 +286,25 @@ canvas.bg-particles {
   color: #e9d5ff;
 }
 .footer-bottom {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(168,85,247,.12);
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr);
   align-items: center;
+  gap: 1rem 2.5rem;
   color: #6b7280;
   font-size: 0.85rem;
   font-weight: 500;
 }
+.footer-copyright {
+  min-width: 0;
+}
 .footer-socials {
   display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 1.25rem;
 }
 .footer-socials a {
@@ -292,14 +322,23 @@ canvas.bg-particles {
 @media (max-width: 768px) {
   .nav-left { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
   .nav-links { gap: 1.25rem 1.5rem; flex-wrap: wrap; }
+  .home-footer {
+    margin-bottom: 1.25rem;
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
   .footer-grid {
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: 1.75rem;
+    margin-bottom: 1.5rem;
   }
   .footer-bottom {
-    flex-direction: column;
-    gap: 1.25rem;
+    grid-template-columns: 1fr;
+    justify-items: center;
     text-align: center;
+    gap: 1rem;
+  }
+  .footer-socials {
+    justify-content: center;
   }
   .legal-body {
     padding: 1.5rem;
