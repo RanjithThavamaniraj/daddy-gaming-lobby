@@ -905,20 +905,38 @@ export const homePageStyles = `
         }
         /* ── FOOTER ── */
         .home-footer {
-          margin-top: clamp(3rem, 6vw, 5rem);
-          padding: clamp(2.5rem, 5vw, 3.5rem) 0 clamp(1.5rem, 3vw, 2rem);
-          background: linear-gradient(180deg, transparent, rgba(168,85,247,0.04));
-          border-top: 1px solid rgba(168,85,247,0.15);
+          margin-top: 5rem; /* 80px: pairs with .discord-cta-section's 48px bottom padding = 128px, the standard desktop section boundary */
+          padding: 3rem 0 1.5rem; /* 48px / 24px */
+          background: linear-gradient(180deg, transparent, rgba(168,85,247,0.05));
+          border-top: none;
           position: relative;
           z-index: 10;
         }
+        .home-footer::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent);
+        }
+        .home-footer::after {
+          content: '';
+          position: absolute;
+          top: 0; left: 50%;
+          transform: translateX(-50%);
+          width: min(640px, 80%);
+          height: 96px;
+          background: radial-gradient(ellipse at top, rgba(168,85,247,0.08), transparent 70%);
+          pointer-events: none;
+        }
         .footer-grid {
+          position: relative;
+          z-index: 1;
           display: grid;
-          grid-template-columns: 2fr 1fr 1fr;
-          gap: clamp(2rem, 4vw, 3rem);
-          max-width: 100%;
-          margin: 0 auto;
-          margin-bottom: clamp(2rem, 4vw, 3rem);
+          grid-template-columns: minmax(280px, 420px) auto auto;
+          justify-content: space-between;
+          gap: 3rem 4rem; /* 48px / 64px */
+          margin-bottom: 3rem; /* 48px */
         }
         .footer-brand .logo-link {
           display: inline-flex;
@@ -928,7 +946,7 @@ export const homePageStyles = `
           margin-bottom: 1rem;
         }
         .footer-brand .logo-icon {
-          height: 32px;
+          height: 40px;
           width: auto;
           object-fit: contain;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.4));
@@ -945,18 +963,27 @@ export const homePageStyles = `
         }
         .footer-desc {
           color: #9ca3af;
-          line-height: 1.6;
+          line-height: 1.7;
           font-size: 0.95rem;
-          max-width: 320px;
+          max-width: 360px;
         }
         .footer-col-title {
           font-family: 'Orbitron', sans-serif;
-          color: #fff;
-          font-size: 1.1rem;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-          margin-bottom: 1.5rem;
+          color: #c084fc;
+          font-size: 0.8rem;
+          font-weight: 800;
+          letter-spacing: 0.18em;
+          margin-bottom: 1rem; /* 16px */
           text-transform: uppercase;
+        }
+        .footer-col-title::after {
+          content: '';
+          display: block;
+          width: 24px;
+          height: 2px;
+          margin-top: 0.5rem;
+          border-radius: 1px;
+          background: linear-gradient(90deg, #a855f7, transparent);
         }
         .footer-links {
           display: flex;
@@ -973,12 +1000,14 @@ export const homePageStyles = `
         .footer-links a:hover {
           color: #c084fc;
           transform: translateX(4px);
+          text-shadow: 0 0 14px rgba(168,85,247,0.45);
         }
         .footer-bottom {
-          max-width: 100%;
-          margin: 0 auto;
-          padding-top: 2rem;
-          border-top: 1px solid rgba(255,255,255,0.05);
+          position: relative;
+          z-index: 1;
+          padding-top: 1.5rem; /* 24px */
+          border-top: 1px solid transparent;
+          border-image: linear-gradient(90deg, transparent, rgba(168,85,247,0.3), transparent) 1;
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -988,7 +1017,7 @@ export const homePageStyles = `
         }
         .footer-socials {
           display: flex;
-          gap: 1.25rem;
+          gap: 1.5rem;
         }
         .footer-socials a {
           color: #6b7280;
@@ -999,6 +1028,7 @@ export const homePageStyles = `
         }
         .footer-socials a:hover {
           color: #a855f7;
+          text-shadow: 0 0 12px rgba(168,85,247,0.4);
         }
 
         /* ── RESPONSIVE ── */
@@ -1023,13 +1053,15 @@ export const homePageStyles = `
           .platform-update-text { white-space: normal; font-size: .68rem; }
           .footer-grid {
             grid-template-columns: 1fr;
-            gap: 2.5rem;
+            justify-content: start;
+            gap: 2rem; /* 32px */
           }
           .footer-bottom {
             flex-direction: column;
-            gap: 1rem;
+            gap: 1rem; /* 16px */
             text-align: center;
           }
+          .home-footer { margin-top: 3rem; }
         }
         @media (prefers-reduced-motion: reduce) {
           * { animation: none !important; transition: none !important; }
