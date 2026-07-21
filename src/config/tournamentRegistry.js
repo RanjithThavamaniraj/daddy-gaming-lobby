@@ -126,7 +126,7 @@ export const TOURNAMENT_REGISTRY = [
     championshipLabel: "FC 26",
     format: "1v1",
     matchType: "Group Stage → Knockout",
-    prizePool: "₹2,000",
+    prizePool: "₹3,000",
     entryFee: "Free",
     registrationLimit: 16,
     status: "Coming Soon",
