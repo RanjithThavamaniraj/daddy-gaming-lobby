@@ -90,8 +90,17 @@ export const WHY_DGL_PILLARS = [
   },
 ];
 
+/** Game slugs whose homepage badge reads "Tournament Ready" instead of "Available". */
+const HOME_TOURNAMENT_READY_GAME_IDS = [
+  "valorant",
+  "cs2",
+  "fc-26",
+  "rocket-league",
+  "among-us",
+];
+
 /**
- * Featured games — every supported title is AVAILABLE.
+ * Featured games — tournament-ready titles are TOURNAMENT READY, the rest AVAILABLE.
  * Future: supabase.from("games").select("*").eq("featured", true).order("sort_order")
  */
 export function buildHomeFeaturedGames() {
@@ -99,11 +108,13 @@ export function buildHomeFeaturedGames() {
     const game = DGL_GAMES.find((g) => g.id === id);
     if (!game) return null;
 
+    const isTournamentReady = HOME_TOURNAMENT_READY_GAME_IDS.includes(id);
+
     return {
       ...game,
       tagline: HOME_GAME_TAGLINES[id] ?? game.category,
       status: "available",
-      statusLabel: "Available",
+      statusLabel: isTournamentReady ? "Tournament Ready" : "Available",
     };
   }).filter(Boolean);
 }
