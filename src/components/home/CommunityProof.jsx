@@ -11,9 +11,9 @@ export default function CommunityProof({ proof }) {
   return (
     <section className="section community-proof-section">
       <div className="section-header">
-        <p className="section-eyebrow">Real Results</p>
+        <p className="section-eyebrow">Tournament History</p>
         <h2 className="section-title">
-          Community <span>Proof</span>
+          DGL <span>Archives</span>
         </h2>
       </div>
 
