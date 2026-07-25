@@ -113,9 +113,27 @@ export const TOURNAMENT_REGISTRY = [
     prizePool: "₹2,000 Team Prize",
     entryFee: "Free",
     registrationLimit: 10,
-    status: "Registrations Open",
-    startsAt: "2026-07-25T19:30:00Z",
+    status: "Completed",
+    completedDate: "July 25, 2026",
     accent: "#de9b35",
+    pointsAwarded: {
+      champion: 50,
+      runnerUp: 20,
+    },
+    championPlayers: [
+      "Hackers_Tale",
+      "SamF",
+      "Shinigami Ishigami",
+      "Tejoo",
+      "Wolf Diedrich",
+    ],
+    runnerUpPlayers: [
+      "g1rish",
+      "saber_tooth24",
+      "Bumblee_Bee",
+      "Cl_me_brian",
+      "Victor",
+    ],
   },
   {
     number: 4,
@@ -129,7 +147,7 @@ export const TOURNAMENT_REGISTRY = [
     prizePool: "₹3,000",
     entryFee: "Free",
     registrationLimit: 16,
-    status: "Coming Soon",
+    status: "Registrations Open",
     accent: "#00c853",
   },
   // Future: number 5 — gameSlug "valorant" → DGL Valorant Championship #2

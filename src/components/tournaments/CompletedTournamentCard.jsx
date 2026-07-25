@@ -45,6 +45,11 @@ export default function CompletedTournamentCard({ tournament }) {
           </div>
         </div>
 
+        <div className="hub-card-badges">
+          <span className="hub-card-badge">✓ Tournament Completed</span>
+          <span className="hub-card-badge hub-card-badge-prize-paid">✓ Prize Paid</span>
+        </div>
+
         {tournament.resultsPath ? (
           <div className="hub-card-action">
             <Link to={tournament.resultsPath} className="cyber-btn outline">

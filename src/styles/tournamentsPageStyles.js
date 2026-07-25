@@ -684,6 +684,33 @@ export const tournamentsPageStyles = `
     flex-shrink: 0;
   }
 
+  .hub-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .hub-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: 1px solid rgba(156,163,175,0.3);
+    background: rgba(156,163,175,0.08);
+    color: #9ca3af;
+  }
+
+  .hub-card-badge-prize-paid {
+    border-color: rgba(245,158,11,0.4);
+    background: rgba(245,158,11,0.1);
+    color: #f59e0b;
+  }
+
   .hub-card-action {
     margin-top: auto;
   }

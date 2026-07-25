@@ -145,7 +145,8 @@ function buildPlatformUpdateFromTournaments(latestCompleted, nextUpcoming, lates
       text: `${championCount} Champions Crowned`,
     });
 
-    const prizeText = completed.prizePool?.replace(/\s*Awarded$/i, "") ?? "TBA";
+    const prizeText =
+      completed.prizePool?.replace(/\s*(Team\s+)?Prize(\s+Awarded)?$/i, "") ?? "TBA";
     highlights.push({
       id: "prize-awarded",
       icon: "💰",

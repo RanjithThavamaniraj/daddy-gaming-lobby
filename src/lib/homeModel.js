@@ -148,7 +148,8 @@ export function buildLatestPlatformUpdate() {
       text: `${latestCompleted.championPlayers.length} Champions Crowned`,
     });
 
-    const prizeText = latestCompleted.prizePool?.replace(/\s*Awarded$/i, "") ?? "TBA";
+    const prizeText =
+      latestCompleted.prizePool?.replace(/\s*(Team\s+)?Prize(\s+Awarded)?$/i, "") ?? "TBA";
     highlights.push({
       id: "prize-awarded",
       icon: "💰",
