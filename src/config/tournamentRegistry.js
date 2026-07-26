@@ -124,7 +124,7 @@ export const TOURNAMENT_REGISTRY = [
       "Hackers_Tale",
       "SamF",
       "Shinigami Ishigami",
-      "Tejoo",
+      "Lynxcreed",
       "Wolf Diedrich",
     ],
     runnerUpPlayers: [
