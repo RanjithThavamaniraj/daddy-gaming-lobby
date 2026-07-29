@@ -1,22 +1,7 @@
 import { getCompletedTournaments } from "./tournamentModel";
+import { parsePrizePoolAmount, formatInrPrize } from "./prizePool";
 
-/**
- * Parse numeric INR amount from a prize pool string (e.g. "₹1,000 Awarded").
- * @param {string | undefined} prizePool
- * @returns {number}
- */
-export function parsePrizePoolAmount(prizePool) {
-  const numericPrize = parseInt(String(prizePool ?? "").replace(/[^\d]/g, ""), 10);
-  return Number.isNaN(numericPrize) ? 0 : numericPrize;
-}
-
-/**
- * @param {number} amount
- * @returns {string}
- */
-export function formatInrPrize(amount) {
-  return amount > 0 ? `₹${amount.toLocaleString("en-IN")}` : "₹0";
-}
+export { parsePrizePoolAmount, formatInrPrize };
 
 /**
  * Unique players from completed tournament rosters.

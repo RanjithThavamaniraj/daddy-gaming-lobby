@@ -4,6 +4,7 @@ import {
   formatGlobalTournamentNumber,
   sortPlayerNames,
 } from "../tournamentModel";
+import { normalizePrizePoolDisplay } from "../prizePool";
 
 /** @type {Record<string, string>} */
 const DB_STATUS_TO_APP = {
@@ -80,7 +81,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     gameSlug: row.game_slug,
     format: row.format ?? undefined,
     matchType: row.match_type ?? undefined,
-    prizePool: row.prize_pool_display ?? undefined,
+    prizePool: normalizePrizePoolDisplay(row.prize_pool_display) ?? undefined,
     entryFee: row.metadata?.entry_fee ?? undefined,
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
@@ -139,7 +140,7 @@ export function mapTournamentResultsRow(row) {
     gameSlug: row.game_slug,
     format: row.format ?? undefined,
     matchType: row.match_type ?? undefined,
-    prizePool: row.prize_pool_display ?? undefined,
+    prizePool: normalizePrizePoolDisplay(row.prize_pool_display) ?? undefined,
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
     accent: row.accent_color ?? "#a855f7",
@@ -177,7 +178,7 @@ export function aggregateHallOfChampionsRows(rows) {
         game: row.game_name,
         gameSlug: row.game_slug,
         championPlayers: [],
-        prizePool: row.prize_pool_display,
+        prizePool: normalizePrizePoolDisplay(row.prize_pool_display),
         dglPoints: row.dgl_points ?? DGL_POINTS.champion,
         completedDate: row.completed_date_label,
         accent: row.accent_color ?? "#a855f7",

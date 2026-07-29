@@ -1,5 +1,6 @@
 import { DGL_POINTS } from "../config/dglPointsConfig";
 import { TOURNAMENT_REGISTRY } from "../config/tournamentRegistry";
+import { normalizePrizePoolDisplay } from "./prizePool";
 
 /**
  * @typedef {object} TournamentIdentifiers
@@ -123,6 +124,7 @@ export function enrichTournament(tournament, identifiers) {
     ...ids,
     name: ids.championshipName,
     title: ids.championshipName,
+    prizePool: normalizePrizePoolDisplay(tournament.prizePool),
     entryFee: tournament.entryFee ?? null,
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,
