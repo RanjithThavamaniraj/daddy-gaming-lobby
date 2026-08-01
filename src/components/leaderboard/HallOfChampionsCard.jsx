@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, Medal, Trophy } from "lucide-react";
+import { Calendar, Medal, Trophy, Users } from "lucide-react";
 
 /**
  * Card for a completed tournament in the Hall of Champions.
@@ -11,6 +11,16 @@ import { Calendar, Medal, Trophy } from "lucide-react";
  */
 export default function HallOfChampionsCard({ tournament, index = 0 }) {
   const runnerUpPlayers = tournament.runnerUpPlayers ?? [];
+
+  // Everyone who competed but isn't already highlighted as Champion or
+  // Runner-Up — semi-finalists, quarter-finalists, and group-stage players,
+  // combined. Sourced straight from the same tournament data builder that
+  // powers the Leaderboard and the results page tiers; nothing hardcoded.
+  const participantPlayers = [
+    ...(tournament.semiFinalistPlayers ?? []),
+    ...(tournament.quarterFinalistPlayers ?? []),
+    ...(tournament.groupStagePlayers ?? []),
+  ].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 
   return (
     <article
@@ -68,6 +78,19 @@ export default function HallOfChampionsCard({ tournament, index = 0 }) {
             </span>
             <ul className="hall-players-list">
               {runnerUpPlayers.map((player) => (
+                <li key={player}>{player}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {participantPlayers.length > 0 ? (
+          <div className="hall-champions-block">
+            <span className="hall-champions-label">
+              <Users size={14} /> Participants
+            </span>
+            <ul className="hall-players-list">
+              {participantPlayers.map((player) => (
                 <li key={player}>{player}</li>
               ))}
             </ul>
