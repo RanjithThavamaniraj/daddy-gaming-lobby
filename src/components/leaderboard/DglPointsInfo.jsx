@@ -1,5 +1,5 @@
 const DGL_POINTS_TIERS = [
-  { icon: "🏆", label: "Champion", points: 200 },
+  { icon: "🥇", label: "Champion", points: 200 },
   { icon: "🥈", label: "Runner-Up", points: 150 },
   { icon: "🥉", label: "Semi Final", points: 100 },
   { icon: "🎯", label: "Quarter Final", points: 50 },
@@ -7,9 +7,10 @@ const DGL_POINTS_TIERS = [
 ];
 
 /**
- * DGL Points progression reference card — explains how the cumulative
- * points system works. The DGL Points Leaderboard below is the single
- * source of truth for player totals; this card is informational only.
+ * Compact DGL Points legend — a quick reference for how points are earned.
+ * The DGL Points Leaderboard below is the single source of truth for player
+ * totals; this bar is informational only, kept deliberately small so the
+ * leaderboard stays the primary focus of the page.
  */
 export default function DglPointsInfo() {
   return (
@@ -20,16 +21,37 @@ export default function DglPointsInfo() {
         <div className="card-shine" aria-hidden />
         <div className="card-glow" aria-hidden />
         <div className="hall-card-inner">
-          <div className="hall-meta-grid">
-            {DGL_POINTS_TIERS.map((tier) => (
-              <div className="hall-meta-box" key={tier.label}>
-                <span className="hall-meta-label">
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "0.5rem 0.9rem",
+            }}
+          >
+            {DGL_POINTS_TIERS.map((tier, i) => (
+              <span
+                key={tier.label}
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                {i > 0 ? (
+                  <span className="hall-meta-label" aria-hidden>
+                    •
+                  </span>
+                ) : null}
+                <span className="hall-meta-value">
                   {tier.icon} {tier.label}
                 </span>
-                <span className="hall-meta-value hall-accent">+{tier.points} DGL Points</span>
-              </div>
+                <span className="hall-meta-value hall-accent">+{tier.points}</span>
+              </span>
             ))}
           </div>
+          <p
+            className="hall-meta-label"
+            style={{ textTransform: "none", letterSpacing: "0.01em", marginTop: "0.75rem" }}
+          >
+            Points are cumulative. Players earn points for every stage they reach.
+          </p>
         </div>
       </article>
     </section>
