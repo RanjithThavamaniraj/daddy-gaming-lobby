@@ -1,13 +1,17 @@
 import { Link } from "react-router-dom";
-import { Calendar, Trophy } from "lucide-react";
+import { Calendar, Medal, Trophy } from "lucide-react";
 
 /**
  * Card for a completed tournament in the Hall of Champions.
+ * DGL Points are not shown here — the DGL Points Leaderboard below is the
+ * single source of truth for player totals.
  * @param {object} props
  * @param {object} props.tournament
  * @param {number} [props.index]
  */
 export default function HallOfChampionsCard({ tournament, index = 0 }) {
+  const runnerUpPlayers = tournament.runnerUpPlayers ?? [];
+
   return (
     <article
       className="hall-card"
@@ -38,10 +42,6 @@ export default function HallOfChampionsCard({ tournament, index = 0 }) {
             <span className="hall-meta-value hall-accent">{tournament.prizePool}</span>
           </div>
           <div className="hall-meta-box">
-            <span className="hall-meta-label">Reward</span>
-            <span className="hall-meta-value">+{tournament.dglPoints} DGL Points Each</span>
-          </div>
-          <div className="hall-meta-box">
             <span className="hall-meta-label">Completed</span>
             <span className="hall-meta-value hall-meta-inline">
               <Calendar size={14} />
@@ -52,7 +52,7 @@ export default function HallOfChampionsCard({ tournament, index = 0 }) {
 
         <div className="hall-champions-block">
           <span className="hall-champions-label">
-            <Trophy size={14} /> Champions
+            <Trophy size={14} /> Champion{tournament.championPlayers.length > 1 ? "s" : ""}
           </span>
           <ul className="hall-players-list">
             {tournament.championPlayers.map((player) => (
@@ -60,6 +60,19 @@ export default function HallOfChampionsCard({ tournament, index = 0 }) {
             ))}
           </ul>
         </div>
+
+        {runnerUpPlayers.length > 0 ? (
+          <div className="hall-champions-block">
+            <span className="hall-champions-label">
+              <Medal size={14} /> Runner-Up{runnerUpPlayers.length > 1 ? "s" : ""}
+            </span>
+            <ul className="hall-players-list">
+              {runnerUpPlayers.map((player) => (
+                <li key={player}>{player}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
     </article>
   );

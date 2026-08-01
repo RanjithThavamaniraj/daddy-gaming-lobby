@@ -10,7 +10,6 @@ import { getSupabaseClient } from "../../supabase";
 import { fetchWithFallback } from "./fetchWithFallback";
 import { formatInrPrize } from "../tournamentStats";
 import {
-  aggregateHallOfChampionsRows,
   mapDbTournamentStatus,
   mapEnrichedTournamentRow,
   mapLeaderboardRow,
@@ -36,7 +35,7 @@ import {
   buildCompletedTournamentsPreview,
   buildDashboardGames,
 } from "../dashboardModel";
-import { buildDglPointsLeaderboard } from "../../config/leaderboardConfig";
+import { buildDglPointsLeaderboard, buildHallOfChampions } from "../../config/leaderboardConfig";
 import { getTournamentsPageLayout } from "../../config/tournamentConfig";
 import {
   buildHomeFeaturedGames,
@@ -311,29 +310,20 @@ export async function fetchTournamentBySlug(slug) {
  */
 export async function fetchHallOfChampions() {
   return fetchWithFallback("hall-of-champions", async () => {
+    // v_tournament_results already carries both champion_players and
+    // runner_up_players per tournament (one row per tournament), unlike
+    // v_hall_of_champions which only ever joined placement = 1.
     const { data, error } = await getSupabaseClient()
-      .from("v_hall_of_champions")
+      .from("v_tournament_results")
       .select("*")
-      .order("global_number", { ascending: false });
+      .eq("status", "completed");
 
     if (error) throw error;
 
-    return aggregateHallOfChampionsRows(data ?? []);
-  }, () =>
-    getCompletedTournaments().map((tournament) => ({
-      slug: tournament.slug,
-      tournamentNumber: tournament.tournamentNumber,
-      name: tournament.name,
-      game: tournament.game,
-      gameSlug: tournament.gameSlug,
-      championPlayers: tournament.championPlayers,
-      prizePool: tournament.prizePool,
-      dglPoints: tournament.pointsAwarded.champion,
-      completedDate: tournament.completedDate,
-      accent: tournament.accent,
-      resultsPath: tournament.resultsPath,
-    }))
-  );
+    return (data ?? [])
+      .map((row) => mapTournamentResultsRow(row))
+      .sort((a, b) => b.globalNumber - a.globalNumber);
+  }, () => buildHallOfChampions());
 }
 
 /**

@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import TopNav from "../components/TopNav";
 import PageMeta from "../components/PageMeta";
 import HallOfChampions from "../components/leaderboard/HallOfChampions";
+import DglPointsInfo from "../components/leaderboard/DglPointsInfo";
 import DGLPointsLeaderboard from "../components/leaderboard/DGLPointsLeaderboard";
 import useCursorGlow from "../hooks/useCursorGlow";
 import useSupabaseData from "../hooks/useSupabaseData";
@@ -43,6 +44,8 @@ export default function Leaderboard() {
           <h1 className="page-title">Hall of Titans</h1>
 
           <HallOfChampions tournaments={champions} />
+
+          <DglPointsInfo />
 
           <DGLPointsLeaderboard
             players={players}

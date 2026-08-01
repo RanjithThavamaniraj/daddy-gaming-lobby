@@ -159,49 +159,6 @@ export function mapTournamentResultsRow(row) {
 }
 
 /**
- * Aggregate v_hall_of_champions rows (one row per champion player) into tournament cards.
- * @param {object[]} rows
- */
-export function aggregateHallOfChampionsRows(rows) {
-  /** @type {Map<string, object>} */
-  const byTournament = new Map();
-
-  for (const row of rows) {
-    const key = row.tournament_id;
-    let entry = byTournament.get(key);
-
-    if (!entry) {
-      entry = {
-        slug: row.slug,
-        tournamentNumber: row.tournament_number,
-        name: row.championship_name,
-        game: row.game_name,
-        gameSlug: row.game_slug,
-        championPlayers: [],
-        prizePool: normalizePrizePoolDisplay(row.prize_pool_display),
-        dglPoints: row.dgl_points ?? DGL_POINTS.champion,
-        completedDate: row.completed_date_label,
-        accent: row.accent_color ?? "#a855f7",
-        resultsPath: row.slug ? `/tournaments/${row.slug}` : null,
-        globalNumber: row.global_number ?? 0,
-      };
-      byTournament.set(key, entry);
-    }
-
-    if (row.player_name) {
-      entry.championPlayers.push(row.player_name);
-    }
-  }
-
-  return [...byTournament.values()]
-    .sort((a, b) => b.globalNumber - a.globalNumber)
-    .map((entry) => ({
-      ...entry,
-      championPlayers: sortPlayerNames(entry.championPlayers),
-    }));
-}
-
-/**
  * @param {object} row - v_player_leaderboard row
  */
 export function mapLeaderboardRow(row) {

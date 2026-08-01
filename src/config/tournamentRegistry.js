@@ -144,13 +144,54 @@ export const TOURNAMENT_REGISTRY = [
     championshipLabel: "FC 26",
     format: "1v1",
     matchType: "Group Stage → Knockout",
-    prizePool: "₹3,000",
+    prizePool: "₹3,000 Awarded",
     entryFee: "Free",
     registrationLimit: 16,
-    status: "Registrations Open",
+    status: "Completed",
+    completedDate: "August 1, 2026",
     accent: "#00c853",
+    pointsAwarded: {
+      champion: 400,
+      runnerUp: 350,
+      semiFinalist: 200,
+      quarterFinalist: 100,
+      groupStage: 50,
+    },
+    championPlayers: ["ak4642"],
+    runnerUpPlayers: ["VALUS_VX"],
+    semiFinalistPlayers: ["suriya_sr12", "danish01769"],
+    quarterFinalistPlayers: ["Pranav", "Mokey D Luffy", "viddy1485", "noisyboy96"],
+    groupStagePlayers: [
+      "SamF",
+      "iambalas",
+      "K2k",
+      "Palnikumar",
+      "naveen kumar",
+      "Shinigami Ishigami",
+      "sabaresh9801",
+      "RamRoyce",
+      "Niwas Khan",
+    ],
   },
-  // Future: number 5 — gameSlug "valorant" → DGL Valorant Championship #2
-  // Future: number 6 — gameSlug "marvel-rivals"
-  // Future: number 7 — gameSlug "arc-raiders"
+  {
+    number: 5,
+    id: "dgl-rocket-league-championship-1",
+    slug: "rocket-league-1",
+    game: "Rocket League",
+    gameSlug: "rocket-league",
+    championshipLabel: "Rocket League",
+    format: "4v4",
+    matchType: "Knockout",
+    prizePool: "₹2,000 Team Prize",
+    entryFee: "₹50 Per Player",
+    status: "Coming Soon",
+    accent: "#38bdf8",
+    // Mirrors the DB is_featured flag — takes the Main Event slot ahead of
+    // the status-priority fallback (see selectFeaturedTournament), the same
+    // mechanism promote_next_tournament() uses live.
+    isFeatured: true,
+  },
+  // Future: number 6 — gameSlug "valorant" → DGL Valorant Championship #2
+  // Future: number 7 — gameSlug "marvel-rivals"
+  // Future: number 8 — gameSlug "arc-raiders"
 ];

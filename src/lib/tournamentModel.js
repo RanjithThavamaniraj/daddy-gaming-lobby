@@ -116,6 +116,9 @@ export function enrichTournament(tournament, identifiers) {
 
   const championPlayers = sortPlayerNames(tournament.championPlayers ?? []);
   const runnerUpPlayers = sortPlayerNames(tournament.runnerUpPlayers ?? []);
+  const semiFinalistPlayers = sortPlayerNames(tournament.semiFinalistPlayers ?? []);
+  const quarterFinalistPlayers = sortPlayerNames(tournament.quarterFinalistPlayers ?? []);
+  const groupStagePlayers = sortPlayerNames(tournament.groupStagePlayers ?? []);
   const slug = tournament.slug ?? null;
 
   return {
@@ -130,9 +133,15 @@ export function enrichTournament(tournament, identifiers) {
     resultsSlug: slug,
     championPlayers,
     runnerUpPlayers,
+    semiFinalistPlayers,
+    quarterFinalistPlayers,
+    groupStagePlayers,
     pointsAwarded: {
       champion: tournament.pointsAwarded?.champion ?? DGL_POINTS.champion,
       runnerUp: tournament.pointsAwarded?.runnerUp ?? DGL_POINTS.runnerUp,
+      semiFinalist: tournament.pointsAwarded?.semiFinalist ?? DGL_POINTS.semiFinalist,
+      quarterFinalist: tournament.pointsAwarded?.quarterFinalist ?? DGL_POINTS.quarterFinalist,
+      groupStage: tournament.pointsAwarded?.groupStage ?? DGL_POINTS.groupStage,
       thirdPlace: tournament.pointsAwarded?.thirdPlace ?? DGL_POINTS.thirdPlace,
     },
     dglPoints: tournament.pointsAwarded?.champion ?? DGL_POINTS.champion,

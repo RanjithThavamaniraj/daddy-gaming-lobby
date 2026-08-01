@@ -17,6 +17,7 @@ export default function FeaturedTournament({ tournament }) {
   const isLive = status === "Live";
   const isRegistrationOpen = status === "Registrations Open";
   const isRegistrationClosed = status === "Registrations Closed";
+  const isComingSoon = status === "Coming Soon";
   const championPlayers = tournament.championPlayers ?? [];
   const alreadyRegistered = isRegisteredForTournament(tournament.id);
   const registrationPath =
@@ -129,6 +130,14 @@ export default function FeaturedTournament({ tournament }) {
               <div className="hero-action-container">
                 <button type="button" className="cyber-btn disabled" disabled>
                   <span>REGISTRATIONS CLOSED</span>
+                </button>
+              </div>
+            ) : null}
+
+            {isComingSoon ? (
+              <div className="hero-action-container">
+                <button type="button" className="cyber-btn disabled" disabled>
+                  <span>COMING SOON</span>
                 </button>
               </div>
             ) : null}
