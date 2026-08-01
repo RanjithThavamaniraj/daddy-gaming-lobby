@@ -63,6 +63,9 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
   const runnerUpPlayers = parsePlayerNameList(
     resultsRow?.runner_up_players ?? row.runner_up_players
   );
+  const semiFinalistPlayers = parsePlayerNameList(resultsRow?.semi_finalist_players);
+  const quarterFinalistPlayers = parsePlayerNameList(resultsRow?.quarter_finalist_players);
+  const groupStagePlayers = parsePlayerNameList(resultsRow?.group_stage_players);
 
   return {
     id: row.external_id ?? row.tournament_id ?? slug,
@@ -96,11 +99,17 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     resultsSlug: slug,
     championPlayers,
     runnerUpPlayers,
+    semiFinalistPlayers,
+    quarterFinalistPlayers,
+    groupStagePlayers,
     pointsAwarded: {
       champion:
         resultsRow?.champion_points ?? row.champion_points ?? DGL_POINTS.champion,
       runnerUp:
         resultsRow?.runner_up_points ?? row.runner_up_points ?? DGL_POINTS.runnerUp,
+      semiFinalist: DGL_POINTS.semiFinalist,
+      quarterFinalist: DGL_POINTS.quarterFinalist,
+      groupStage: DGL_POINTS.groupStage,
       thirdPlace: DGL_POINTS.thirdPlace,
     },
     dglPoints:
@@ -148,9 +157,15 @@ export function mapTournamentResultsRow(row) {
     resultsSlug: slug,
     championPlayers: parsePlayerNameList(row.champion_players),
     runnerUpPlayers: parsePlayerNameList(row.runner_up_players),
+    semiFinalistPlayers: parsePlayerNameList(row.semi_finalist_players),
+    quarterFinalistPlayers: parsePlayerNameList(row.quarter_finalist_players),
+    groupStagePlayers: parsePlayerNameList(row.group_stage_players),
     pointsAwarded: {
       champion: row.champion_points ?? DGL_POINTS.champion,
       runnerUp: row.runner_up_points ?? DGL_POINTS.runnerUp,
+      semiFinalist: DGL_POINTS.semiFinalist,
+      quarterFinalist: DGL_POINTS.quarterFinalist,
+      groupStage: DGL_POINTS.groupStage,
       thirdPlace: DGL_POINTS.thirdPlace,
     },
     dglPoints: row.champion_points ?? DGL_POINTS.champion,

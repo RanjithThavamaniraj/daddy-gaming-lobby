@@ -4,9 +4,8 @@ import { Link } from "react-router-dom";
 import TopNav from "../../TopNav";
 import TournamentResultsHero from "./TournamentResultsHero";
 import TournamentResultsChampions from "./TournamentResultsChampions";
-import TournamentResultsRewards from "./TournamentResultsRewards";
 import TournamentResultsRunnerUp from "./TournamentResultsRunnerUp";
-import TournamentResultsSummary from "./TournamentResultsSummary";
+import TournamentResultsPlayerTier from "./TournamentResultsPlayerTier";
 import { tournamentResultsPageStyles } from "../../../styles/tournamentResultsPageStyles";
 
 /**
@@ -126,17 +125,34 @@ export default function TournamentResultsView({ tournament }) {
             dglPoints={tournament.pointsAwarded?.champion ?? tournament.dglPoints}
           />
 
-          <TournamentResultsRewards
-            dglPoints={tournament.pointsAwarded?.champion ?? tournament.dglPoints}
-            prizePool={tournament.prizePool}
-          />
-
           <TournamentResultsRunnerUp
             players={tournament.runnerUpPlayers}
             dglPoints={tournament.pointsAwarded?.runnerUp ?? tournament.runnerUpDglPoints}
           />
 
-          <TournamentResultsSummary tournament={tournament} />
+          <TournamentResultsPlayerTier
+            icon="🥉"
+            heading="Semi Finalists"
+            badgeLabel="Semi Finalist"
+            players={tournament.semiFinalistPlayers}
+            dglPoints={tournament.pointsAwarded?.semiFinalist}
+          />
+
+          <TournamentResultsPlayerTier
+            icon="🎯"
+            heading="Quarter Finalists"
+            badgeLabel="Quarter Finalist"
+            players={tournament.quarterFinalistPlayers}
+            dglPoints={tournament.pointsAwarded?.quarterFinalist}
+          />
+
+          <TournamentResultsPlayerTier
+            icon="👥"
+            heading="Participants"
+            badgeLabel="Participant"
+            players={tournament.groupStagePlayers}
+            dglPoints={tournament.pointsAwarded?.groupStage}
+          />
 
           <nav className="results-nav">
             <Link to="/tournaments" className="cyber-btn outline results-back-btn">
