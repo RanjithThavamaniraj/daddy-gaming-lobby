@@ -21,6 +21,8 @@ import AdminResults from "./admin/pages/AdminResults";
 import AdminLeaderboardPage from "./admin/pages/AdminLeaderboardPage";
 import AdminHallOfFame from "./admin/pages/AdminHallOfFame";
 import AdminGiveaways from "./admin/pages/AdminGiveaways";
+import AdminGiveawayCreate from "./admin/pages/AdminGiveawayCreate";
+import AdminGiveawayEdit from "./admin/pages/AdminGiveawayEdit";
 import AdminSettings from "./admin/pages/AdminSettings";
 
 export default function App() {
@@ -48,6 +50,8 @@ export default function App() {
               <Route path="leaderboard" element={<AdminLeaderboardPage />} />
               <Route path="hall-of-fame" element={<AdminHallOfFame />} />
               <Route path="giveaways" element={<AdminGiveaways />} />
+              <Route path="giveaways/new" element={<AdminGiveawayCreate />} />
+              <Route path="giveaways/:id/edit" element={<AdminGiveawayEdit />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
           </Route>
