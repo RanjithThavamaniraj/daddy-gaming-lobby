@@ -3,7 +3,10 @@
  * Admin pages must use this module — never call Supabase Auth or tables directly.
  *
  * Phase 4A: list + dashboard counts
- * Phase 4B: create draft + edit (save draft / save changes)
+ * Phase 4B: create draft + edit
+ * Phase 4C: lifecycle transitions
+ * Phase 5: community_activity event pipeline for Jarvis (via logTournamentActivity)
+ *           tournament_completed remains owned by the DB trigger only
  */
 
 import { getSupabaseClient, getSupabaseConfigIssues } from "../../supabase";
@@ -567,6 +570,11 @@ export async function createTournamentDraft(input, { userId = null } = {}) {
     throw error;
   }
 
+  const fresh = await getTournamentById(data.id);
+  if (fresh) {
+    await logTournamentActivity("tournament_created", fresh);
+  }
+
   return {
     id: data.id,
     globalNumber: data.global_number,
@@ -645,6 +653,167 @@ export async function updateTournamentDraft(id, input, { userId = null } = {}) {
  */
 export function getEmptyTournamentFormValues() {
   return createEmptyTournamentFormValues();
+}
+
+// ---------------------------------------------------------------------------
+// Phase 5 — community_activity event pipeline (Jarvis / site feed)
+// ---------------------------------------------------------------------------
+
+/** One-shot types: at most one row per (tournament_id, activity_type). */
+const IDEMPOTENT_ACTIVITY_TYPES = new Set([
+  "tournament_created",
+  "tournament_announced",
+  "registration_opened",
+  "registration_closed",
+  "tournament_started",
+  "tournament_cancelled",
+  "tournament_archived",
+]);
+
+/** @type {Record<string, { title: (row: object, game: string) => string, summary: (row: object) => string }>} */
+const ACTIVITY_COPY = {
+  tournament_created: {
+    title: (row) => `Draft created · Tournament #${row.global_number}`,
+    summary: (row) => `${row.championship_label} saved as a draft`,
+  },
+  tournament_announced: {
+    title: (row) => `📢 ${row.championship_label} announced`,
+    summary: (row) => `Tournament #${row.global_number} is now coming soon`,
+  },
+  registration_opened: {
+    title: (row) => `Registration open · ${row.championship_label}`,
+    summary: (row) => `Tournament #${row.global_number} is accepting registrations`,
+  },
+  registration_closed: {
+    title: (row) => `Registration closed · ${row.championship_label}`,
+    summary: (row) => `Tournament #${row.global_number} registrations are closed`,
+  },
+  tournament_started: {
+    title: (row) => `🔴 Live · ${row.championship_label}`,
+    summary: (row) => `Tournament #${row.global_number} has started`,
+  },
+  tournament_cancelled: {
+    title: (row) => `Cancelled · ${row.championship_label}`,
+    summary: (row) => `Tournament #${row.global_number} was cancelled`,
+  },
+  tournament_archived: {
+    title: (row) => `Archived · ${row.championship_label}`,
+    summary: (row) => `Tournament #${row.global_number} was archived`,
+  },
+  tournament_featured: {
+    title: (row) => `⭐ Featured · ${row.championship_label}`,
+    summary: (row) => `Tournament #${row.global_number} is the Main Event`,
+  },
+};
+
+/**
+ * Stable Jarvis payload contract (one shape for all lifecycle events).
+ * @param {object} row - tournaments row (post-transition)
+ * @param {string} gameName
+ */
+function buildTournamentActivityPayload(row, gameName) {
+  return {
+    tournament_id: row.id,
+    global_number: row.global_number,
+    slug: row.slug ?? null,
+    external_id: row.external_id ?? null,
+    game: gameName || null,
+    game_id: row.game_id ?? null,
+    championship_label: row.championship_label ?? null,
+    status: row.status ?? null,
+    registration_limit: row.registration_limit ?? null,
+    prize_pool_display: row.prize_pool_display ?? null,
+    start_at: row.starts_at ?? null,
+    registration_opens_at: row.registration_opens_at ?? null,
+    registration_closes_at: row.registration_closes_at ?? null,
+    featured: Boolean(row.is_featured),
+    is_archived: Boolean(row.is_archived),
+    game_championship_number: row.game_championship_number ?? null,
+  };
+}
+
+/**
+ * @param {string | null | undefined} gameId
+ * @returns {Promise<string>}
+ */
+async function resolveGameName(gameId) {
+  if (!gameId) return "";
+  const { data, error } = await requireClient()
+    .from("games")
+    .select("name")
+    .eq("id", gameId)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.name ?? "";
+}
+
+/**
+ * Central insert for tournament lifecycle → community_activity.
+ * Does NOT handle tournament_completed (owned by DB trigger).
+ *
+ * @param {string} activityType
+ * @param {object} tournamentRow - row after the lifecycle write
+ * @returns {Promise<{ id: string } | null>} inserted row, or null if idempotent skip
+ */
+async function logTournamentActivity(activityType, tournamentRow) {
+  if (!tournamentRow?.id) {
+    throw new Error("logTournamentActivity requires a tournament row with id.");
+  }
+
+  if (activityType === "tournament_completed") {
+    // Completion is owned exclusively by dgl_log_tournament_completed_activity.
+    return null;
+  }
+
+  const copy = ACTIVITY_COPY[activityType];
+  if (!copy) {
+    throw new Error(`Unsupported activity type for logging: ${activityType}`);
+  }
+
+  const client = requireClient();
+
+  if (IDEMPOTENT_ACTIVITY_TYPES.has(activityType)) {
+    const { data: existing, error: existingError } = await client
+      .from("community_activity")
+      .select("id")
+      .eq("tournament_id", tournamentRow.id)
+      .eq("activity_type", activityType)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingError) throw existingError;
+    if (existing?.id) {
+      return { id: existing.id };
+    }
+  }
+
+  const gameName = await resolveGameName(tournamentRow.game_id);
+  const payload = buildTournamentActivityPayload(tournamentRow, gameName);
+
+  const { data, error } = await client
+    .from("community_activity")
+    .insert({
+      activity_type: activityType,
+      title: copy.title(tournamentRow, gameName),
+      summary: copy.summary(tournamentRow),
+      tournament_id: tournamentRow.id,
+      payload,
+      occurred_at: new Date().toISOString(),
+      is_public: true,
+    })
+    .select("id")
+    .single();
+
+  if (error) throw error;
+  return { id: data.id };
+}
+
+/**
+ * Reload full tournament row after a patch/insert for activity logging.
+ * @param {string} id
+ */
+async function loadTournamentForActivity(id) {
+  return requireTournamentRow(id);
 }
 
 // ---------------------------------------------------------------------------
@@ -742,7 +911,14 @@ export async function publishTournament(id, { userId = null } = {}) {
     );
   }
 
-  return applyTournamentPatch(id, { status: "coming_soon" }, { userId });
+  const result = await applyTournamentPatch(
+    id,
+    { status: "coming_soon" },
+    { userId }
+  );
+  const fresh = await loadTournamentForActivity(id);
+  await logTournamentActivity("tournament_announced", fresh);
+  return result;
 }
 
 /**
@@ -768,7 +944,10 @@ export async function featureTournament(id, { userId = null } = {}) {
     "feature"
   );
 
-  return applyTournamentPatch(id, { is_featured: true }, { userId });
+  const result = await applyTournamentPatch(id, { is_featured: true }, { userId });
+  const fresh = await loadTournamentForActivity(id);
+  await logTournamentActivity("tournament_featured", fresh);
+  return result;
 }
 
 /**
@@ -786,11 +965,14 @@ export async function archiveTournament(id, { userId = null } = {}) {
     );
   }
 
-  return applyTournamentPatch(
+  const result = await applyTournamentPatch(
     id,
     { is_archived: true, is_featured: false },
     { userId }
   );
+  const fresh = await loadTournamentForActivity(id);
+  await logTournamentActivity("tournament_archived", fresh);
+  return result;
 }
 
 /**
@@ -822,11 +1004,14 @@ export async function cancelTournament(id, { userId = null } = {}) {
     "cancel"
   );
 
-  return applyTournamentPatch(
+  const result = await applyTournamentPatch(
     id,
     { status: "cancelled", is_featured: false },
     { userId }
   );
+  const fresh = await loadTournamentForActivity(id);
+  await logTournamentActivity("tournament_cancelled", fresh);
+  return result;
 }
 
 /**
@@ -839,7 +1024,14 @@ export async function openRegistration(id, { userId = null } = {}) {
   assertNotArchived(row, "open registration");
   assertStatusIn(row, ["coming_soon"], "open registration");
 
-  return applyTournamentPatch(id, { status: "registration_open" }, { userId });
+  const result = await applyTournamentPatch(
+    id,
+    { status: "registration_open" },
+    { userId }
+  );
+  const fresh = await loadTournamentForActivity(id);
+  await logTournamentActivity("registration_opened", fresh);
+  return result;
 }
 
 /**
@@ -852,11 +1044,14 @@ export async function closeRegistration(id, { userId = null } = {}) {
   assertNotArchived(row, "close registration");
   assertStatusIn(row, ["registration_open"], "close registration");
 
-  return applyTournamentPatch(
+  const result = await applyTournamentPatch(
     id,
     { status: "registration_closed" },
     { userId }
   );
+  const fresh = await loadTournamentForActivity(id);
+  await logTournamentActivity("registration_closed", fresh);
+  return result;
 }
 
 /**
@@ -873,11 +1068,15 @@ export async function startTournament(id, { userId = null } = {}) {
     "start"
   );
 
-  return applyTournamentPatch(id, { status: "active" }, { userId });
+  const result = await applyTournamentPatch(id, { status: "active" }, { userId });
+  const fresh = await loadTournamentForActivity(id);
+  await logTournamentActivity("tournament_started", fresh);
+  return result;
 }
 
 /**
- * active → completed
+ * active → completed.
+ * Does NOT write community_activity — DB trigger owns tournament_completed.
  * @param {string} id
  * @param {{ userId?: string | null }} [options]
  */
@@ -995,6 +1194,9 @@ export async function duplicateTournament(id, { userId = null } = {}) {
     }
     throw error;
   }
+
+  const fresh = await loadTournamentForActivity(data.id);
+  await logTournamentActivity("tournament_created", fresh);
 
   return {
     id: data.id,
