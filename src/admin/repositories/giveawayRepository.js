@@ -12,6 +12,10 @@ import {
   dateTimeLocalToIso,
   isoToDateTimeLocal,
 } from "../lib/giveawayFormDefaults";
+import {
+  insertCommunityActivity,
+  writeAdminAuditLog,
+} from "./communityActivity";
 
 /** @typedef {import("../lib/giveawayFormDefaults").GiveawayFormValues} GiveawayFormValues */
 
@@ -526,6 +530,26 @@ function buildGiveawayActivityPayload(row) {
  * @param {string} activityType
  * @param {object} giveawayRow
  */
+function buildGiveawayActivityCopy(activityType, giveawayRow) {
+  if (activityType === "giveaway_created") {
+    return {
+      title: `🎉 Giveaway published · ${giveawayRow.title}`,
+      summary: giveawayRow.prize ?? null,
+    };
+  }
+  if (activityType === "giveaway_completed") {
+    return {
+      title: `🏆 Giveaway completed · ${giveawayRow.title}`,
+      summary: `Winner: ${giveawayRow.winner_name ?? "Announced"}`,
+    };
+  }
+  throw new Error(`Unsupported giveaway activity type: ${activityType}`);
+}
+
+/**
+ * @param {string} activityType
+ * @param {object} giveawayRow
+ */
 async function logGiveawayActivity(activityType, giveawayRow) {
   if (!giveawayRow?.id) {
     throw new Error("logGiveawayActivity requires a giveaway row with id.");
@@ -547,31 +571,100 @@ async function logGiveawayActivity(activityType, giveawayRow) {
     if (hit) return { id: hit.id };
   }
 
-  const title =
-    activityType === "giveaway_created"
-      ? `🎉 Giveaway published · ${giveawayRow.title}`
-      : `🏆 Giveaway completed · ${giveawayRow.title}`;
-  const summary =
-    activityType === "giveaway_created"
-      ? giveawayRow.prize
-      : `Winner: ${giveawayRow.winner_name ?? "Announced"}`;
+  const copy = buildGiveawayActivityCopy(activityType, giveawayRow);
+  return insertCommunityActivity({
+    activityType,
+    title: copy.title,
+    summary: copy.summary,
+    payload: buildGiveawayActivityPayload(giveawayRow),
+    tournamentId: null,
+    isPublic: true,
+  });
+}
 
-  const { data, error } = await client
-    .from("community_activity")
-    .insert({
+/** Status → activity_type for admin republish (current lifecycle expectation). */
+const REPUBLISH_ACTIVITY_BY_STATUS = {
+  published: "giveaway_created",
+  entries_closed: "giveaway_created",
+  winner_selected: "giveaway_completed",
+  completed: "giveaway_completed",
+};
+
+/**
+ * Insert a NEW community_activity row so Jarvis posts again.
+ * Does not change giveaway status or Jarvis local state.
+ * Bypasses lifecycle idempotency (always creates a new activity id).
+ *
+ * @param {string} id
+ * @param {{ userId?: string | null }} [options]
+ */
+export async function republishAnnouncement(id, { userId = null } = {}) {
+  const row = await requireGiveaway(id);
+
+  if (row.is_archived) {
+    throw new GiveawayValidationError(
+      {},
+      "Cannot republish an archived giveaway."
+    );
+  }
+
+  if (row.status === "draft") {
+    throw new GiveawayValidationError(
+      {},
+      "Cannot republish a draft giveaway. Publish it first."
+    );
+  }
+
+  const activityType = REPUBLISH_ACTIVITY_BY_STATUS[row.status];
+  if (!activityType) {
+    throw new GiveawayValidationError(
+      {},
+      `Cannot republish announcement for status "${row.status}".`
+    );
+  }
+
+  if (
+    activityType === "giveaway_completed" &&
+    (!row.winner_player_id || !row.winner_name)
+  ) {
+    throw new GiveawayValidationError(
+      {},
+      "Cannot republish completion announcement: winner has not been recorded."
+    );
+  }
+
+  const copy = buildGiveawayActivityCopy(activityType, row);
+  const activity = await insertCommunityActivity({
+    activityType,
+    title: copy.title,
+    summary: copy.summary,
+    payload: buildGiveawayActivityPayload(row),
+    tournamentId: null,
+    isPublic: true,
+  });
+
+  await writeAdminAuditLog({
+    adminUserId: userId,
+    action: "Announcement republished",
+    entityType: "giveaway",
+    entityId: row.id,
+    tournamentId: null,
+    oldValue: {},
+    newValue: {
+      giveaway_id: row.id,
+      giveaway_status: row.status,
       activity_type: activityType,
-      title,
-      summary,
-      tournament_id: null,
-      payload: buildGiveawayActivityPayload(giveawayRow),
-      occurred_at: new Date().toISOString(),
-      is_public: true,
-    })
-    .select("id")
-    .single();
+      community_activity_id: activity.id,
+      republished_at: new Date().toISOString(),
+    },
+  });
 
-  if (error) throw error;
-  return { id: data.id };
+  return {
+    id: row.id,
+    status: row.status,
+    activityId: activity.id,
+    activityType,
+  };
 }
 
 // ---------------------------------------------------------------------------

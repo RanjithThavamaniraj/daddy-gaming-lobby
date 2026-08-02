@@ -21,6 +21,11 @@ export function getAvailableGiveawayActions(meta) {
       !isArchived &&
       !["completed", "cancelled"].includes(status),
     archive: !isArchived,
+    republishAnnouncement:
+      !isArchived &&
+      ["published", "entries_closed", "winner_selected", "completed"].includes(
+        status
+      ),
   };
 }
 

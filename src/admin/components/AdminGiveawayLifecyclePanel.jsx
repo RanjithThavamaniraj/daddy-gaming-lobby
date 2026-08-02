@@ -15,6 +15,7 @@ import {
   complete,
   publish,
   recordWinner,
+  republishAnnouncement,
 } from "../repositories/giveawayRepository";
 
 const HANDLERS = {
@@ -110,6 +111,37 @@ export default function AdminGiveawayLifecyclePanel({
     }
   }
 
+  async function handleRepublishAnnouncement() {
+    if (
+      !window.confirm(
+        "Republish this announcement to Discord? Jarvis will post a new message based on the current giveaway status."
+      )
+    ) {
+      return;
+    }
+
+    setBusyAction("republishAnnouncement");
+    setError(null);
+    setMessage(null);
+    try {
+      const result = await republishAnnouncement(giveawayId, {
+        userId: user?.id ?? null,
+      });
+      setMessage(
+        `Announcement republished (${result.activityType}). Discord should update shortly.`
+      );
+      await onChanged();
+    } catch (err) {
+      setError(
+        err instanceof GiveawayValidationError
+          ? err.message
+          : err?.message ?? "Could not republish announcement."
+      );
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
   return (
     <section className="admin-lifecycle" aria-label="Giveaway lifecycle">
       <div className="admin-lifecycle-header">
@@ -160,6 +192,29 @@ export default function AdminGiveawayLifecyclePanel({
             </button>
           </article>
         ))}
+
+        {available.republishAnnouncement ? (
+          <article className="admin-lifecycle-card">
+            <h3 className="admin-lifecycle-action-title">
+              Republish Announcement
+            </h3>
+            <p className="admin-lifecycle-action-copy">
+              Create a new Discord announcement for the current status without
+              changing the giveaway. Use if a message was deleted or needs
+              reposting.
+            </p>
+            <button
+              type="button"
+              className="admin-lifecycle-btn"
+              disabled={Boolean(busyAction)}
+              onClick={handleRepublishAnnouncement}
+            >
+              {busyAction === "republishAnnouncement"
+                ? "Working…"
+                : "Republish Announcement"}
+            </button>
+          </article>
+        ) : null}
       </div>
 
       {available.recordWinner ? (
