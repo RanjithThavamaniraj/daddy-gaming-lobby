@@ -65,7 +65,13 @@ export function getSupabaseClient() {
         issues
       );
     }
-    supabaseClient = createClient(supabaseUrl ?? "", supabaseAnonKey ?? "");
+    supabaseClient = createClient(supabaseUrl ?? "", supabaseAnonKey ?? "", {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
   }
   return supabaseClient;
 }
