@@ -1,6 +1,7 @@
 import { DGL_POINTS } from "../config/dglPointsConfig";
 import { TOURNAMENT_REGISTRY } from "../config/tournamentRegistry";
 import { normalizePrizePoolDisplay } from "./prizePool";
+import { resolveEventAccent } from "../config/eventTypeConfig";
 
 /**
  * @typedef {object} TournamentIdentifiers
@@ -24,18 +25,23 @@ export function formatGlobalTournamentNumber(number) {
 export const formatTournamentNumber = formatGlobalTournamentNumber;
 
 /**
- * Per-game championship title — sequence resets per gameSlug.
+ * Per-series title — sequence resets per (game, event type) combination, so
+ * a game's Championship and Saturday Showdown series number independently.
  * @param {string} championshipLabel
  * @param {number} gameChampionshipNumber
+ * @param {string} [eventType] - "championship" (default) | "saturday_showdown"
  * @returns {string}
  */
-export function formatChampionshipName(championshipLabel, gameChampionshipNumber) {
-  return `DGL ${championshipLabel} Championship #${gameChampionshipNumber}`;
+export function formatChampionshipName(championshipLabel, gameChampionshipNumber, eventType) {
+  const seriesName = eventType === "saturday_showdown" ? "Saturday Showdown" : "Championship";
+  return `DGL ${championshipLabel} ${seriesName} #${gameChampionshipNumber}`;
 }
 
 /**
- * Assign global and per-game championship numbers from tournament records.
- * Sort by global number; game championship increments only when the same gameSlug repeats.
+ * Assign global and per-series championship numbers from tournament records.
+ * Sort by global number; the per-series counter increments only when the
+ * same (gameSlug, eventType) pair repeats — matching the DB's series_id-scoped
+ * numbering (see dgl_assign_game_championship_number).
  * Future: supabase.from("tournaments").select("*").order("number")
  *
  * @param {import("../config/tournamentRegistry").TournamentRecord[]} registry
@@ -43,14 +49,16 @@ export function formatChampionshipName(championshipLabel, gameChampionshipNumber
  */
 export function buildTournamentIdentifierMap(registry) {
   const sorted = [...registry].sort((a, b) => a.number - b.number);
-  const gameCounts = new Map();
+  const seriesCounts = new Map();
   /** @type {Map<string, TournamentIdentifiers>} */
   const map = new Map();
 
   for (const tournament of sorted) {
     const championshipLabel = tournament.championshipLabel ?? tournament.game;
-    const gameChampionshipNumber = (gameCounts.get(tournament.gameSlug) ?? 0) + 1;
-    gameCounts.set(tournament.gameSlug, gameChampionshipNumber);
+    const eventType = tournament.eventType ?? "championship";
+    const seriesKey = `${tournament.gameSlug}::${eventType}`;
+    const gameChampionshipNumber = (seriesCounts.get(seriesKey) ?? 0) + 1;
+    seriesCounts.set(seriesKey, gameChampionshipNumber);
 
     map.set(tournament.id, {
       globalNumber: tournament.number,
@@ -59,7 +67,8 @@ export function buildTournamentIdentifierMap(registry) {
       championshipLabel,
       championshipName: formatChampionshipName(
         championshipLabel,
-        gameChampionshipNumber
+        gameChampionshipNumber,
+        eventType
       ),
     });
   }
@@ -101,6 +110,7 @@ export function sortPlayerNames(players = []) {
  * @param {TournamentIdentifiers} [identifiers]
  */
 export function enrichTournament(tournament, identifiers) {
+  const eventType = tournament.eventType ?? "championship";
   const ids =
     identifiers ??
     getTournamentIdentifiers(tournament.id) ?? {
@@ -110,7 +120,8 @@ export function enrichTournament(tournament, identifiers) {
       championshipLabel: tournament.championshipLabel ?? tournament.game,
       championshipName: formatChampionshipName(
         tournament.championshipLabel ?? tournament.game,
-        1
+        1,
+        eventType
       ),
     };
 
@@ -127,6 +138,8 @@ export function enrichTournament(tournament, identifiers) {
     ...ids,
     name: ids.championshipName,
     title: ids.championshipName,
+    eventType,
+    accent: resolveEventAccent(eventType, tournament.accent),
     prizePool: normalizePrizePoolDisplay(tournament.prizePool),
     entryFee: tournament.entryFee ?? null,
     resultsPath: slug ? `/tournaments/${slug}` : null,
@@ -214,6 +227,7 @@ export function toFeaturedShape(tournament) {
     title: tournament.title,
     game: tournament.game,
     gameSlug: tournament.gameSlug,
+    eventType: tournament.eventType ?? "championship",
     format: tournament.format ?? "—",
     matchType: tournament.matchType ?? "—",
     prizePool: tournament.prizePool ?? "TBA",
@@ -331,6 +345,7 @@ export function toCompletedCardShape(tournament) {
     title: tournament.title,
     game: tournament.game,
     gameSlug: tournament.gameSlug,
+    eventType: tournament.eventType ?? "championship",
     completedDate: tournament.completedDate,
     championPlayers: tournament.championPlayers,
     prizePool: tournament.prizePool,
@@ -356,6 +371,7 @@ export function toUpcomingCardShape(tournament) {
     title: tournament.title,
     game: tournament.game,
     gameSlug: tournament.gameSlug,
+    eventType: tournament.eventType ?? "championship",
     status: tournament.status,
     accent: tournament.accent,
     entryFee: tournament.entryFee ?? null,

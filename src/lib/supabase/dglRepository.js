@@ -293,7 +293,7 @@ export async function fetchTournamentBySlug(slug) {
       const { data, error: resultsError } = await supabase
         .from("v_tournament_results")
         .select(
-          "champion_players, runner_up_players, third_place_players, champion_points, runner_up_points, semi_finalist_players, quarter_finalist_players, group_stage_players"
+          "champion_players, runner_up_players, third_place_players, champion_points, runner_up_points, semi_finalist_players, quarter_finalist_players, group_stage_players, semi_finalist_points, quarter_finalist_points, group_stage_points"
         )
         .eq("slug", slug)
         .maybeSingle();

@@ -3,6 +3,7 @@ import { Calendar, Trophy } from "lucide-react";
 
 import GameIcon from "./GameIcon";
 import { isRegisteredForTournament } from "../../lib/registrationSession";
+import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
 
 /**
  * Featured / Main Event tournament hero card.
@@ -18,6 +19,7 @@ export default function FeaturedTournament({ tournament }) {
   const isRegistrationOpen = status === "Registrations Open";
   const isRegistrationClosed = status === "Registrations Closed";
   const isComingSoon = status === "Coming Soon";
+  const isShowdown = isSaturdayShowdown(tournament.eventType);
   const championPlayers = tournament.championPlayers ?? [];
   const alreadyRegistered = isRegisteredForTournament(tournament.id);
   const registrationPath =
@@ -39,6 +41,19 @@ export default function FeaturedTournament({ tournament }) {
               <div className="hero-details">
                 {tournament.tournamentNumber ? (
                   <span className="hero-tournament-badge">{tournament.tournamentNumber}</span>
+                ) : null}
+                {isShowdown ? (
+                  <span
+                    className="hero-tournament-badge"
+                    style={{
+                      color: EVENT_TYPES.saturday_showdown.goldAccent,
+                      borderColor: `color-mix(in srgb, ${EVENT_TYPES.saturday_showdown.goldAccent} 45%, transparent)`,
+                      background: `color-mix(in srgb, ${EVENT_TYPES.saturday_showdown.goldAccent} 12%, transparent)`,
+                      marginLeft: "0.5rem",
+                    }}
+                  >
+                    {EVENT_TYPES.saturday_showdown.heroBadge}
+                  </span>
                 ) : null}
                 <h3 className="hero-title">{tournament.title}</h3>
                 <div className="hero-badges">
@@ -62,10 +77,25 @@ export default function FeaturedTournament({ tournament }) {
                 <span className="stat-label">MATCH TYPE</span>
                 <span className="stat-value">{tournament.matchType}</span>
               </div>
-              <div className="hero-stat-box">
-                <span className="stat-label">PRIZE POOL</span>
-                <span className="stat-value text-completed">{tournament.prizePool}</span>
-              </div>
+              {isShowdown ? (
+                <>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">PRIZE</span>
+                    <span className="stat-value text-completed">Community Event</span>
+                  </div>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">REWARDS</span>
+                    <span className="stat-value text-completed">
+                      DGL Points • Hall of Titans Recognition
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="hero-stat-box">
+                  <span className="stat-label">PRIZE POOL</span>
+                  <span className="stat-value text-completed">{tournament.prizePool}</span>
+                </div>
+              )}
               {tournament.entryFee ? (
                 <div className="hero-stat-box">
                   <span className="stat-label">ENTRY</span>

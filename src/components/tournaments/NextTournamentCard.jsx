@@ -1,4 +1,5 @@
 import GameIcon from "./GameIcon";
+import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
 
 /** Short CTA label per game — cosmetic only, never touches stored tournament data. */
 const SHORT_GAME_LABELS = {
@@ -23,6 +24,7 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
   const mainEventLabel = mainEvent
     ? SHORT_GAME_LABELS[mainEvent.gameSlug] ?? mainEvent.game
     : null;
+  const isShowdown = isSaturdayShowdown(tournament.eventType);
 
   return (
     <section className="featured-section">
@@ -38,6 +40,19 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
               <div className="hero-details">
                 {tournament.tournamentNumber ? (
                   <span className="hero-tournament-badge">{tournament.tournamentNumber}</span>
+                ) : null}
+                {isShowdown ? (
+                  <span
+                    className="hero-tournament-badge"
+                    style={{
+                      color: EVENT_TYPES.saturday_showdown.goldAccent,
+                      borderColor: `color-mix(in srgb, ${EVENT_TYPES.saturday_showdown.goldAccent} 45%, transparent)`,
+                      background: `color-mix(in srgb, ${EVENT_TYPES.saturday_showdown.goldAccent} 12%, transparent)`,
+                      marginLeft: "0.5rem",
+                    }}
+                  >
+                    {EVENT_TYPES.saturday_showdown.heroBadge}
+                  </span>
                 ) : null}
                 <h3 className="hero-title">{tournament.title}</h3>
                 <div className="hero-badges">
@@ -63,10 +78,25 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
                 <span className="stat-label">PLAYERS</span>
                 <span className="stat-value">{tournament.registrationLimit ?? "—"}</span>
               </div>
-              <div className="hero-stat-box">
-                <span className="stat-label">PRIZE</span>
-                <span className="stat-value text-completed">{tournament.prizePool}</span>
-              </div>
+              {isShowdown ? (
+                <>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">PRIZE</span>
+                    <span className="stat-value text-completed">Community Event</span>
+                  </div>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">REWARDS</span>
+                    <span className="stat-value text-completed">
+                      DGL Points • Hall of Titans Recognition
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="hero-stat-box">
+                  <span className="stat-label">PRIZE</span>
+                  <span className="stat-value text-completed">{tournament.prizePool}</span>
+                </div>
+              )}
               {tournament.entryFee ? (
                 <div className="hero-stat-box">
                   <span className="stat-label">ENTRY</span>

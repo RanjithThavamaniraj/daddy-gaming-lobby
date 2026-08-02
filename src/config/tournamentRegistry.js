@@ -16,6 +16,7 @@
  * @property {string} game - Display game name (e.g. "Valorant", "CS2")
  * @property {string} gameSlug
  * @property {string} [championshipLabel] - Used in "DGL {label} Championship #N" (defaults to `game`)
+ * @property {"championship"|"saturday_showdown"} [eventType] - Defaults to "championship". Saturday Showdown gets its own burnt-orange accent and card treatment (see eventTypeConfig.js) regardless of the `accent` field below.
  * @property {string} [format]
  * @property {string} [matchType]
  * @property {string} [prizePool]
@@ -191,7 +192,21 @@ export const TOURNAMENT_REGISTRY = [
     // mechanism promote_next_tournament() uses live.
     isFeatured: true,
   },
-  // Future: number 6 — gameSlug "valorant" → DGL Valorant Championship #2
-  // Future: number 7 — gameSlug "marvel-rivals"
-  // Future: number 8 — gameSlug "arc-raiders"
+  {
+    number: 6,
+    id: "dgl-valorant-saturday-showdown-1",
+    slug: "valorant-saturday-showdown-1",
+    game: "Valorant",
+    gameSlug: "valorant",
+    championshipLabel: "Valorant",
+    eventType: "saturday_showdown",
+    format: "5v5",
+    matchType: "Knockout",
+    entryFee: "Free",
+    status: "Coming Soon",
+    accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
+  },
+  // Future: number 7 — gameSlug "valorant" → DGL Valorant Championship #2
+  // Future: number 8 — gameSlug "marvel-rivals"
+  // Future: number 9 — gameSlug "arc-raiders"
 ];

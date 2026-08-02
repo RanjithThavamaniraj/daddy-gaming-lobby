@@ -5,6 +5,7 @@ import {
   sortPlayerNames,
 } from "../tournamentModel";
 import { normalizePrizePoolDisplay } from "../prizePool";
+import { resolveEventAccent } from "../../config/eventTypeConfig";
 
 /** @type {Record<string, string>} */
 const DB_STATUS_TO_APP = {
@@ -52,9 +53,10 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
   const globalNumber = row.global_number;
   const gameChampionshipNumber = row.game_championship_number ?? 1;
   const championshipLabel = row.championship_label ?? row.game_name;
+  const eventType = row.event_type ?? "championship";
   const championshipName =
     row.championship_name ??
-    formatChampionshipName(championshipLabel, gameChampionshipNumber);
+    formatChampionshipName(championshipLabel, gameChampionshipNumber, eventType);
   const slug = row.slug ?? null;
 
   const championPlayers = parsePlayerNameList(
@@ -89,7 +91,8 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
     isFeatured: row.is_featured ?? false,
-    accent: row.accent_color ?? row.game_accent ?? "#a855f7",
+    eventType,
+    accent: resolveEventAccent(eventType, row.accent_color ?? row.game_accent ?? "#a855f7"),
     registrationLimit: row.registration_limit ?? undefined,
     registeredCount: row.registered_count ?? undefined,
     registrationOpensAt: row.registration_opens_at ?? undefined,
@@ -107,9 +110,9 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
         resultsRow?.champion_points ?? row.champion_points ?? DGL_POINTS.champion,
       runnerUp:
         resultsRow?.runner_up_points ?? row.runner_up_points ?? DGL_POINTS.runnerUp,
-      semiFinalist: DGL_POINTS.semiFinalist,
-      quarterFinalist: DGL_POINTS.quarterFinalist,
-      groupStage: DGL_POINTS.groupStage,
+      semiFinalist: resultsRow?.semi_finalist_points ?? DGL_POINTS.semiFinalist,
+      quarterFinalist: resultsRow?.quarter_finalist_points ?? DGL_POINTS.quarterFinalist,
+      groupStage: resultsRow?.group_stage_points ?? DGL_POINTS.groupStage,
       thirdPlace: DGL_POINTS.thirdPlace,
     },
     dglPoints:
@@ -126,6 +129,7 @@ export function mapTournamentResultsRow(row) {
   const globalNumber = parseGlobalNumberFromLabel(row.tournament_number);
   const slug = row.slug ?? null;
   const championshipName = row.championship_name ?? "";
+  const eventType = row.event_type ?? "championship";
 
   const championshipMatch = championshipName.match(/#(\d+)\s*$/);
   const gameChampionshipNumber = championshipMatch
@@ -152,7 +156,8 @@ export function mapTournamentResultsRow(row) {
     prizePool: normalizePrizePoolDisplay(row.prize_pool_display) ?? undefined,
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
-    accent: row.accent_color ?? "#a855f7",
+    eventType,
+    accent: resolveEventAccent(eventType, row.accent_color ?? "#a855f7"),
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,
     championPlayers: parsePlayerNameList(row.champion_players),
@@ -163,9 +168,9 @@ export function mapTournamentResultsRow(row) {
     pointsAwarded: {
       champion: row.champion_points ?? DGL_POINTS.champion,
       runnerUp: row.runner_up_points ?? DGL_POINTS.runnerUp,
-      semiFinalist: DGL_POINTS.semiFinalist,
-      quarterFinalist: DGL_POINTS.quarterFinalist,
-      groupStage: DGL_POINTS.groupStage,
+      semiFinalist: row.semi_finalist_points ?? DGL_POINTS.semiFinalist,
+      quarterFinalist: row.quarter_finalist_points ?? DGL_POINTS.quarterFinalist,
+      groupStage: row.group_stage_points ?? DGL_POINTS.groupStage,
       thirdPlace: DGL_POINTS.thirdPlace,
     },
     dglPoints: row.champion_points ?? DGL_POINTS.champion,

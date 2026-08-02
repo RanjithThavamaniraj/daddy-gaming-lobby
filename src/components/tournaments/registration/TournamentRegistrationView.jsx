@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { registerForTournament, markRegisteredForTournament, fetchTournamentRegistrations } from "../../../lib/supabase/registrations";
 import TournamentRegistrationSuccess from "./TournamentRegistrationSuccess";
 import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistrationStyles";
+import { isSaturdayShowdown } from "../../../config/eventTypeConfig";
 
 const DEFAULT_REGISTRATION_CAPACITY = 22;
 
@@ -40,11 +41,12 @@ function formatRegisteredAt(registeredAt) {
  * @param {import("../lib/tournamentModel").ReturnType<import("../lib/tournamentModel").enrichTournament>} props.tournament
  */
 export default function TournamentRegistrationView({ tournament }) {
-  const { id, tournamentId, slug, format, matchType, prizePool, entryFee, game, gameSlug, accent, registrationLimit } = tournament;
+  const { id, tournamentId, slug, format, matchType, prizePool, entryFee, game, gameSlug, accent, registrationLimit, eventType } = tournament;
 
   const capacity = registrationLimit ?? DEFAULT_REGISTRATION_CAPACITY;
   const tsGameSlug = gameSlug ?? (game ? game.toLowerCase().replace(/\s+/g, "-") : "dgl");
   const tsAccent = accent || "#a855f7";
+  const isShowdown = isSaturdayShowdown(eventType);
 
   const [formData, setFormData] = useState({ discordUsername: '' });
   const [status, setStatus] = useState('idle'); // idle | submitting | success
@@ -182,8 +184,17 @@ export default function TournamentRegistrationView({ tournament }) {
                       <span className="value">{matchType}</span>
                     </div>
                     <div className="info-item">
-                      <span className="label">Prize Pool</span>
-                      <span className="value text-accent">{prizePool}</span>
+                      {isShowdown ? (
+                        <>
+                          <span className="label">Reward</span>
+                          <span className="value text-accent">DGL Points</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="label">Prize Pool</span>
+                          <span className="value text-accent">{prizePool}</span>
+                        </>
+                      )}
                     </div>
                     <div className="info-item">
                       <span className="label">Entry</span>

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Calendar, Medal, Trophy, Users } from "lucide-react";
 
+import { isSaturdayShowdown } from "../../config/eventTypeConfig";
+
 /**
  * Card for a completed tournament in the Hall of Champions.
  * DGL Points are not shown here — the DGL Points Leaderboard below is the
@@ -11,6 +13,7 @@ import { Calendar, Medal, Trophy, Users } from "lucide-react";
  */
 export default function HallOfChampionsCard({ tournament, index = 0 }) {
   const runnerUpPlayers = tournament.runnerUpPlayers ?? [];
+  const isShowdown = isSaturdayShowdown(tournament.eventType);
 
   // Everyone who competed but isn't already highlighted as Champion or
   // Runner-Up — semi-finalists, quarter-finalists, and group-stage players,
@@ -48,8 +51,17 @@ export default function HallOfChampionsCard({ tournament, index = 0 }) {
             <span className="hall-meta-value">{tournament.game}</span>
           </div>
           <div className="hall-meta-box">
-            <span className="hall-meta-label">Prize Pool</span>
-            <span className="hall-meta-value hall-accent">{tournament.prizePool}</span>
+            {isShowdown ? (
+              <>
+                <span className="hall-meta-label">Reward</span>
+                <span className="hall-meta-value hall-accent">DGL Points</span>
+              </>
+            ) : (
+              <>
+                <span className="hall-meta-label">Prize Pool</span>
+                <span className="hall-meta-value hall-accent">{tournament.prizePool}</span>
+              </>
+            )}
           </div>
           <div className="hall-meta-box">
             <span className="hall-meta-label">Completed</span>

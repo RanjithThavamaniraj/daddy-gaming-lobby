@@ -14,6 +14,7 @@ export function buildHallOfChampions() {
       name: tournament.name,
       game: tournament.game,
       gameSlug: tournament.gameSlug,
+      eventType: tournament.eventType ?? "championship",
       championPlayers: tournament.championPlayers,
       runnerUpPlayers: tournament.runnerUpPlayers,
       semiFinalistPlayers: tournament.semiFinalistPlayers,
