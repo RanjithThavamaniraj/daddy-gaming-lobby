@@ -189,7 +189,7 @@ export const TOURNAMENT_REGISTRY = [
     teamLimit: 8,
     matchDuration: "5 Minutes",
     overtimeRule: "Unlimited Overtime (default Rocket League rules)",
-    status: "Coming Soon",
+    status: "Registrations Open",
     accent: "#38bdf8",
     // Mirrors the DB is_featured flag — takes the Main Event slot ahead of
     // the status-priority fallback (see selectFeaturedTournament), the same
