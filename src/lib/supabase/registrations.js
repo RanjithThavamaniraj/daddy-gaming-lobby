@@ -48,12 +48,22 @@ async function resolveOrCreatePlayer(discordUsername) {
  * @param {object} params
  * @param {string} params.tournamentId - Tournament UUID (tournaments.id)
  * @param {string} params.discordUsername - Required Discord username
+ * @param {string} [params.epicId] - Epic Games account ID (Rocket League tournaments)
+ * @param {string} [params.rocketLeagueRank] - Self-reported rank (Rocket League tournaments)
+ * @param {string | null} [params.teamName] - Optional team name (team-mode registrations)
+ * @param {boolean} [params.needsTeammate] - True for solo registrants awaiting pairing
+ * @param {string | null} [params.teammateDisplayName] - Teammate's display name (team-mode registrations)
  * @param {Record<string, unknown>} [params.extraFormData] - Future tournament fields
  * @returns {Promise<{ registrationId: string; playerId: string; duplicate: boolean }>}
  */
 export async function registerForTournament({
   tournamentId,
   discordUsername,
+  epicId,
+  rocketLeagueRank,
+  teamName,
+  needsTeammate,
+  teammateDisplayName,
   extraFormData = {},
 }) {
   const supabase = getSupabaseClient();
@@ -77,6 +87,11 @@ export async function registerForTournament({
       player_id: playerId,
       status: "confirmed",
       form_data: formData,
+      epic_id: epicId ?? null,
+      rocket_league_rank: rocketLeagueRank ?? null,
+      team_name: teamName ?? null,
+      needs_teammate: needsTeammate ?? false,
+      teammate_display_name: teammateDisplayName ?? null,
     })
     .select("id")
     .single();

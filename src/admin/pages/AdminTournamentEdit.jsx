@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import AdminTournamentLifecyclePanel from "../components/AdminTournamentLifecyclePanel";
+import AdminTournamentRegistrationsPanel from "../components/AdminTournamentRegistrationsPanel";
 import TournamentForm from "../components/TournamentForm";
 import { useAdmin } from "../auth/useAdmin";
 import { useTournamentFormOptions } from "../hooks/useTournamentFormOptions";
@@ -81,6 +82,10 @@ export default function AdminTournamentEdit() {
 
   if (!record) return null;
 
+  const gameSlug =
+    games.find((game) => game.id === record.values.gameId)?.slug ?? null;
+  const isRocketLeague = gameSlug === "rocket-league";
+
   return (
     <>
       <style>{adminTournamentStyles}</style>
@@ -92,6 +97,11 @@ export default function AdminTournamentEdit() {
           setReloadKey((value) => value + 1);
           await reload();
         }}
+      />
+
+      <AdminTournamentRegistrationsPanel
+        tournamentId={id}
+        isRocketLeague={isRocketLeague}
       />
 
       <TournamentForm

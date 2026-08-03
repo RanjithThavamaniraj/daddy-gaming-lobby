@@ -41,14 +41,38 @@ function formatRegisteredAt(registeredAt) {
  * @param {import("../lib/tournamentModel").ReturnType<import("../lib/tournamentModel").enrichTournament>} props.tournament
  */
 export default function TournamentRegistrationView({ tournament }) {
-  const { id, tournamentId, slug, format, matchType, prizePool, entryFee, game, gameSlug, accent, registrationLimit, eventType } = tournament;
+  const {
+    id,
+    tournamentId,
+    slug,
+    format,
+    matchType,
+    prizePool,
+    entryFee,
+    game,
+    gameSlug,
+    accent,
+    registrationLimit,
+    eventType,
+    teamLimit,
+    matchDuration,
+    overtimeRule,
+  } = tournament;
 
   const capacity = registrationLimit ?? DEFAULT_REGISTRATION_CAPACITY;
   const tsGameSlug = gameSlug ?? (game ? game.toLowerCase().replace(/\s+/g, "-") : "dgl");
   const tsAccent = accent || "#a855f7";
   const isShowdown = isSaturdayShowdown(eventType);
+  const isRocketLeague = tsGameSlug === "rocket-league";
 
-  const [formData, setFormData] = useState({ discordUsername: '' });
+  const [formData, setFormData] = useState({
+    discordUsername: "",
+    epicId: "",
+    rocketLeagueRank: "",
+    registrationMode: "team", // 'team' | 'solo' — only relevant for Rocket League
+    teammateDisplayName: "",
+    teamName: "",
+  });
   const [status, setStatus] = useState('idle'); // idle | submitting | success
   const [error, setError] = useState(null);
   const [registrations, setRegistrations] = useState(null);
@@ -56,8 +80,18 @@ export default function TournamentRegistrationView({ tournament }) {
   const [lastRegistrantNumber, setLastRegistrantNumber] = useState(null);
 
   const trimmedName = formData.discordUsername.trim();
+  const trimmedEpicId = formData.epicId.trim();
+  const trimmedTeammateName = formData.teammateDisplayName.trim();
+  const isTeamMode = formData.registrationMode === "team";
+
   const registrationCount = registrations === null ? null : registrations.length;
   const isFull = registrationCount !== null && registrationCount >= capacity;
+
+  const rocketLeagueFieldsValid =
+    !isRocketLeague ||
+    (Boolean(trimmedEpicId) &&
+      Boolean(formData.rocketLeagueRank) &&
+      (!isTeamMode || Boolean(trimmedTeammateName)));
 
   const refreshRegistrations = async (tid) => {
     if (!tid) return null;
@@ -88,8 +122,9 @@ export default function TournamentRegistrationView({ tournament }) {
     };
   }, [tournament.tournamentId]);
 
-  const handleInputChange = (e) => {
-    setFormData(prev => ({ ...prev, discordUsername: e.target.value }));
+  const handleInputChange = (field) => (e) => {
+    const value = e.target.value;
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (error) setError(null);
   };
 
@@ -101,6 +136,20 @@ export default function TournamentRegistrationView({ tournament }) {
     if (!trimmedName) {
       setError('Please enter your Discord username.');
       return;
+    }
+    if (isRocketLeague) {
+      if (!trimmedEpicId) {
+        setError('Please enter your Epic ID.');
+        return;
+      }
+      if (!formData.rocketLeagueRank) {
+        setError('Please select your Rocket League Rank.');
+        return;
+      }
+      if (isTeamMode && !trimmedTeammateName) {
+        setError("Please enter your teammate's Discord username, or switch to solo registration.");
+        return;
+      }
     }
     if (!acceptedRules) {
       setError('Please accept the Tournament Rules to continue.');
@@ -114,6 +163,15 @@ export default function TournamentRegistrationView({ tournament }) {
       await registerForTournament({
         tournamentId: tournamentId || slug || id,
         discordUsername: trimmedName,
+        ...(isRocketLeague
+          ? {
+              epicId: trimmedEpicId,
+              rocketLeagueRank: formData.rocketLeagueRank,
+              teamName: formData.teamName.trim() || null,
+              needsTeammate: !isTeamMode,
+              teammateDisplayName: isTeamMode ? trimmedTeammateName : null,
+            }
+          : {}),
       });
 
       markRegisteredForTournament(tournamentId || slug || id);
@@ -200,6 +258,30 @@ export default function TournamentRegistrationView({ tournament }) {
                       <span className="label">Entry</span>
                       <span className="value">{entryFee}</span>
                     </div>
+                    {registrationLimit ? (
+                      <div className="info-item">
+                        <span className="label">Players</span>
+                        <span className="value">{registrationLimit}</span>
+                      </div>
+                    ) : null}
+                    {teamLimit ? (
+                      <div className="info-item">
+                        <span className="label">Teams</span>
+                        <span className="value">{teamLimit}</span>
+                      </div>
+                    ) : null}
+                    {matchDuration ? (
+                      <div className="info-item">
+                        <span className="label">Match Length</span>
+                        <span className="value">{matchDuration}</span>
+                      </div>
+                    ) : null}
+                    {overtimeRule ? (
+                      <div className="info-item">
+                        <span className="label">Overtime</span>
+                        <span className="value">{overtimeRule}</span>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
@@ -234,7 +316,7 @@ export default function TournamentRegistrationView({ tournament }) {
                         className="form-control"
                         placeholder="Enter your Discord username"
                         value={formData.discordUsername}
-                        onChange={handleInputChange}
+                        onChange={handleInputChange("discordUsername")}
                         disabled={status === 'submitting' || isFull}
                         required
                       />
@@ -242,6 +324,127 @@ export default function TournamentRegistrationView({ tournament }) {
                     <p className="form-hint">Enter the username you use in the Daddy Gaming Lobby Discord server.</p>
                     <p className="form-hint" style={{ opacity: 0.7, marginTop: '4px' }}>This helps us identify you on the Daddy Gaming Lobby Discord server.</p>
                   </div>
+
+                  {isRocketLeague ? (
+                    <>
+                      <div className="form-group">
+                        <label htmlFor="epicId" className="form-label">
+                          Epic ID <span className="required">*</span>
+                        </label>
+                        <div className="input-wrapper">
+                          <input
+                            id="epicId"
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter your Epic Games ID"
+                            value={formData.epicId}
+                            onChange={handleInputChange("epicId")}
+                            disabled={status === 'submitting' || isFull}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="rocketLeagueRank" className="form-label">
+                          Rocket League Rank <span className="required">*</span>
+                        </label>
+                        <div className="input-wrapper">
+                          <select
+                            id="rocketLeagueRank"
+                            className="form-control"
+                            value={formData.rocketLeagueRank}
+                            onChange={handleInputChange("rocketLeagueRank")}
+                            disabled={status === 'submitting' || isFull}
+                            required
+                          >
+                            <option value="" disabled>
+                              Select your rank
+                            </option>
+                            <option value="Unranked">Unranked</option>
+                            <option value="Bronze">Bronze</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Gold">Gold</option>
+                            <option value="Platinum">Platinum</option>
+                            <option value="Diamond">Diamond</option>
+                            <option value="Champion">Champion</option>
+                            <option value="Grand Champion">Grand Champion</option>
+                            <option value="Supersonic Legend">Supersonic Legend</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="form-group rules-group">
+                        <label className="form-checkbox-label">
+                          <input
+                            type="radio"
+                            name="registrationMode"
+                            checked={isTeamMode}
+                            onChange={() =>
+                              setFormData((prev) => ({ ...prev, registrationMode: "team" }))
+                            }
+                            disabled={status === 'submitting' || isFull}
+                          />
+                          <span>Team Registration — I already have a teammate</span>
+                        </label>
+                        <label className="form-checkbox-label">
+                          <input
+                            type="radio"
+                            name="registrationMode"
+                            checked={!isTeamMode}
+                            onChange={() =>
+                              setFormData((prev) => ({ ...prev, registrationMode: "solo" }))
+                            }
+                            disabled={status === 'submitting' || isFull}
+                          />
+                          <span>Solo Registration — pair me with a teammate</span>
+                        </label>
+                      </div>
+
+                      {isTeamMode ? (
+                        <>
+                          <div className="form-group">
+                            <label htmlFor="teammateDisplayName" className="form-label">
+                              Teammate Discord Username <span className="required">*</span>
+                            </label>
+                            <div className="input-wrapper">
+                              <input
+                                id="teammateDisplayName"
+                                type="text"
+                                className="form-control"
+                                placeholder="Enter your teammate's Discord username"
+                                value={formData.teammateDisplayName}
+                                onChange={handleInputChange("teammateDisplayName")}
+                                disabled={status === 'submitting' || isFull}
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          <div className="form-group">
+                            <label htmlFor="teamName" className="form-label">
+                              Team Name <span style={{ opacity: 0.6 }}>(optional)</span>
+                            </label>
+                            <div className="input-wrapper">
+                              <input
+                                id="teamName"
+                                type="text"
+                                className="form-control"
+                                placeholder="Enter a team name"
+                                value={formData.teamName}
+                                onChange={handleInputChange("teamName")}
+                                disabled={status === 'submitting' || isFull}
+                              />
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="form-hint">
+                          DGL will pair you with another solo player before the tournament begins.
+                        </p>
+                      )}
+                    </>
+                  ) : null}
 
                   <div className="form-group rules-group">
                     <label className="form-checkbox-label">
@@ -275,7 +478,13 @@ export default function TournamentRegistrationView({ tournament }) {
                   <button
                     type="submit"
                     className={`submit-btn ${status === 'submitting' ? 'loading' : ''}`}
-                    disabled={status === 'submitting' || !trimmedName || !acceptedRules || isFull}
+                    disabled={
+                      status === 'submitting' ||
+                      !trimmedName ||
+                      !acceptedRules ||
+                      !rocketLeagueFieldsValid ||
+                      isFull
+                    }
                   >
                     <span className="btn-text">
                       {isFull
