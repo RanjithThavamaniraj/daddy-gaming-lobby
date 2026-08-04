@@ -139,6 +139,18 @@ export const tournamentsPageStyles = `
     background: linear-gradient(90deg, rgba(168,85,247,0.3), transparent);
   }
 
+  /* Keep the open-regs indicator at the far right of the Main Event heading. */
+  .featured-section > .section-heading::after {
+    order: 1;
+  }
+
+  .featured-section > .section-heading > .status-badge-custom {
+    order: 2;
+    flex-shrink: 0;
+    letter-spacing: 0.12em;
+    font-size: 0.68rem;
+  }
+
   .hub-cards-grid {
     display: grid;
     grid-template-columns: 1fr;

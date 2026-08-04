@@ -24,6 +24,7 @@ export default function Tournaments() {
     upcomingDisplay,
     showCompletedArchive,
     archivedCompleted,
+    openRegistrationCount = 0,
   } = layout;
   const containerRef = useRef(null);
 
@@ -47,7 +48,10 @@ export default function Tournaments() {
           <h1 className="page-title">Titan Grindhouse</h1>
 
           <div className="layout-grid">
-            <FeaturedTournament tournament={mainEvent} />
+            <FeaturedTournament
+              tournament={mainEvent}
+              openRegistrationCount={openRegistrationCount}
+            />
 
             {nextTournament ? (
               <NextTournamentCard tournament={nextTournament} mainEvent={mainEvent} />

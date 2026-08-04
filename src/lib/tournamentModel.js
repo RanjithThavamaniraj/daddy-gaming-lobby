@@ -329,6 +329,24 @@ export function selectNextTournament(tournaments, mainEvent) {
 }
 
 /**
+ * Count tournaments currently accepting registrations.
+ * @param {Array<{ id?: string, status?: string } | null | undefined>} tournaments
+ * @returns {number}
+ */
+export function countRegistrationOpenTournaments(tournaments) {
+  const seen = new Set();
+  let count = 0;
+
+  for (const tournament of tournaments ?? []) {
+    if (!tournament?.id || seen.has(tournament.id)) continue;
+    seen.add(tournament.id);
+    if (tournament.status === "Registrations Open") count += 1;
+  }
+
+  return count;
+}
+
+/**
  * Completed card shape for the tournaments hub archive.
  * @param {ReturnType<typeof enrichTournament>} tournament
  */

@@ -4,6 +4,7 @@
  */
 
 import {
+  countRegistrationOpenTournaments,
   getCompletedTournaments,
   getUpcomingTournaments,
   selectFeaturedTournament,
@@ -41,6 +42,7 @@ export function getTournamentsPageLayout({
   next = nextTournament,
   upcoming: upcomingList = upcomingTournaments,
   completed: completedList = completedTournaments,
+  openRegistrationCount = countRegistrationOpenTournaments(all),
 } = {}) {
   const featuredId = featured?.id ?? null;
   const nextId = next?.id ?? null;
@@ -56,6 +58,7 @@ export function getTournamentsPageLayout({
     upcomingDisplay,
     showCompletedArchive: archivedCompleted.length > 0,
     archivedCompleted,
+    openRegistrationCount,
   };
 }
 

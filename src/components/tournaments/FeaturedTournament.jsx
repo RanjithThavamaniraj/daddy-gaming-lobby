@@ -10,8 +10,11 @@ import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
  * Renders based entirely on tournament.status — no hardcoded behaviour.
  * @param {object} props
  * @param {object} props.tournament
+ * @param {number} [props.openRegistrationCount=0]
  */
-export default function FeaturedTournament({ tournament }) {
+export default function FeaturedTournament({ tournament, openRegistrationCount = 0 }) {
+  if (!tournament) return null;
+
   const gameSlug = tournament.gameSlug ?? tournament.game.toLowerCase().replace(/\s+/g, "-");
   const status = tournament.status;
   const isCompleted = status === "Completed";
@@ -26,10 +29,18 @@ export default function FeaturedTournament({ tournament }) {
     tournament.slug ?? tournament.resultsSlug
       ? `/tournaments/${tournament.slug ?? tournament.resultsSlug}`
       : null;
+  const showOpenCount = openRegistrationCount >= 2;
 
   return (
     <section className="featured-section">
-      <h2 className="section-heading">Main Event</h2>
+      <h2 className="section-heading">
+        Main Event
+        {showOpenCount ? (
+          <span className="status-badge-custom live">
+            LIVE NOW • {openRegistrationCount}
+          </span>
+        ) : null}
+      </h2>
       <div className="hero-card" style={{ "--accent": tournament.accent }}>
         <div className="hero-scanlines" />
         <div className="hero-inner">
