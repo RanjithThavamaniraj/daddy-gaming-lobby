@@ -207,6 +207,7 @@ export const TOURNAMENT_REGISTRY = [
     format: "2v2",
     matchType: "Knockout",
     entryFee: "Free",
+    registrationLimit: 16,
     status: "Registrations Open",
     accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
   },
