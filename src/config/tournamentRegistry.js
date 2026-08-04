@@ -207,7 +207,7 @@ export const TOURNAMENT_REGISTRY = [
     format: "2v2",
     matchType: "Knockout",
     entryFee: "Free",
-    status: "Coming Soon",
+    status: "Registrations Open",
     accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
   },
   // Future: number 7 — gameSlug "valorant" → DGL Valorant Championship #2

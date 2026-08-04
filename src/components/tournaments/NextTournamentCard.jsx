@@ -1,5 +1,8 @@
+import { Link } from "react-router-dom";
+
 import GameIcon from "./GameIcon";
 import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
+import { isRegisteredForTournament } from "../../lib/registrationSession";
 
 /** Short CTA label per game — cosmetic only, never touches stored tournament data. */
 const SHORT_GAME_LABELS = {
@@ -10,8 +13,9 @@ const SHORT_GAME_LABELS = {
 
 /**
  * Next Tournament preview card — reuses the exact Main Event hero card
- * style/markup so it reads as the same premium tier, but is purely
- * informational: no registration is possible until an admin promotes it.
+ * style/markup so it reads as the same premium tier. When registration is
+ * open it offers the same Register Now CTA as the Main Event; otherwise it
+ * stays informational until an admin promotes / opens it.
  *
  * @param {object} props
  * @param {object} props.tournament - the Next Tournament (never the Main Event)
@@ -25,6 +29,13 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
     ? SHORT_GAME_LABELS[mainEvent.gameSlug] ?? mainEvent.game
     : null;
   const isShowdown = isSaturdayShowdown(tournament.eventType);
+  const status = tournament.status;
+  const isRegistrationOpen = status === "Registrations Open";
+  const alreadyRegistered = isRegisteredForTournament(tournament.id);
+  const registrationPath =
+    tournament.slug ?? tournament.resultsSlug
+      ? `/tournaments/${tournament.slug ?? tournament.resultsSlug}`
+      : null;
 
   return (
     <section className="featured-section">
@@ -56,7 +67,17 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
                 ) : null}
                 <h3 className="hero-title">{tournament.title}</h3>
                 <div className="hero-badges">
-                  <span className="status-badge-custom coming-soon">NEXT TOURNAMENT</span>
+                  {isRegistrationOpen ? (
+                    <span
+                      className={`status-badge-custom ${status
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {status}
+                    </span>
+                  ) : (
+                    <span className="status-badge-custom coming-soon">NEXT TOURNAMENT</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -106,11 +127,25 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
             </div>
 
             <div className="hero-action-container">
-              <button type="button" className="cyber-btn disabled" disabled>
-                <span>
-                  {mainEventLabel ? `COMING AFTER ${mainEventLabel.toUpperCase()}` : "COMING SOON"}
-                </span>
-              </button>
+              {isRegistrationOpen && registrationPath ? (
+                alreadyRegistered ? (
+                  <button type="button" className="cyber-btn disabled registered-cta" disabled>
+                    <span>✓ REGISTERED</span>
+                  </button>
+                ) : (
+                  <Link to={registrationPath} className="cyber-btn primary">
+                    <span>REGISTER NOW</span>
+                  </Link>
+                )
+              ) : (
+                <button type="button" className="cyber-btn disabled" disabled>
+                  <span>
+                    {mainEventLabel
+                      ? `COMING AFTER ${mainEventLabel.toUpperCase()}`
+                      : "COMING SOON"}
+                  </span>
+                </button>
+              )}
             </div>
           </div>
         </div>
