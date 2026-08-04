@@ -33,9 +33,7 @@ export const HOME_FEATURED_GAME_IDS = [
   "fc-26",
   "marvel-rivals",
   "rocket-league",
-  "arc-raiders",
   "among-us",
-  "fall-guys",
 ];
 
 /** One-line game blurbs — no tournament details. */
@@ -45,9 +43,7 @@ export const HOME_GAME_TAGLINES = {
   "fc-26": "Competitive football with active DGL championships.",
   "marvel-rivals": "Hero team battles in the multi-game lineup.",
   "rocket-league": "High-speed sports action on the DGL roadmap.",
-  "arc-raiders": "Extraction co-op title planned for DGL play.",
   "among-us": "Social deduction party game for community events.",
-  "fall-guys": "Competitive party platformer with fun community tournaments.",
 };
 
 /** Combined platform value props — short copy only. */
@@ -90,7 +86,7 @@ export const WHY_DGL_PILLARS = [
   },
 ];
 
-/** Game slugs whose homepage badge reads "Tournament Ready" instead of "Available". */
+/** Game slugs whose homepage badge reads "Tournament Ready" instead of "Active". */
 const HOME_TOURNAMENT_READY_GAME_IDS = [
   "valorant",
   "cs2",
@@ -100,7 +96,7 @@ const HOME_TOURNAMENT_READY_GAME_IDS = [
 ];
 
 /**
- * Featured games — tournament-ready titles are TOURNAMENT READY, the rest AVAILABLE.
+ * Featured games — tournament-ready titles are TOURNAMENT READY, the rest ACTIVE.
  * Future: supabase.from("games").select("*").eq("featured", true).order("sort_order")
  */
 export function buildHomeFeaturedGames() {
@@ -114,7 +110,7 @@ export function buildHomeFeaturedGames() {
       ...game,
       tagline: HOME_GAME_TAGLINES[id] ?? game.category,
       status: "available",
-      statusLabel: isTournamentReady ? "Tournament Ready" : "Available",
+      statusLabel: isTournamentReady ? "Tournament Ready" : "Active",
     };
   }).filter(Boolean);
 }

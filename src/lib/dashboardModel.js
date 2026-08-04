@@ -9,14 +9,14 @@ import {
 } from "./tournamentModel";
 
 /**
- * Supported games for Active Realms — every supported title is AVAILABLE.
+ * Supported games for Active Realms — every supported title is ACTIVE.
  * @returns {object[]}
  */
 export function buildDashboardGames() {
   return DGL_GAMES.map((game) => ({
     ...game,
     status: "available",
-    statusLabel: "Available",
+    statusLabel: "Active",
   }));
 }
 /**

@@ -213,5 +213,4 @@ export const TOURNAMENT_REGISTRY = [
   },
   // Future: number 7 — gameSlug "valorant" → DGL Valorant Championship #2
   // Future: number 8 — gameSlug "marvel-rivals"
-  // Future: number 9 — gameSlug "arc-raiders"
 ];

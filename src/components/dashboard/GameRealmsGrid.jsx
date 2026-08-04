@@ -16,7 +16,7 @@ export default function GameRealmsGrid({ games }) {
       <div className="games-grid">
         {games.map((realm, index) => {
           const status = realm.status ?? "available";
-          const statusLabel = realm.statusLabel ?? "Available";
+          const statusLabel = realm.statusLabel ?? "Active";
 
           return (
             <article

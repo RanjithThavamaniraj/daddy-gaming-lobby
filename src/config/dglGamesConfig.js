@@ -41,13 +41,6 @@ export const DGL_GAMES = [
     glow: "rgba(245, 197, 24, 0.4)",
   },
   {
-    id: "arc-raiders",
-    name: "Arc Raiders",
-    category: "Extraction",
-    accent: "#ff6b4a",
-    glow: "rgba(255, 107, 74, 0.45)",
-  },
-  {
     id: "rocket-league",
     name: "Rocket League",
     category: "Sports",
@@ -60,12 +53,5 @@ export const DGL_GAMES = [
     category: "Social Deduction",
     accent: "#14b8a6",
     glow: "rgba(20, 184, 166, 0.4)",
-  },
-  {
-    id: "fall-guys",
-    name: "Fall Guys",
-    category: "Party Platformer",
-    accent: "#ec4899",
-    glow: "rgba(236, 72, 153, 0.4)",
   },
 ];

@@ -15,7 +15,7 @@ export function mapDashboardGameRow(row) {
     accent: row.accent_color,
     glow: row.glow_color,
     status: "available",
-    statusLabel: "Available",
+    statusLabel: "Active",
   };
 }
 
@@ -40,7 +40,7 @@ export function mapFeaturedGameRow(row) {
     glow: row.glow_color,
     tagline: HOME_GAME_TAGLINES[row.slug] ?? row.category ?? "",
     status: "available",
-    statusLabel: "Available",
+    statusLabel: "Active",
   };
 }
 
