@@ -208,6 +208,8 @@ export const TOURNAMENT_REGISTRY = [
     matchType: "Knockout",
     entryFee: "Free",
     registrationLimit: 16,
+    // 15 Aug 2026, 8:00 PM IST
+    startsAt: "2026-08-15T14:30:00.000Z",
     status: "Registration Closed",
     accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
   },

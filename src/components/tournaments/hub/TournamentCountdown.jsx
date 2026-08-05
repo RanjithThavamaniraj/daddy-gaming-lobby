@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   formatCountdown,
   isLifecycleClosed,
@@ -7,10 +8,23 @@ import {
 
 /**
  * Countdown / live / finished panel based on lifecycle.
+ * Tick every second when a real start time exists so the clock stays live.
  * @param {object} props
  * @param {object} props.tournament
  */
 export default function TournamentCountdown({ tournament }) {
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  const closed = isLifecycleClosed(tournament);
+  const hasStart = Boolean(
+    tournament?.startsAt && !Number.isNaN(Date.parse(tournament.startsAt))
+  );
+
+  useEffect(() => {
+    if (!hasStart || !closed) return undefined;
+    const id = window.setInterval(() => setNowMs(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [hasStart, closed]);
+
   if (isLifecycleLive(tournament)) {
     return (
       <section className="hub-countdown hub-countdown-live">
@@ -29,15 +43,22 @@ export default function TournamentCountdown({ tournament }) {
     );
   }
 
-  if (isLifecycleClosed(tournament)) {
-    const countdown = formatCountdown(tournament.startsAt);
+  if (closed) {
+    if (!hasStart) {
+      return (
+        <section className="hub-countdown">
+          <h2>Tournament begins in</h2>
+          <p className="hub-countdown-value">TBA</p>
+          <p className="hub-muted">Start date will be announced soon.</p>
+        </section>
+      );
+    }
+
+    const countdown = formatCountdown(tournament.startsAt, nowMs);
     return (
       <section className="hub-countdown">
         <h2>Tournament begins in</h2>
         <p className="hub-countdown-value">{countdown}</p>
-        {countdown === "TBA" ? (
-          <p className="hub-muted">Start date will be announced soon.</p>
-        ) : null}
       </section>
     );
   }

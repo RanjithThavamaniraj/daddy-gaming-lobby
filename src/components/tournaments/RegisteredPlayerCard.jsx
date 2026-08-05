@@ -13,7 +13,6 @@ export default function RegisteredPlayerCard({ player, accent = "#a855f7" }) {
     points = 0,
     rank = null,
     tournamentsPlayed = 0,
-    platform = "Not Specified",
     isNewPlayer = false,
   } = player ?? {};
 
@@ -37,10 +36,6 @@ export default function RegisteredPlayerCard({ player, accent = "#a855f7" }) {
         <div className="player-card-stat">
           <span className="player-card-label">🎯 Tournaments Played</span>
           <span className="player-card-value">{tournamentsPlayed}</span>
-        </div>
-        <div className="player-card-stat">
-          <span className="player-card-label">🖥 Platform</span>
-          <span className="player-card-value">{platform || "Not Specified"}</span>
         </div>
       </div>
     </>
