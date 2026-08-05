@@ -198,10 +198,10 @@ export default function TournamentForm({
           </Field>
 
           <Field
-            label="Series (optional)"
+            label="Tournament Series"
             name="seriesId"
             error={fieldErrors.seriesId}
-            hint="Links championship vs Saturday Showdown numbering"
+            hint="Controls branding: Tournament (Championship) or Saturday Showdown"
           >
             <select
               className="admin-toolbar-select"
@@ -213,6 +213,9 @@ export default function TournamentForm({
               {filteredSeries.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
+                  {item.eventType === "saturday_showdown"
+                    ? " · Saturday Showdown"
+                    : " · Tournament"}
                 </option>
               ))}
             </select>
@@ -339,9 +342,10 @@ export default function TournamentForm({
           </Field>
 
           <Field
-            label="Registration Limit"
+            label="Maximum Players"
             name="registrationLimit"
             error={fieldErrors.registrationLimit}
+            hint="Main confirmed roster capacity"
           >
             <input
               className="admin-toolbar-input"
@@ -355,9 +359,10 @@ export default function TournamentForm({
           </Field>
 
           <Field
-            label="Reserve Capacity"
+            label="Reserve Players"
             name="reserveLimit"
             error={fieldErrors.reserveLimit}
+            hint="Reserve list capacity (default 4)"
           >
             <input
               className="admin-toolbar-input"

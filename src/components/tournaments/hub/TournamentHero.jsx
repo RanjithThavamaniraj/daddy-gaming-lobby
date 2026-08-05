@@ -1,5 +1,6 @@
 import { LIFECYCLE_BADGE } from "../../../lib/tournamentLifecycle";
 import { parsePrizePoolAmount } from "../../../lib/prizePool";
+import { getSeriesLabel } from "../../../config/eventTypeConfig";
 import ReserveInfoTooltip from "../ReserveInfoTooltip";
 
 /**
@@ -67,6 +68,8 @@ export default function TournamentHero({
     tournament.startsAt
   );
   const reward = heroRewardStat(tournament);
+  const seriesLabel =
+    tournament.seriesLabel || getSeriesLabel(tournament.eventType);
 
   return (
     <section className="hub-hero" style={{ "--accent": accent }}>
@@ -78,11 +81,30 @@ export default function TournamentHero({
         <h1 className="hub-hero-title">
           {tournament.title || tournament.championshipName || tournament.name}
         </h1>
+        {tournament.subtitle ? (
+          <p className="hub-hero-subtitle">{tournament.subtitle}</p>
+        ) : null}
         <div className="hub-hero-meta">
           <span className="hub-hero-game">{tournament.game || "DGL"}</span>
           <span className="hub-status-badge">{badge}</span>
         </div>
         <div className="hub-hero-stats">
+          <div className="hub-hero-stat">
+            <span className="label">Series</span>
+            <span className="value">{seriesLabel}</span>
+          </div>
+          <div className="hub-hero-stat">
+            <span className="label">Game</span>
+            <span className="value">{tournament.game || "DGL"}</span>
+          </div>
+          <div className="hub-hero-stat">
+            <span className="label">Mode</span>
+            <span className="value">{tournament.format || "—"}</span>
+          </div>
+          <div className="hub-hero-stat">
+            <span className="label">Format</span>
+            <span className="value">{tournament.matchType || "—"}</span>
+          </div>
           <div className="hub-hero-stat">
             <span className="label">Date</span>
             <span className="value">{datePart}</span>

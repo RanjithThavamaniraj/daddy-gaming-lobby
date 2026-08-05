@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { isSaturdayShowdown } from "../../../config/eventTypeConfig";
+import { isSaturdayShowdown, getSeriesLabel } from "../../../config/eventTypeConfig";
 
 /**
  * Registration form section for open / reserve-mode tournaments.
@@ -43,6 +43,7 @@ export default function TournamentRegistrationForm({
   } = tournament;
 
   const isShowdown = isSaturdayShowdown(eventType);
+  const seriesLabel = tournament.seriesLabel || getSeriesLabel(eventType);
   const isRocketLeague =
     (gameSlug ?? (game ? game.toLowerCase().replace(/\s+/g, "-") : "")) ===
     "rocket-league";
@@ -146,15 +147,19 @@ export default function TournamentRegistrationForm({
         <h3>Tournament Details</h3>
         <div className="info-grid">
           <div className="info-item">
-            <span className="label">Format</span>
+            <span className="label">Series</span>
+            <span className="value">{seriesLabel}</span>
+          </div>
+          <div className="info-item">
+            <span className="label">Mode</span>
             <span className="value">{format}</span>
           </div>
           <div className="info-item">
-            <span className="label">Match Type</span>
+            <span className="label">Format</span>
             <span className="value">{matchType}</span>
           </div>
           <div className="info-item">
-            {isShowdown ? (
+            {isShowdown || !prizePool ? (
               <>
                 <span className="label">Reward</span>
                 <span className="value text-accent">DGL Points</span>
@@ -168,7 +173,7 @@ export default function TournamentRegistrationForm({
           </div>
           <div className="info-item">
             <span className="label">Entry</span>
-            <span className="value">{entryFee}</span>
+            <span className="value">{entryFee || "Free"}</span>
           </div>
           {registrationLimit ? (
             <div className="info-item">

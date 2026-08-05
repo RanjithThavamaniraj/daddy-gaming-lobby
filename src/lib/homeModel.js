@@ -11,6 +11,8 @@ const GAME_EMOJI = {
   "fc-26": "⚽",
   cs2: "🎮",
   valorant: "🎯",
+  "marvel-rivals": "🦸",
+  "rocket-league": "🚗",
 };
 
 /**

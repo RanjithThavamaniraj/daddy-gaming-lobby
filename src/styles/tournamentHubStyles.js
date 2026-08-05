@@ -41,8 +41,15 @@ ${dglLayoutTokens}
 .hub-hero-title {
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(1.45rem, 3.4vw, 2.35rem);
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.35rem;
   line-height: 1.15;
+}
+
+.hub-hero-subtitle {
+  margin: 0 0 0.85rem;
+  color: #c4b5fd;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
 }
 
 .hub-hero-meta {

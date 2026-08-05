@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import GameIcon from "./GameIcon";
 import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
 import { isRegisteredForTournament } from "../../lib/registrationSession";
+import { parsePrizePoolAmount } from "../../lib/prizePool";
 import {
   LIFECYCLE_BADGE,
   formatTournamentStartDate,
@@ -48,6 +49,8 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
   const badge =
     LIFECYCLE_BADGE[tournament.lifecycle] ??
     (isRegistrationOpen ? tournament.status : null);
+  const hasCashPrize = parsePrizePoolAmount(tournament.prizePool) > 0;
+  const showFreeEntry = isShowdown || !hasCashPrize;
 
   return (
     <section className="featured-section">
@@ -148,8 +151,14 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
               {isShowdown ? (
                 <>
                   <div className="hero-stat-box">
-                    <span className="stat-label">PRIZE</span>
-                    <span className="stat-value text-completed">Community Event</span>
+                    <span className="stat-label">SERIES</span>
+                    <span className="stat-value">Saturday Showdown</span>
+                  </div>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">ENTRY</span>
+                    <span className="stat-value text-completed">
+                      {tournament.entryFee?.trim() || "Free"}
+                    </span>
                   </div>
                   <div className="hero-stat-box">
                     <span className="stat-label">REWARDS</span>
@@ -158,13 +167,20 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
                     </span>
                   </div>
                 </>
+              ) : showFreeEntry ? (
+                <div className="hero-stat-box">
+                  <span className="stat-label">ENTRY</span>
+                  <span className="stat-value text-completed">
+                    {tournament.entryFee?.trim() || "Free"}
+                  </span>
+                </div>
               ) : (
                 <div className="hero-stat-box">
                   <span className="stat-label">PRIZE</span>
                   <span className="stat-value text-completed">{tournament.prizePool}</span>
                 </div>
               )}
-              {tournament.entryFee ? (
+              {tournament.entryFee && hasCashPrize && !isShowdown ? (
                 <div className="hero-stat-box">
                   <span className="stat-label">ENTRY</span>
                   <span className="stat-value">{tournament.entryFee}</span>

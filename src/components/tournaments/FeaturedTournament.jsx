@@ -4,6 +4,7 @@ import { Calendar, Trophy } from "lucide-react";
 import GameIcon from "./GameIcon";
 import { isRegisteredForTournament } from "../../lib/registrationSession";
 import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
+import { parsePrizePoolAmount } from "../../lib/prizePool";
 import {
   LIFECYCLE_BADGE,
   formatTournamentStartDate,
@@ -45,6 +46,8 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
   const badge =
     LIFECYCLE_BADGE[tournament.lifecycle] ??
     (isCompleted ? "⚫ Completed" : tournament.status);
+  const hasCashPrize = parsePrizePoolAmount(tournament.prizePool) > 0;
+  const showFreeEntry = isShowdown || !hasCashPrize;
 
   return (
     <section className="featured-section">
@@ -115,16 +118,18 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
                 <span className="stat-label">MATCH TYPE</span>
                 <span className="stat-value">{tournament.matchType}</span>
               </div>
-              {isShowdown ? (
+              {showFreeEntry ? (
                 <>
+                  {isShowdown ? (
+                    <div className="hero-stat-box">
+                      <span className="stat-label">SERIES</span>
+                      <span className="stat-value">Saturday Showdown</span>
+                    </div>
+                  ) : null}
                   <div className="hero-stat-box">
-                    <span className="stat-label">PRIZE</span>
-                    <span className="stat-value text-completed">Community Event</span>
-                  </div>
-                  <div className="hero-stat-box">
-                    <span className="stat-label">REWARDS</span>
+                    <span className="stat-label">ENTRY</span>
                     <span className="stat-value text-completed">
-                      DGL Points • Hall of Titans Recognition
+                      {tournament.entryFee?.trim() || "Free"}
                     </span>
                   </div>
                 </>
@@ -134,7 +139,15 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
                   <span className="stat-value text-completed">{tournament.prizePool}</span>
                 </div>
               )}
-              {tournament.entryFee ? (
+              {isShowdown ? (
+                <div className="hero-stat-box">
+                  <span className="stat-label">REWARDS</span>
+                  <span className="stat-value text-completed">
+                    DGL Points • Hall of Titans Recognition
+                  </span>
+                </div>
+              ) : null}
+              {tournament.entryFee && hasCashPrize && !isShowdown ? (
                 <div className="hero-stat-box">
                   <span className="stat-label">ENTRY</span>
                   <span className="stat-value">{tournament.entryFee}</span>

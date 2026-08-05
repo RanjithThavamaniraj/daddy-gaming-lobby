@@ -1,7 +1,7 @@
 import { DGL_POINTS } from "../config/dglPointsConfig";
 import { TOURNAMENT_REGISTRY } from "../config/tournamentRegistry";
 import { normalizePrizePoolDisplay } from "./prizePool";
-import { resolveEventAccent } from "../config/eventTypeConfig";
+import { getSeriesLabel, resolveEventAccent } from "../config/eventTypeConfig";
 import { applyLifecycleStatus, isLifecycleClosed } from "./tournamentLifecycle";
 
 /**
@@ -140,9 +140,12 @@ export function enrichTournament(tournament, identifiers) {
     name: ids.championshipName,
     title: ids.championshipName,
     eventType,
+    seriesLabel: getSeriesLabel(eventType),
     accent: resolveEventAccent(eventType, tournament.accent),
     prizePool: normalizePrizePoolDisplay(tournament.prizePool),
     entryFee: tournament.entryFee ?? null,
+    subtitle: tournament.subtitle ?? null,
+    reserveLimit: tournament.reserveLimit ?? 4,
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,
     championPlayers,

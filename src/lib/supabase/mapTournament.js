@@ -5,7 +5,10 @@ import {
   sortPlayerNames,
 } from "../tournamentModel";
 import { normalizePrizePoolDisplay } from "../prizePool";
-import { resolveEventAccent } from "../../config/eventTypeConfig";
+import {
+  getSeriesLabel,
+  resolveEventAccent,
+} from "../../config/eventTypeConfig";
 import { applyLifecycleStatus } from "../tournamentLifecycle";
 
 /** @type {Record<string, string>} */
@@ -89,6 +92,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     matchType: row.match_type ?? undefined,
     prizePool: normalizePrizePoolDisplay(row.prize_pool_display) ?? undefined,
     entryFee: row.metadata?.entry_fee ?? undefined,
+    subtitle: row.metadata?.subtitle ?? undefined,
     teamLimit: row.metadata?.team_limit ?? undefined,
     matchDuration: row.metadata?.match_duration ?? undefined,
     overtimeRule: row.metadata?.overtime_rule ?? undefined,
@@ -97,6 +101,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     completedDate: row.completed_date_label ?? undefined,
     isFeatured: row.is_featured ?? false,
     eventType,
+    seriesLabel: getSeriesLabel(eventType),
     accent: resolveEventAccent(eventType, row.accent_color ?? row.game_accent ?? "#a855f7"),
     registrationLimit: row.registration_limit ?? undefined,
     registeredCount:
@@ -167,6 +172,7 @@ export function mapTournamentResultsRow(row) {
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
     eventType,
+    seriesLabel: getSeriesLabel(eventType),
     accent: resolveEventAccent(eventType, row.accent_color ?? "#a855f7"),
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,

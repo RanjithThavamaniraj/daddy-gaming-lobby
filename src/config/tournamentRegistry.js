@@ -213,6 +213,25 @@ export const TOURNAMENT_REGISTRY = [
     status: "Registration Closed",
     accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
   },
-  // Future: number 7 — gameSlug "valorant" → DGL Valorant Championship #2
-  // Future: number 8 — gameSlug "marvel-rivals"
+  {
+    number: 7,
+    id: "dgl-marvel-rivals-saturday-showdown-2",
+    slug: "marvel-rivals-saturday-showdown-2",
+    game: "Marvel Rivals",
+    gameSlug: "marvel-rivals",
+    championshipLabel: "Marvel Rivals",
+    eventType: "saturday_showdown",
+    format: "6v6",
+    matchType: "Best of 5",
+    entryFee: "Free",
+    subtitle: "Marvel Rivals Community Cup",
+    registrationLimit: 12,
+    reserveLimit: 6,
+    // 29 Aug 2026, 7:30 PM IST
+    startsAt: "2026-08-29T14:00:00.000Z",
+    registrationClosesAt: "2026-08-29T13:00:00.000Z",
+    status: "Registrations Open",
+    accent: "#f5c518",
+  },
+  // Future: number 8 — gameSlug "valorant" → DGL Valorant Championship #2
 ];

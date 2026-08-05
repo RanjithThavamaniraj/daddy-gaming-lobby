@@ -28,6 +28,18 @@ export function isSaturdayShowdown(eventType) {
 }
 
 /**
+ * Public series label for branding (Championship vs Saturday Showdown).
+ * @param {string | null | undefined} eventType
+ * @returns {string}
+ */
+export function getSeriesLabel(eventType) {
+  if (isSaturdayShowdown(eventType)) {
+    return EVENT_TYPES.saturday_showdown.label;
+  }
+  return EVENT_TYPES.championship.label;
+}
+
+/**
  * Resolves the card accent color: Saturday Showdown always gets its own
  * burnt-orange identity regardless of game; Championship keeps whatever
  * per-game/per-tournament accent it already had.
