@@ -29,7 +29,7 @@ export default function RegisteredPlayersGrid({
       </h3>
       {players.length === 0 ? (
         <p className="registered-players-empty">
-          No players registered yet — be the first!
+          No registered players yet.
         </p>
       ) : (
         <div className="registered-players-grid">

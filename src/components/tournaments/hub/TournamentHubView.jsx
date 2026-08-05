@@ -21,7 +21,6 @@ import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistra
 import { registeredPlayersStyles } from "../../../styles/playerProfilePageStyles";
 import { tournamentHubStyles } from "../../../styles/tournamentHubStyles";
 import {
-  LIFECYCLE_BADGE,
   isLifecycleClosed,
   isLifecycleCompleted,
   isLifecycleLive,
@@ -46,8 +45,6 @@ export default function TournamentHubView({ tournament }) {
   const isClosed = isLifecycleClosed(tournament);
   const isLive = isLifecycleLive(tournament);
   const isCompleted = isLifecycleCompleted(tournament);
-  const statusBadge =
-    LIFECYCLE_BADGE[tournament.lifecycle] ?? tournament.status;
 
   const [registrations, setRegistrations] = useState(null);
   const [regStatus, setRegStatus] = useState("idle");
@@ -65,13 +62,16 @@ export default function TournamentHubView({ tournament }) {
   useEffect(() => {
     let cancelled = false;
     const tid = tournament.tournamentId;
-    if (!tid) return undefined;
+    if (!tid) {
+      return undefined;
+    }
     fetchTournamentRegistrations(tid)
       .then((rows) => {
-        if (!cancelled) setRegistrations(rows);
+        if (!cancelled) setRegistrations(Array.isArray(rows) ? rows : []);
       })
       .catch((err) => {
         console.error("Failed to fetch registrations:", err);
+        if (!cancelled) setRegistrations([]);
       });
     return () => {
       cancelled = true;
@@ -163,17 +163,12 @@ export default function TournamentHubView({ tournament }) {
       >
         <div className="page-shell">
           <div className="page-content">
-            {/* 1. Hero (includes status badge + player count) */}
+            {/* 1–2. Hero (status badge shown once here) */}
             <TournamentHero
               tournament={tournament}
               playerCount={playerCount}
               capacity={capacity}
             />
-
-            {/* 2. Tournament Status (explicit strip for clarity) */}
-            <section className="hub-section" aria-label="Tournament status">
-              <div className="hub-status-badge">{statusBadge}</div>
-            </section>
 
             {/* 3. Countdown */}
             <TournamentCountdown tournament={tournament} />
@@ -194,7 +189,7 @@ export default function TournamentHubView({ tournament }) {
 
             {/* 4. Registered Players — always visible */}
             <RegisteredPlayersGrid
-              players={registrations}
+              players={tournament.tournamentId ? registrations : []}
               accent={tsAccent}
               title="Registered Players"
             />

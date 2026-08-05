@@ -30,12 +30,14 @@ export default function TournamentCountdown({ tournament }) {
   }
 
   if (isLifecycleClosed(tournament)) {
+    const countdown = formatCountdown(tournament.startsAt);
     return (
       <section className="hub-countdown">
         <h2>Tournament begins in</h2>
-        <p className="hub-countdown-value">
-          {formatCountdown(tournament.startsAt)}
-        </p>
+        <p className="hub-countdown-value">{countdown}</p>
+        {countdown === "TBA" ? (
+          <p className="hub-muted">Start date will be announced soon.</p>
+        ) : null}
       </section>
     );
   }

@@ -184,7 +184,9 @@ $$;
 grant execute on function public.dgl_sync_tournament_lifecycle(uuid)
   to anon, authenticated;
 
--- Expose slug on the public leaderboard view (preserve game columns)
+-- Expose slug on the public leaderboard view.
+-- IMPORTANT: CREATE OR REPLACE VIEW cannot rename/reorder existing columns
+-- (SQLSTATE 42P16). Append `slug` at the end so column positions stay stable.
 create or replace view public.v_player_leaderboard
 with (security_invoker = true) as
 select
@@ -192,7 +194,6 @@ select
     order by s.total_points desc, s.championships desc, p.display_name asc
   )::integer as rank,
   p.id as player_id,
-  p.slug,
   p.display_name,
   s.total_points as points,
   s.championships,
@@ -202,7 +203,8 @@ select
   s.last_awarded_at,
   lg.game_name,
   lg.game_slug,
-  lg.game_accent
+  lg.game_accent,
+  p.slug
 from public.player_points_summary s
 join public.players p on p.id = s.player_id
 left join lateral (
