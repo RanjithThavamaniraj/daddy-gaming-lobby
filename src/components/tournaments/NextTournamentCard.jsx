@@ -3,8 +3,15 @@ import { Link } from "react-router-dom";
 import GameIcon from "./GameIcon";
 import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
 import { isRegisteredForTournament } from "../../lib/registrationSession";
+import {
+  LIFECYCLE_BADGE,
+  formatTournamentStartDate,
+  isLifecycleClosed,
+  isLifecycleLive,
+  isLifecycleOpen,
+} from "../../lib/tournamentLifecycle";
 
-/** Short CTA label per game — cosmetic only, never touches stored tournament data. */
+/** Short CTA label per game — cosmetic only. */
 const SHORT_GAME_LABELS = {
   valorant: "Valorant",
   cs2: "CS2",
@@ -12,14 +19,10 @@ const SHORT_GAME_LABELS = {
 };
 
 /**
- * Next Tournament preview card — reuses the exact Main Event hero card
- * style/markup so it reads as the same premium tier. When registration is
- * open it offers the same Register Now CTA as the Main Event; otherwise it
- * stays informational until an admin promotes / opens it.
- *
+ * Next Tournament preview card.
  * @param {object} props
- * @param {object} props.tournament - the Next Tournament (never the Main Event)
- * @param {object|null} [props.mainEvent] - current Main Event, for the CTA copy only
+ * @param {object} props.tournament
+ * @param {object|null} [props.mainEvent]
  */
 export default function NextTournamentCard({ tournament, mainEvent }) {
   if (!tournament) return null;
@@ -29,13 +32,21 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
     ? SHORT_GAME_LABELS[mainEvent.gameSlug] ?? mainEvent.game
     : null;
   const isShowdown = isSaturdayShowdown(tournament.eventType);
-  const status = tournament.status;
-  const isRegistrationOpen = status === "Registrations Open";
+  const isRegistrationOpen = isLifecycleOpen(tournament);
+  const isRegistrationClosed = isLifecycleClosed(tournament);
+  const isLive = isLifecycleLive(tournament);
   const alreadyRegistered = isRegisteredForTournament(tournament.id);
   const registrationPath =
     tournament.slug ?? tournament.resultsSlug
       ? `/tournaments/${tournament.slug ?? tournament.resultsSlug}`
       : null;
+  const capacity = tournament.registrationLimit ?? null;
+  const registered = tournament.registeredCount ?? 0;
+  const slotsRemaining =
+    capacity == null ? null : Math.max(0, capacity - registered);
+  const badge =
+    LIFECYCLE_BADGE[tournament.lifecycle] ??
+    (isRegistrationOpen ? tournament.status : null);
 
   return (
     <section className="featured-section">
@@ -67,13 +78,17 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
                 ) : null}
                 <h3 className="hero-title">{tournament.title}</h3>
                 <div className="hero-badges">
-                  {isRegistrationOpen ? (
+                  {isRegistrationOpen || isRegistrationClosed || isLive ? (
                     <span
-                      className={`status-badge-custom ${status
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}`}
+                      className={`status-badge-custom ${
+                        isLive
+                          ? "live"
+                          : isRegistrationClosed
+                            ? "registrations-closed"
+                            : "registrations-open"
+                      }`}
                     >
-                      {status}
+                      {badge}
                     </span>
                   ) : (
                     <span className="status-badge-custom coming-soon">NEXT TOURNAMENT</span>
@@ -99,6 +114,28 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
                 <span className="stat-label">PLAYERS</span>
                 <span className="stat-value">{tournament.registrationLimit ?? "—"}</span>
               </div>
+              {isRegistrationOpen && slotsRemaining != null ? (
+                <div className="hero-stat-box">
+                  <span className="stat-label">SLOTS REMAINING</span>
+                  <span className="stat-value">{slotsRemaining}</span>
+                </div>
+              ) : null}
+              {isRegistrationClosed && capacity != null ? (
+                <>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">REGISTERED PLAYERS</span>
+                    <span className="stat-value">
+                      {registered} / {capacity}
+                    </span>
+                  </div>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">TOURNAMENT START</span>
+                    <span className="stat-value">
+                      {formatTournamentStartDate(tournament.startsAt)}
+                    </span>
+                  </div>
+                </>
+              ) : null}
               {isShowdown ? (
                 <>
                   <div className="hero-stat-box">
@@ -137,6 +174,14 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
                     <span>REGISTER NOW</span>
                   </Link>
                 )
+              ) : isRegistrationClosed && registrationPath ? (
+                <Link to={registrationPath} className="cyber-btn primary">
+                  <span>VIEW TOURNAMENT</span>
+                </Link>
+              ) : isLive && registrationPath ? (
+                <Link to={registrationPath} className="cyber-btn primary">
+                  <span>VIEW BRACKET</span>
+                </Link>
               ) : (
                 <button type="button" className="cyber-btn disabled" disabled>
                   <span>

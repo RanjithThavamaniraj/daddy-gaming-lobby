@@ -4,10 +4,18 @@ import { Calendar, Trophy } from "lucide-react";
 import GameIcon from "./GameIcon";
 import { isRegisteredForTournament } from "../../lib/registrationSession";
 import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
+import {
+  LIFECYCLE_BADGE,
+  formatTournamentStartDate,
+  isLifecycleClosed,
+  isLifecycleCompleted,
+  isLifecycleLive,
+  isLifecycleOpen,
+} from "../../lib/tournamentLifecycle";
 
 /**
  * Featured / Main Event tournament hero card.
- * Renders based entirely on tournament.status — no hardcoded behaviour.
+ * Renders from derived lifecycle status.
  * @param {object} props
  * @param {object} props.tournament
  * @param {number} [props.openRegistrationCount=0]
@@ -16,12 +24,11 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
   if (!tournament) return null;
 
   const gameSlug = tournament.gameSlug ?? tournament.game.toLowerCase().replace(/\s+/g, "-");
-  const status = tournament.status;
-  const isCompleted = status === "Completed";
-  const isLive = status === "Live";
-  const isRegistrationOpen = status === "Registrations Open";
-  const isRegistrationClosed = status === "Registrations Closed";
-  const isComingSoon = status === "Coming Soon";
+  const isCompleted = isLifecycleCompleted(tournament);
+  const isLive = isLifecycleLive(tournament);
+  const isRegistrationOpen = isLifecycleOpen(tournament);
+  const isRegistrationClosed = isLifecycleClosed(tournament);
+  const isComingSoon = tournament.status === "Coming Soon" && !isRegistrationOpen;
   const isShowdown = isSaturdayShowdown(tournament.eventType);
   const championPlayers = tournament.championPlayers ?? [];
   const alreadyRegistered = isRegisteredForTournament(tournament.id);
@@ -30,6 +37,13 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
       ? `/tournaments/${tournament.slug ?? tournament.resultsSlug}`
       : null;
   const showOpenCount = openRegistrationCount >= 2;
+  const capacity = tournament.registrationLimit ?? null;
+  const registered = tournament.registeredCount ?? 0;
+  const slotsRemaining =
+    capacity == null ? null : Math.max(0, capacity - registered);
+  const badge =
+    LIFECYCLE_BADGE[tournament.lifecycle] ??
+    (isCompleted ? "⚫ Completed" : tournament.status);
 
   return (
     <section className="featured-section">
@@ -68,8 +82,20 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
                 ) : null}
                 <h3 className="hero-title">{tournament.title}</h3>
                 <div className="hero-badges">
-                  <span className={`status-badge-custom ${isCompleted ? "tournament-completed" : status.toLowerCase().replace(/\s+/g, "-")}`}>
-                    {isCompleted ? "🏆 Tournament Completed" : status}
+                  <span
+                    className={`status-badge-custom ${
+                      isCompleted
+                        ? "tournament-completed"
+                        : isRegistrationClosed
+                          ? "registrations-closed"
+                          : isLive
+                            ? "live"
+                            : isRegistrationOpen
+                              ? "registrations-open"
+                              : "coming-soon"
+                    }`}
+                  >
+                    {isCompleted ? "🏆 Tournament Completed" : badge}
                   </span>
                 </div>
               </div>
@@ -113,6 +139,28 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
                   <span className="stat-value">{tournament.entryFee}</span>
                 </div>
               ) : null}
+              {isRegistrationOpen && slotsRemaining != null ? (
+                <div className="hero-stat-box">
+                  <span className="stat-label">SLOTS REMAINING</span>
+                  <span className="stat-value">{slotsRemaining}</span>
+                </div>
+              ) : null}
+              {isRegistrationClosed && capacity != null ? (
+                <>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">REGISTERED PLAYERS</span>
+                    <span className="stat-value">
+                      {registered} / {capacity}
+                    </span>
+                  </div>
+                  <div className="hero-stat-box">
+                    <span className="stat-label">TOURNAMENT START</span>
+                    <span className="stat-value">
+                      {formatTournamentStartDate(tournament.startsAt)}
+                    </span>
+                  </div>
+                </>
+              ) : null}
             </div>
 
             {isCompleted ? (
@@ -148,12 +196,14 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
               <div className="dates-info-row">
                 <div className="date-item">
                   <Calendar size={16} className="text-accent" />
-                  <span>Completed: <strong>{tournament.completedDate}</strong></span>
+                  <span>
+                    Completed: <strong>{tournament.completedDate}</strong>
+                  </span>
                 </div>
               </div>
             ) : null}
 
-            {(isLive || isRegistrationOpen) && registrationPath ? (
+            {isRegistrationOpen && registrationPath ? (
               <div className="hero-action-container">
                 {alreadyRegistered ? (
                   <button type="button" className="cyber-btn disabled registered-cta" disabled>
@@ -161,17 +211,25 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
                   </button>
                 ) : (
                   <Link to={registrationPath} className="cyber-btn primary">
-                    <span>{isLive ? "VIEW BRACKET" : "REGISTER NOW"}</span>
+                    <span>REGISTER NOW</span>
                   </Link>
                 )}
               </div>
             ) : null}
 
-            {isRegistrationClosed ? (
+            {isRegistrationClosed && registrationPath ? (
               <div className="hero-action-container">
-                <button type="button" className="cyber-btn disabled" disabled>
-                  <span>REGISTRATIONS CLOSED</span>
-                </button>
+                <Link to={registrationPath} className="cyber-btn primary">
+                  <span>VIEW TOURNAMENT</span>
+                </Link>
+              </div>
+            ) : null}
+
+            {isLive && registrationPath ? (
+              <div className="hero-action-container">
+                <Link to={registrationPath} className="cyber-btn primary">
+                  <span>VIEW BRACKET</span>
+                </Link>
               </div>
             ) : null}
 

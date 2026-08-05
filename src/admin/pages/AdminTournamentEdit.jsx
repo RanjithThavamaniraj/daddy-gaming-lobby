@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import AdminTournamentLifecyclePanel from "../components/AdminTournamentLifecyclePanel";
 import AdminTournamentRegistrationsPanel from "../components/AdminTournamentRegistrationsPanel";
+import AdminTournamentBracketPanel from "../components/AdminTournamentBracketPanel";
 import TournamentForm from "../components/TournamentForm";
 import { useAdmin } from "../auth/useAdmin";
 import { useTournamentFormOptions } from "../hooks/useTournamentFormOptions";
@@ -102,6 +103,15 @@ export default function AdminTournamentEdit() {
       <AdminTournamentRegistrationsPanel
         tournamentId={id}
         isRocketLeague={isRocketLeague}
+      />
+
+      <AdminTournamentBracketPanel
+        tournamentId={id}
+        tournamentStatus={record.meta?.status}
+        onChanged={async () => {
+          setReloadKey((value) => value + 1);
+          await reload();
+        }}
       />
 
       <TournamentForm

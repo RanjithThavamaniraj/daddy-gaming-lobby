@@ -10,6 +10,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Legal from "./pages/Legal";
 import Contact from "./pages/Contact";
+import PlayerProfile from "./pages/PlayerProfile";
 import NotFound from "./pages/NotFound";
 import AdminAuthLayout from "./admin/AdminAuthLayout";
 import AdminGuard from "./admin/auth/AdminGuard";
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/tournaments" element={<Tournaments />} />
         <Route path="/tournaments/:slug" element={<TournamentResults />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/players/:slug" element={<PlayerProfile />} />
         <Route path="/legal" element={<Legal />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />

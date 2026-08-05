@@ -1,0 +1,223 @@
+/**
+ * Automatic public tournament lifecycle (Phase 1).
+ *
+ * Every public tournament is exactly one of:
+ *   Registrations Open | Registration Closed | Live | Completed
+ *
+ * Derives from DB status + registration count + dates.
+ * Coming Soon is only used for tournaments that have never opened registration.
+ */
+
+/** @typedef {'open'|'closed'|'live'|'completed'|'coming_soon'} TournamentLifecycle */
+
+export const LIFECYCLE = {
+  OPEN: "open",
+  CLOSED: "closed",
+  LIVE: "live",
+  COMPLETED: "completed",
+  COMING_SOON: "coming_soon",
+};
+
+/** @type {Record<TournamentLifecycle, string>} */
+export const LIFECYCLE_LABEL = {
+  open: "Registrations Open",
+  closed: "Registration Closed",
+  live: "Live",
+  completed: "Completed",
+  coming_soon: "Coming Soon",
+};
+
+/** @type {Record<TournamentLifecycle, string>} */
+export const LIFECYCLE_BADGE = {
+  open: "🟢 Registrations Open",
+  closed: "🟠 Registration Closed",
+  live: "🔴 LIVE NOW",
+  completed: "⚫ Completed",
+  coming_soon: "Coming Soon",
+};
+
+/**
+ * @param {string | null | undefined} value
+ * @returns {number | null}
+ */
+function parseTime(value) {
+  if (!value) return null;
+  const ms = Date.parse(value);
+  return Number.isNaN(ms) ? null : ms;
+}
+
+/**
+ * Normalize app/DB status strings into a coarse bucket.
+ * @param {object} tournament
+ * @returns {TournamentLifecycle | null}
+ */
+function statusHint(tournament) {
+  const raw = String(tournament?.dbStatus ?? tournament?.status ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/_/g, " ");
+
+  if (raw === "completed") return LIFECYCLE.COMPLETED;
+  if (raw === "active" || raw === "live") return LIFECYCLE.LIVE;
+  if (
+    raw === "registration closed" ||
+    raw === "registrations closed"
+  ) {
+    return LIFECYCLE.CLOSED;
+  }
+  if (
+    raw === "registration open" ||
+    raw === "registrations open"
+  ) {
+    return LIFECYCLE.OPEN;
+  }
+  if (raw === "coming soon") return LIFECYCLE.COMING_SOON;
+  return null;
+}
+
+/**
+ * Derive the public lifecycle for a tournament.
+ * @param {object} tournament
+ * @param {number} [nowMs]
+ * @returns {TournamentLifecycle}
+ */
+export function deriveTournamentLifecycle(tournament, nowMs = Date.now()) {
+  if (!tournament) return LIFECYCLE.COMING_SOON;
+
+  const hint = statusHint(tournament);
+  if (hint === LIFECYCLE.COMPLETED) return LIFECYCLE.COMPLETED;
+  if (hint === LIFECYCLE.LIVE) return LIFECYCLE.LIVE;
+
+  const startsAt = parseTime(tournament.startsAt);
+  if (
+    startsAt != null &&
+    nowMs >= startsAt &&
+    hint !== LIFECYCLE.COMING_SOON &&
+    hint !== LIFECYCLE.COMPLETED
+  ) {
+    return LIFECYCLE.LIVE;
+  }
+
+  const registered = Number(tournament.registeredCount ?? 0);
+  const limit =
+    tournament.registrationLimit == null
+      ? null
+      : Number(tournament.registrationLimit);
+  const capacityFull = limit != null && registered >= limit;
+  const closesAt = parseTime(tournament.registrationClosesAt);
+  const dateClosed = closesAt != null && nowMs >= closesAt;
+
+  if (
+    hint === LIFECYCLE.CLOSED ||
+    ((capacityFull || dateClosed) &&
+      (hint === LIFECYCLE.OPEN || hint === LIFECYCLE.CLOSED || hint == null))
+  ) {
+    if (hint !== LIFECYCLE.COMING_SOON) {
+      return LIFECYCLE.CLOSED;
+    }
+  }
+
+  if (hint === LIFECYCLE.OPEN) return LIFECYCLE.OPEN;
+  if (hint === LIFECYCLE.COMING_SOON) return LIFECYCLE.COMING_SOON;
+
+  return LIFECYCLE.COMING_SOON;
+}
+
+/**
+ * Apply derived lifecycle onto a tournament object (mutates status label).
+ * @template {object} T
+ * @param {T} tournament
+ * @param {number} [nowMs]
+ * @returns {T & { lifecycle: TournamentLifecycle, status: string }}
+ */
+export function applyLifecycleStatus(tournament, nowMs = Date.now()) {
+  const lifecycle = deriveTournamentLifecycle(tournament, nowMs);
+  return {
+    ...tournament,
+    lifecycle,
+    status: LIFECYCLE_LABEL[lifecycle],
+  };
+}
+
+/**
+ * @param {object | null | undefined} tournament
+ * @returns {boolean}
+ */
+export function isLifecycleOpen(tournament) {
+  return (
+    tournament?.lifecycle === LIFECYCLE.OPEN ||
+    tournament?.status === LIFECYCLE_LABEL.open
+  );
+}
+
+/**
+ * @param {object | null | undefined} tournament
+ * @returns {boolean}
+ */
+export function isLifecycleClosed(tournament) {
+  return (
+    tournament?.lifecycle === LIFECYCLE.CLOSED ||
+    tournament?.status === LIFECYCLE_LABEL.closed ||
+    tournament?.status === "Registrations Closed"
+  );
+}
+
+/**
+ * @param {object | null | undefined} tournament
+ * @returns {boolean}
+ */
+export function isLifecycleLive(tournament) {
+  return (
+    tournament?.lifecycle === LIFECYCLE.LIVE || tournament?.status === "Live"
+  );
+}
+
+/**
+ * @param {object | null | undefined} tournament
+ * @returns {boolean}
+ */
+export function isLifecycleCompleted(tournament) {
+  return (
+    tournament?.lifecycle === LIFECYCLE.COMPLETED ||
+    tournament?.status === "Completed"
+  );
+}
+
+/**
+ * Format a future timestamp as a short countdown string.
+ * @param {string | null | undefined} iso
+ * @param {number} [nowMs]
+ * @returns {string}
+ */
+export function formatCountdown(iso, nowMs = Date.now()) {
+  const target = parseTime(iso);
+  if (target == null) return "TBA";
+  const diff = Math.max(0, target - nowMs);
+  if (diff <= 0) return "Starting soon";
+
+  const totalMinutes = Math.floor(diff / 60000);
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
+/**
+ * Human-readable start date for cards.
+ * @param {string | null | undefined} iso
+ * @returns {string}
+ */
+export function formatTournamentStartDate(iso) {
+  const ms = parseTime(iso);
+  if (ms == null) return "TBA";
+  return new Date(ms).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

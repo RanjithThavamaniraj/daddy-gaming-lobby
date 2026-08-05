@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import TopNav from "../../TopNav";
@@ -6,7 +6,10 @@ import TournamentResultsHero from "./TournamentResultsHero";
 import TournamentResultsChampions from "./TournamentResultsChampions";
 import TournamentResultsRunnerUp from "./TournamentResultsRunnerUp";
 import TournamentResultsPlayerTier from "./TournamentResultsPlayerTier";
+import RegisteredPlayersGrid from "../RegisteredPlayersGrid";
+import { fetchTournamentRegistrations } from "../../../lib/supabase/registrations";
 import { tournamentResultsPageStyles } from "../../../styles/tournamentResultsPageStyles";
+import { registeredPlayersStyles } from "../../../styles/playerProfilePageStyles";
 
 /**
  * Reusable tournament results layout.
@@ -21,6 +24,23 @@ export default function TournamentResultsView({ tournament }) {
   const glowRef = useRef({ x: 0, y: 0 });
   const trailRef = useRef({ x: 0, y: 0 });
   const hasMovedRef = useRef(false);
+  const [registrations, setRegistrations] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const tid = tournament?.tournamentId;
+    if (!tid) return undefined;
+    fetchTournamentRegistrations(tid)
+      .then((rows) => {
+        if (!cancelled) setRegistrations(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setRegistrations([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tournament?.tournamentId]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -108,6 +128,7 @@ export default function TournamentResultsView({ tournament }) {
   return (
     <>
       <style>{tournamentResultsPageStyles}</style>
+      <style>{registeredPlayersStyles}</style>
       <div className="results-page" ref={containerRef}>
         <div className="grid-bg" />
         <div className="glow-cursor-trail" />
@@ -152,6 +173,12 @@ export default function TournamentResultsView({ tournament }) {
             badgeLabel="Participant"
             players={tournament.groupStagePlayers}
             dglPoints={tournament.pointsAwarded?.groupStage}
+          />
+
+          <RegisteredPlayersGrid
+            players={registrations}
+            accent={tournament.accent}
+            title="Registered Players"
           />
 
           <nav className="results-nav">

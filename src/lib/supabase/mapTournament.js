@@ -6,6 +6,7 @@ import {
 } from "../tournamentModel";
 import { normalizePrizePoolDisplay } from "../prizePool";
 import { resolveEventAccent } from "../../config/eventTypeConfig";
+import { applyLifecycleStatus } from "../tournamentLifecycle";
 
 /** @type {Record<string, string>} */
 const DB_STATUS_TO_APP = {
@@ -69,7 +70,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
   const quarterFinalistPlayers = parsePlayerNameList(resultsRow?.quarter_finalist_players);
   const groupStagePlayers = parsePlayerNameList(resultsRow?.group_stage_players);
 
-  return {
+  return applyLifecycleStatus({
     id: row.external_id ?? row.tournament_id ?? slug,
     tournamentId: row.id ?? row.tournament_id ?? null,
     number: globalNumber,
@@ -91,6 +92,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     teamLimit: row.metadata?.team_limit ?? undefined,
     matchDuration: row.metadata?.match_duration ?? undefined,
     overtimeRule: row.metadata?.overtime_rule ?? undefined,
+    dbStatus: row.status,
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
     isFeatured: row.is_featured ?? false,
@@ -122,7 +124,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
       resultsRow?.champion_points ?? row.champion_points ?? DGL_POINTS.champion,
     runnerUpDglPoints:
       resultsRow?.runner_up_points ?? row.runner_up_points ?? DGL_POINTS.runnerUp,
-  };
+  });
 }
 
 /**
@@ -139,7 +141,7 @@ export function mapTournamentResultsRow(row) {
     ? Number.parseInt(championshipMatch[1], 10)
     : 1;
 
-  return {
+  return applyLifecycleStatus({
     id: slug ?? row.tournament_id,
     tournamentId: row.tournament_id ?? null,
     number: globalNumber,
@@ -157,6 +159,7 @@ export function mapTournamentResultsRow(row) {
     format: row.format ?? undefined,
     matchType: row.match_type ?? undefined,
     prizePool: normalizePrizePoolDisplay(row.prize_pool_display) ?? undefined,
+    dbStatus: row.status,
     status: mapDbTournamentStatus(row.status),
     completedDate: row.completed_date_label ?? undefined,
     eventType,
@@ -178,7 +181,7 @@ export function mapTournamentResultsRow(row) {
     },
     dglPoints: row.champion_points ?? DGL_POINTS.champion,
     runnerUpDglPoints: row.runner_up_points ?? DGL_POINTS.runnerUp,
-  };
+  });
 }
 
 /**
@@ -188,6 +191,7 @@ export function mapLeaderboardRow(row) {
   return {
     rank: row.rank,
     name: row.display_name,
+    slug: row.slug ?? null,
     game: row.game_name ?? "—",
     gameSlug: row.game_slug ?? null,
     points: row.points,

@@ -476,6 +476,142 @@ export const adminTournamentStyles = `
     background: rgba(239,68,68,.18);
   }
 
+  .admin-bracket-panel {
+    margin: 1.25rem 0 1.75rem;
+    padding: 1.15rem 1.25rem;
+    border: 1px solid var(--admin-border, rgba(168,85,247,.18));
+    border-radius: 16px;
+    background: var(--admin-panel, rgba(255,255,255,.03));
+  }
+
+  .admin-bracket-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .admin-panel-title {
+    margin: 0 0 0.35rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+  }
+
+  .admin-panel-desc,
+  .admin-muted {
+    margin: 0;
+    color: var(--admin-dim, #9ca3af);
+    line-height: 1.45;
+  }
+
+  .admin-groups-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .admin-group-chip {
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 0.7rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-fixture-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .admin-fixture-card {
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 0.85rem;
+    background: rgba(0,0,0,.22);
+  }
+
+  .admin-fixture-top {
+    margin-bottom: 0.75rem;
+  }
+
+  .admin-fixture-players {
+    margin-top: 0.35rem;
+    font-weight: 600;
+  }
+
+  .admin-fixture-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: flex-end;
+    margin-top: 0.55rem;
+  }
+
+  .admin-fixture-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--admin-dim, #9ca3af);
+  }
+
+  .admin-fixture-controls input,
+  .admin-fixture-controls select {
+    min-width: 120px;
+    background: rgba(0,0,0,.35);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    color: inherit;
+    padding: 0.55rem 0.65rem;
+    font: inherit;
+  }
+
+  .admin-btn {
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.04);
+    color: inherit;
+    border-radius: 10px;
+    padding: 0.55rem 0.85rem;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .admin-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .admin-btn-primary {
+    border-color: rgba(168,85,247,.45);
+    background: rgba(168,85,247,.18);
+  }
+
+  .admin-inline-success {
+    margin: 0.75rem 0;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid rgba(34,197,94,.35);
+    background: rgba(34,197,94,.1);
+    color: #86efac;
+  }
+
+  .admin-results-page .admin-page-title {
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 0.5rem;
+  }
+
   @media (max-width: 900px) {
     .admin-toolbar {
       grid-template-columns: 1fr;

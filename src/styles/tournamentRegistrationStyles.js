@@ -240,6 +240,19 @@ html, body {
   text-shadow: 0 0 8px rgba(0,200,131,0.4);
 }
 
+.status-badge.registrations-closed {
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.55);
+  color: #fdba74;
+}
+
+.status-badge.live {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.35);
+}
+
 /* Body */
 .register-body {
   position: relative;

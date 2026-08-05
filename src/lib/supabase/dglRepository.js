@@ -236,6 +236,7 @@ function partitionTournaments(tournaments) {
     (t) =>
       t.status === "Coming Soon" ||
       t.status === "Registrations Open" ||
+      t.status === "Registration Closed" ||
       t.status === "Registrations Closed" ||
       t.status === "Live"
   );
@@ -279,6 +280,15 @@ export async function fetchTournamentResultsBySlug(slug) {
 export async function fetchTournamentBySlug(slug) {
   return fetchWithFallback("tournament-by-slug", async () => {
     const supabase = getSupabaseClient();
+
+    // Best-effort automatic date-based close/live transitions
+    try {
+      await supabase.rpc("dgl_sync_tournament_lifecycle", {
+        p_tournament_id: null,
+      });
+    } catch {
+      /* migration may not be applied yet */
+    }
 
     const { data: row, error } = await supabase
       .from("v_tournaments_enriched")
@@ -495,6 +505,14 @@ export async function fetchLeaderboardPreview(limit = 5) {
 export async function fetchTournamentsPageLayout() {
   return fetchWithFallback("tournaments-page", async () => {
     const supabase = getSupabaseClient();
+
+    try {
+      await supabase.rpc("dgl_sync_tournament_lifecycle", {
+        p_tournament_id: null,
+      });
+    } catch {
+      /* migration may not be applied yet */
+    }
 
     const [{ data: tournaments, error: tournamentsError }, { data: results, error: resultsError }] =
       await Promise.all([

@@ -2,6 +2,7 @@ import { DGL_POINTS } from "../config/dglPointsConfig";
 import { TOURNAMENT_REGISTRY } from "../config/tournamentRegistry";
 import { normalizePrizePoolDisplay } from "./prizePool";
 import { resolveEventAccent } from "../config/eventTypeConfig";
+import { applyLifecycleStatus, isLifecycleClosed } from "./tournamentLifecycle";
 
 /**
  * @typedef {object} TournamentIdentifiers
@@ -132,7 +133,7 @@ export function enrichTournament(tournament, identifiers) {
   const groupStagePlayers = sortPlayerNames(tournament.groupStagePlayers ?? []);
   const slug = tournament.slug ?? null;
 
-  return {
+  return applyLifecycleStatus({
     ...tournament,
     tournamentId: tournament.tournamentId ?? null,
     ...ids,
@@ -159,7 +160,7 @@ export function enrichTournament(tournament, identifiers) {
     },
     dglPoints: tournament.pointsAwarded?.champion ?? DGL_POINTS.champion,
     runnerUpDglPoints: tournament.pointsAwarded?.runnerUp ?? DGL_POINTS.runnerUp,
-  };
+  });
 }
 
 /** @returns {ReturnType<typeof enrichTournament>[]} */
@@ -181,6 +182,7 @@ export function getUpcomingTournaments() {
     (t) =>
       t.status === "Coming Soon" ||
       t.status === "Registrations Open" ||
+      t.status === "Registration Closed" ||
       t.status === "Registrations Closed" ||
       t.status === "Live"
   );
@@ -237,6 +239,9 @@ export function toFeaturedShape(tournament) {
     accent: tournament.accent,
     registrationLimit: tournament.registrationLimit ?? null,
     registeredCount: tournament.registeredCount ?? null,
+    registrationClosesAt: tournament.registrationClosesAt ?? null,
+    startsAt: tournament.startsAt ?? null,
+    lifecycle: tournament.lifecycle ?? null,
     resultsPath: tournament.resultsPath ?? null,
     resultsSlug: tournament.resultsSlug ?? null,
     championPlayers: tournament.championPlayers ?? [],
@@ -278,7 +283,7 @@ export function selectFeaturedTournament(tournaments) {
   if (open) return open;
 
   const closed = tournaments
-    .filter((t) => t.status === "Registrations Closed")
+    .filter((t) => isLifecycleClosed(t) || t.status === "Registrations Closed")
     .sort((a, b) => a.globalNumber - b.globalNumber)[0];
   if (closed) return closed;
 
@@ -318,7 +323,7 @@ export function selectNextTournament(tournaments, mainEvent) {
   if (open) return open;
 
   const closed = candidates
-    .filter((t) => t.status === "Registrations Closed")
+    .filter((t) => isLifecycleClosed(t) || t.status === "Registrations Closed")
     .sort((a, b) => a.globalNumber - b.globalNumber)[0];
   if (closed) return closed;
 
