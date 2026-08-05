@@ -248,6 +248,7 @@ export function toFeaturedShape(tournament) {
     resultsPath: tournament.resultsPath ?? null,
     resultsSlug: tournament.resultsSlug ?? null,
     championPlayers: tournament.championPlayers ?? [],
+    streamUrl: tournament.streamUrl ?? null,
   };
 }
 
@@ -399,10 +400,14 @@ export function toUpcomingCardShape(tournament) {
     gameSlug: tournament.gameSlug,
     eventType: tournament.eventType ?? "championship",
     status: tournament.status,
+    lifecycle: tournament.lifecycle ?? null,
     accent: tournament.accent,
     entryFee: tournament.entryFee ?? null,
     prizePool: tournament.prizePool ?? null,
     format: tournament.format ?? null,
     matchType: tournament.matchType ?? null,
+    resultsPath: tournament.resultsPath ?? null,
+    resultsSlug: tournament.resultsSlug ?? null,
+    streamUrl: tournament.streamUrl ?? null,
   };
 }

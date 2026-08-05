@@ -197,6 +197,101 @@ export function isLifecycleCompleted(tournament) {
 }
 
 /**
+ * @param {object | null | undefined} tournament
+ * @returns {boolean}
+ */
+export function isLifecycleComingSoon(tournament) {
+  return (
+    tournament?.lifecycle === LIFECYCLE.COMING_SOON ||
+    tournament?.status === LIFECYCLE_LABEL.coming_soon
+  );
+}
+
+/**
+ * Lifecycle-driven public CTA. Tournament Series must never affect this.
+ *
+ * @param {object | null | undefined} tournament
+ * @param {{ alreadyRegistered?: boolean }} [options]
+ * @returns {{
+ *   kind: 'register'|'registered'|'view'|'watch'|'results'|'coming_soon',
+ *   label: string,
+ *   href: string | null,
+ *   disabled: boolean,
+ *   external?: boolean,
+ * }}
+ */
+export function resolveTournamentLifecycleCta(tournament, options = {}) {
+  const alreadyRegistered = Boolean(options.alreadyRegistered);
+  const slug = tournament?.slug ?? tournament?.resultsSlug ?? null;
+  const hubPath = slug ? `/tournaments/${slug}` : null;
+  const resultsPath = tournament?.resultsPath ?? hubPath;
+
+  if (isLifecycleOpen(tournament)) {
+    if (alreadyRegistered) {
+      return {
+        kind: "registered",
+        label: "✓ REGISTERED",
+        href: null,
+        disabled: true,
+      };
+    }
+    return {
+      kind: "register",
+      label: "REGISTER NOW",
+      href: hubPath,
+      disabled: !hubPath,
+    };
+  }
+
+  if (isLifecycleClosed(tournament)) {
+    return {
+      kind: "view",
+      label: "VIEW TOURNAMENT",
+      href: hubPath,
+      disabled: !hubPath,
+    };
+  }
+
+  if (isLifecycleLive(tournament)) {
+    const streamUrl =
+      typeof tournament?.streamUrl === "string" && tournament.streamUrl.trim()
+        ? tournament.streamUrl.trim()
+        : null;
+    if (streamUrl) {
+      return {
+        kind: "watch",
+        label: "WATCH LIVE",
+        href: streamUrl,
+        disabled: false,
+        external: true,
+      };
+    }
+    return {
+      kind: "view",
+      label: "VIEW TOURNAMENT",
+      href: hubPath,
+      disabled: !hubPath,
+    };
+  }
+
+  if (isLifecycleCompleted(tournament)) {
+    return {
+      kind: "results",
+      label: "VIEW RESULTS",
+      href: resultsPath,
+      disabled: !resultsPath,
+    };
+  }
+
+  return {
+    kind: "coming_soon",
+    label: "COMING SOON",
+    href: null,
+    disabled: true,
+  };
+}
+
+/**
  * Format a future timestamp as a short countdown string.
  * @param {string | null | undefined} iso
  * @param {number} [nowMs]

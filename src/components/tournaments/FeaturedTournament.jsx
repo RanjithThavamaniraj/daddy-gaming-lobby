@@ -1,8 +1,6 @@
-import { Link } from "react-router-dom";
 import { Calendar, Trophy } from "lucide-react";
 
 import GameIcon from "./GameIcon";
-import { isRegisteredForTournament } from "../../lib/registrationSession";
 import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
 import { parsePrizePoolAmount } from "../../lib/prizePool";
 import {
@@ -10,10 +8,12 @@ import {
   formatTournamentStartDate,
   isLifecycleClosed,
   isLifecycleCompleted,
+  isLifecycleComingSoon,
   isLifecycleLive,
   isLifecycleOpen,
 } from "../../lib/tournamentLifecycle";
 import ReserveInfoTooltip from "./ReserveInfoTooltip";
+import TournamentLifecycleCta from "./TournamentLifecycleCta";
 
 /**
  * Featured / Main Event tournament hero card.
@@ -30,14 +30,9 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
   const isLive = isLifecycleLive(tournament);
   const isRegistrationOpen = isLifecycleOpen(tournament);
   const isRegistrationClosed = isLifecycleClosed(tournament);
-  const isComingSoon = tournament.status === "Coming Soon" && !isRegistrationOpen;
+  const isComingSoon = isLifecycleComingSoon(tournament);
   const isShowdown = isSaturdayShowdown(tournament.eventType);
   const championPlayers = tournament.championPlayers ?? [];
-  const alreadyRegistered = isRegisteredForTournament(tournament.id);
-  const registrationPath =
-    tournament.slug ?? tournament.resultsSlug
-      ? `/tournaments/${tournament.slug ?? tournament.resultsSlug}`
-      : null;
   const showOpenCount = openRegistrationCount >= 2;
   const capacity = tournament.registrationLimit ?? null;
   const registered = tournament.confirmedCount ?? tournament.registeredCount ?? 0;
@@ -226,49 +221,13 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
               </div>
             ) : null}
 
-            {isRegistrationOpen && registrationPath ? (
+            {isRegistrationOpen ||
+            isRegistrationClosed ||
+            isLive ||
+            isComingSoon ||
+            isCompleted ? (
               <div className="hero-action-container">
-                {alreadyRegistered ? (
-                  <button type="button" className="cyber-btn disabled registered-cta" disabled>
-                    <span>✓ REGISTERED</span>
-                  </button>
-                ) : (
-                  <Link to={registrationPath} className="cyber-btn primary">
-                    <span>REGISTER NOW</span>
-                  </Link>
-                )}
-              </div>
-            ) : null}
-
-            {isRegistrationClosed && registrationPath ? (
-              <div className="hero-action-container">
-                <Link to={registrationPath} className="cyber-btn primary">
-                  <span>VIEW TOURNAMENT</span>
-                </Link>
-              </div>
-            ) : null}
-
-            {isLive && registrationPath ? (
-              <div className="hero-action-container">
-                <Link to={registrationPath} className="cyber-btn primary">
-                  <span>VIEW BRACKET</span>
-                </Link>
-              </div>
-            ) : null}
-
-            {isComingSoon ? (
-              <div className="hero-action-container">
-                <button type="button" className="cyber-btn disabled" disabled>
-                  <span>COMING SOON</span>
-                </button>
-              </div>
-            ) : null}
-
-            {isCompleted && tournament.resultsPath ? (
-              <div className="hero-action-container">
-                <Link to={tournament.resultsPath} className="cyber-btn primary">
-                  <span>VIEW RESULTS</span>
-                </Link>
+                <TournamentLifecycleCta tournament={tournament} />
               </div>
             ) : null}
           </div>

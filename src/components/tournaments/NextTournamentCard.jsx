@@ -1,8 +1,5 @@
-import { Link } from "react-router-dom";
-
 import GameIcon from "./GameIcon";
 import { EVENT_TYPES, isSaturdayShowdown } from "../../config/eventTypeConfig";
-import { isRegisteredForTournament } from "../../lib/registrationSession";
 import { parsePrizePoolAmount } from "../../lib/prizePool";
 import {
   LIFECYCLE_BADGE,
@@ -12,36 +9,23 @@ import {
   isLifecycleOpen,
 } from "../../lib/tournamentLifecycle";
 import ReserveInfoTooltip from "./ReserveInfoTooltip";
-
-/** Short CTA label per game — cosmetic only. */
-const SHORT_GAME_LABELS = {
-  valorant: "Valorant",
-  cs2: "CS2",
-  "fc-26": "FC26",
-};
+import TournamentLifecycleCta from "./TournamentLifecycleCta";
 
 /**
  * Next Tournament preview card.
+ * CTA is lifecycle-driven only — Tournament Series affects branding only.
  * @param {object} props
  * @param {object} props.tournament
  * @param {object|null} [props.mainEvent]
  */
-export default function NextTournamentCard({ tournament, mainEvent }) {
+export default function NextTournamentCard({ tournament }) {
   if (!tournament) return null;
 
   const gameSlug = tournament.gameSlug ?? tournament.game.toLowerCase().replace(/\s+/g, "-");
-  const mainEventLabel = mainEvent
-    ? SHORT_GAME_LABELS[mainEvent.gameSlug] ?? mainEvent.game
-    : null;
   const isShowdown = isSaturdayShowdown(tournament.eventType);
   const isRegistrationOpen = isLifecycleOpen(tournament);
   const isRegistrationClosed = isLifecycleClosed(tournament);
   const isLive = isLifecycleLive(tournament);
-  const alreadyRegistered = isRegisteredForTournament(tournament.id);
-  const registrationPath =
-    tournament.slug ?? tournament.resultsSlug
-      ? `/tournaments/${tournament.slug ?? tournament.resultsSlug}`
-      : null;
   const capacity = tournament.registrationLimit ?? null;
   const registered = tournament.confirmedCount ?? tournament.registeredCount ?? 0;
   const slotsRemaining =
@@ -189,33 +173,7 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
             </div>
 
             <div className="hero-action-container">
-              {isRegistrationOpen && registrationPath ? (
-                alreadyRegistered ? (
-                  <button type="button" className="cyber-btn disabled registered-cta" disabled>
-                    <span>✓ REGISTERED</span>
-                  </button>
-                ) : (
-                  <Link to={registrationPath} className="cyber-btn primary">
-                    <span>REGISTER NOW</span>
-                  </Link>
-                )
-              ) : isRegistrationClosed && registrationPath ? (
-                <Link to={registrationPath} className="cyber-btn primary">
-                  <span>VIEW TOURNAMENT</span>
-                </Link>
-              ) : isLive && registrationPath ? (
-                <Link to={registrationPath} className="cyber-btn primary">
-                  <span>VIEW BRACKET</span>
-                </Link>
-              ) : (
-                <button type="button" className="cyber-btn disabled" disabled>
-                  <span>
-                    {mainEventLabel
-                      ? `COMING AFTER ${mainEventLabel.toUpperCase()}`
-                      : "COMING SOON"}
-                  </span>
-                </button>
-              )}
+              <TournamentLifecycleCta tournament={tournament} />
             </div>
           </div>
         </div>
