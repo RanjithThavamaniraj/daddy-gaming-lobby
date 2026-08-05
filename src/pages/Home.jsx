@@ -18,6 +18,7 @@ import {
 import { buildHomeFeaturedGames } from "../lib/homeModel";
 import { fetchHomePageData } from "../lib/supabase/dglRepository";
 import { PAGE_META } from "../config/siteConfig";
+import { organizationJsonLd } from "../lib/seoSchema";
 import { homePageStyles } from "../styles/homePageStyles";
 
 export default function Home() {
@@ -139,18 +140,18 @@ export default function Home() {
 
   return (
     <>
-      <PageMeta {...PAGE_META.home} />
+      <PageMeta {...PAGE_META.home} jsonLd={organizationJsonLd()} />
       <style>{homePageStyles}</style>
 
-      <div className="scanline-overlay" />
+      <div className="scanline-overlay" aria-hidden="true" />
 
       <div className="home-container" ref={containerRef}>
-        <div className="grid-bg" />
-        <canvas className="bg-particles" ref={canvasRef} />
-        <div className="glow-cursor-trail" />
-        <div className="glow-cursor" />
-        <div className="glow-one" />
-        <div className="glow-two" />
+        <div className="grid-bg" aria-hidden="true" />
+        <canvas className="bg-particles" ref={canvasRef} aria-hidden="true" />
+        <div className="glow-cursor-trail" aria-hidden="true" />
+        <div className="glow-cursor" aria-hidden="true" />
+        <div className="glow-one" aria-hidden="true" />
+        <div className="glow-two" aria-hidden="true" />
 
         <div className="page-shell">
           <nav className="navbar" aria-label="Main navigation">
@@ -241,6 +242,7 @@ export default function Home() {
                   <Link to="/dashboard">Dashboard</Link>
                   <Link to="/tournaments">Tournaments</Link>
                   <Link to="/leaderboard">Leaderboard</Link>
+                  <Link to="/contact">Contact</Link>
                 </div>
               </div>
 
@@ -250,6 +252,8 @@ export default function Home() {
                   <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer">
                     Discord Server
                   </a>
+                  <Link to="/terms">Rules</Link>
+                  <Link to="/legal">Legal</Link>
                 </div>
               </div>
             </div>
@@ -261,6 +265,7 @@ export default function Home() {
               <div className="footer-socials">
                 <Link to="/privacy">PRIVACY</Link>
                 <Link to="/terms">TERMS</Link>
+                <Link to="/contact">CONTACT</Link>
               </div>
             </div>
           </footer>

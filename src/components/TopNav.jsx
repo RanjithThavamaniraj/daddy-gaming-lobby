@@ -29,7 +29,7 @@ export default function TopNav({ children }) {
         }
         .global-logo-link:hover { transform: scale(1.05); }
         .global-logo {
-          height: clamp(26px, 2.2vw, 34px); width: auto;
+          height: clamp(42px, 3vw, 48px); width: auto;
           object-fit: contain;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.3));
           transition: filter 0.3s ease;

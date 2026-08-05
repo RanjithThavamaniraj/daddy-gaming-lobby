@@ -7,7 +7,43 @@ import { fetchTournamentBySlug } from "../lib/supabase/dglRepository";
 import TournamentResultsView from "../components/tournaments/results/TournamentResultsView";
 import TournamentRegistrationView from "../components/tournaments/registration/TournamentRegistrationView";
 import RegistrationErrorBoundary from "../components/tournaments/registration/RegistrationErrorBoundary";
-import { SITE_DESCRIPTION } from "../config/siteConfig";
+import { SITE_DESCRIPTION, seoDescription } from "../config/siteConfig";
+import { tournamentEventJsonLd } from "../lib/seoSchema";
+
+/**
+ * @param {object | null} tournament
+ * @param {"register" | "results"} mode
+ */
+function tournamentMeta(tournament, mode) {
+  if (!tournament) {
+    return {
+      title: mode === "results" ? "Tournament Results" : "Tournament",
+      description: SITE_DESCRIPTION,
+      path: undefined,
+      jsonLd: null,
+    };
+  }
+
+  const name = tournament.championshipName ?? "Tournament";
+  const slug = tournament.slug ?? tournament.resultsSlug;
+  const path = slug ? `/tournaments/${slug}` : undefined;
+
+  const description =
+    mode === "results"
+      ? seoDescription(
+          `Results for ${name} (${tournament.game}). Champions, DGL Points, and prize breakdown from Daddy Gaming Lobby.`
+        )
+      : seoDescription(
+          `${name} — ${tournament.game}. ${tournament.status}. Register and compete in this Daddy Gaming Lobby event.`
+        );
+
+  return {
+    title: name,
+    description,
+    path,
+    jsonLd: tournamentEventJsonLd(tournament),
+  };
+}
 
 export default function TournamentResults() {
   const { slug } = useParams();
@@ -19,16 +55,10 @@ export default function TournamentResults() {
   );
 
   if (tournament && tournament.status !== "Completed") {
+    const meta = tournamentMeta(tournament, "register");
     return (
       <>
-        <PageMeta
-          title={tournament?.championshipName ?? "Tournament"}
-          description={
-            tournament
-              ? `${tournament.championshipName} — ${tournament.game}. ${tournament.status}. Register and compete in the DGL ${tournament.championshipName}.`
-              : SITE_DESCRIPTION
-          }
-        />
+        <PageMeta {...meta} />
         <RegistrationErrorBoundary>
           <TournamentRegistrationView tournament={tournament} />
         </RegistrationErrorBoundary>
@@ -36,16 +66,10 @@ export default function TournamentResults() {
     );
   }
 
+  const meta = tournamentMeta(tournament, "results");
   return (
     <>
-      <PageMeta
-        title={tournament?.championshipName ?? "Tournament Results"}
-        description={
-          tournament
-            ? `Results for ${tournament.championshipName} — champions, DGL Points, and prize breakdown.`
-            : SITE_DESCRIPTION
-        }
-      />
+      <PageMeta {...meta} />
       <TournamentResultsView tournament={tournament} />
     </>
   );

@@ -88,7 +88,7 @@ canvas.bg-particles {
 }
 .logo-link:hover { transform: scale(1.02); }
 .logo-icon {
-  height: clamp(32px, 5vw, 44px);
+  height: clamp(42px, 3vw, 48px);
   width: auto;
   filter: drop-shadow(0 0 12px rgba(168,85,247,0.25));
   transition: filter .35s ease, transform .35s var(--ease-spring);

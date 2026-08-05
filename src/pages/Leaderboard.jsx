@@ -16,6 +16,7 @@ import {
   fetchHallOfChampions,
 } from "../lib/supabase/dglRepository";
 import { PAGE_META } from "../config/siteConfig";
+import { leaderboardCollectionJsonLd } from "../lib/seoSchema";
 import { leaderboardPageStyles } from "../styles/leaderboardPageStyles";
 
 export default function Leaderboard() {
@@ -28,7 +29,7 @@ export default function Leaderboard() {
 
   return (
     <>
-      <PageMeta {...PAGE_META.leaderboard} />
+      <PageMeta {...PAGE_META.leaderboard} jsonLd={leaderboardCollectionJsonLd()} />
       <style>{leaderboardPageStyles}</style>
 
       <div className="lb-page" ref={containerRef}>

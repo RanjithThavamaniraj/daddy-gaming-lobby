@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Admin is not for public indexing
+Disallow: /admin
+
+Sitemap: https://www.daddygaminglobby.com/sitemap.xml

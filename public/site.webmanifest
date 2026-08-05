@@ -1,29 +1,43 @@
 {
   "name": "Daddy Gaming Lobby",
   "short_name": "DGL",
+  "description": "Play Together. Win Together.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#5EA9FF",
+  "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/favicon-16x16.png",
-      "sizes": "16x16",
+      "src": "/android-chrome-192x192.png?v=2",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png?v=2",
+      "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "/favicon-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-48x48.png",
+      "src": "/favicon-48x48.png?v=2",
       "sizes": "48x48",
       "type": "image/png"
     },
     {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
+      "src": "/favicon-32x32.png?v=2",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-16x16.png?v=2",
+      "sizes": "16x16",
       "type": "image/png"
     }
-  ],
-  "theme_color": "#a855f7",
-  "background_color": "#060608",
-  "display": "standalone"
+  ]
 }

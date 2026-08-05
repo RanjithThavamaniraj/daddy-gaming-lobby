@@ -91,6 +91,7 @@ export default function LegalPageLayout({
                   <Link to="/dashboard">Dashboard</Link>
                   <Link to="/tournaments">Tournaments</Link>
                   <Link to="/leaderboard">Leaderboard</Link>
+                  <Link to="/contact">Contact</Link>
                 </div>
               </div>
 
@@ -100,6 +101,8 @@ export default function LegalPageLayout({
                   <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer">
                     Discord Server
                   </a>
+                  <Link to="/terms">Rules</Link>
+                  <Link to="/legal">Legal</Link>
                 </div>
               </div>
             </div>
@@ -111,6 +114,7 @@ export default function LegalPageLayout({
               <div className="footer-socials">
                 <Link to="/privacy">PRIVACY</Link>
                 <Link to="/terms">TERMS</Link>
+                <Link to="/contact">CONTACT</Link>
               </div>
             </div>
           </footer>

@@ -129,7 +129,7 @@ export const homePageStyles = `
         }
         .logo-link:hover { transform: scale(1.02); }
         .logo-icon {
-          height: clamp(26px, 2.2vw, 34px);
+          height: clamp(42px, 3vw, 48px);
           width: auto;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.25));
           transition: filter .35s ease, transform .35s var(--ease-spring);
@@ -950,7 +950,7 @@ export const homePageStyles = `
           margin-bottom: 1rem;
         }
         .footer-brand .logo-icon {
-          height: 40px;
+          height: 48px;
           width: auto;
           object-fit: contain;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.4));
