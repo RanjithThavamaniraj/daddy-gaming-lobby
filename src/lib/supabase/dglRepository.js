@@ -25,7 +25,7 @@ import {
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
-  countRegistrationOpenTournaments,
+  countActiveTournaments,
 } from "../tournamentModel";
 import { buildHomeCommunityProof, buildLatestPlatformUpdate, formatNextEventTitle } from "../homeModel";
 import {
@@ -551,7 +551,7 @@ export async function fetchTournamentsPageLayout() {
       next: nextShape,
       upcoming: upcomingTournaments,
       completed: completedTournaments,
-      openRegistrationCount: countRegistrationOpenTournaments(all),
+      activeTournamentCount: countActiveTournaments(all),
     });
   }, () => getTournamentsPageLayout());
 }

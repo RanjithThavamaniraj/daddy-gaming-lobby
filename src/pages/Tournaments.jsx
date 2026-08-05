@@ -25,6 +25,7 @@ export default function Tournaments() {
     showCompletedArchive,
     archivedCompleted,
     openRegistrationCount = 0,
+    activeTournamentCount = openRegistrationCount,
   } = layout;
   const containerRef = useRef(null);
 
@@ -50,11 +51,11 @@ export default function Tournaments() {
           <div className="layout-grid">
             <FeaturedTournament
               tournament={mainEvent}
-              openRegistrationCount={openRegistrationCount}
+              activeTournamentCount={activeTournamentCount}
             />
 
             {nextTournament ? (
-              <NextTournamentCard tournament={nextTournament} mainEvent={mainEvent} />
+              <NextTournamentCard tournament={nextTournament} />
             ) : null}
 
             {upcomingDisplay.length > 0 ? (

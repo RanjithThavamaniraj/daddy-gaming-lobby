@@ -253,6 +253,23 @@ export function toFeaturedShape(tournament) {
 }
 
 /**
+ * Compare tournaments by start date (chronological). Missing dates sort last.
+ * @param {{ startsAt?: string | null, globalNumber?: number }} a
+ * @param {{ startsAt?: string | null, globalNumber?: number }} b
+ * @returns {number}
+ */
+export function compareTournamentsByStartDate(a, b) {
+  const aMs = a?.startsAt ? Date.parse(a.startsAt) : Number.NaN;
+  const bMs = b?.startsAt ? Date.parse(b.startsAt) : Number.NaN;
+  const aValid = !Number.isNaN(aMs);
+  const bValid = !Number.isNaN(bMs);
+  if (aValid && bValid && aMs !== bMs) return aMs - bMs;
+  if (aValid && !bValid) return -1;
+  if (!aValid && bValid) return 1;
+  return (a?.globalNumber ?? 0) - (b?.globalNumber ?? 0);
+}
+
+/**
  * Featured tournament priority order:
  *   0. isFeatured (manual override — set explicitly by promote_next_tournament)
  *   1. Live  2. Registrations Open  3. Registrations Closed  4. Latest Completed
@@ -278,17 +295,17 @@ export function selectFeaturedTournament(tournaments) {
 
   const live = tournaments
     .filter((t) => t.status === "Live")
-    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+    .sort(compareTournamentsByStartDate)[0];
   if (live) return live;
 
   const open = tournaments
     .filter((t) => t.status === "Registrations Open")
-    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+    .sort(compareTournamentsByStartDate)[0];
   if (open) return open;
 
   const closed = tournaments
     .filter((t) => isLifecycleClosed(t) || t.status === "Registrations Closed")
-    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
+    .sort(compareTournamentsByStartDate)[0];
   if (closed) return closed;
 
   const completed = tournaments
@@ -298,43 +315,25 @@ export function selectFeaturedTournament(tournaments) {
 }
 
 /**
- * Next Tournament selection — same status-priority rule as
- * selectFeaturedTournament, applied to whatever is left once the current
- * Main Event and completed tournaments are excluded. Purely derived: a
- * tournament becomes "next" automatically the moment it outranks any other
- * non-featured, non-completed tournament, with no manual flag and no code
- * changes required for future championships.
+ * Next Tournament — chronologically next by starts_at after the Main Event.
+ * Ignores registration status / series / event type.
  *
  * @param {ReturnType<typeof enrichTournament>[]} tournaments
- * @param {ReturnType<typeof enrichTournament> | null} mainEvent - the tournament already selected as Main Event
+ * @param {ReturnType<typeof enrichTournament> | null} mainEvent
  * @returns {ReturnType<typeof enrichTournament> | null}
  */
 export function selectNextTournament(tournaments, mainEvent) {
   if (!tournaments?.length) return null;
 
   const candidates = tournaments.filter(
-    (t) => t.status !== "Completed" && t.id !== mainEvent?.id
+    (t) =>
+      t.status !== "Completed" &&
+      t.status !== "Cancelled" &&
+      t.status !== "Draft" &&
+      t.id !== mainEvent?.id
   );
 
-  const live = candidates
-    .filter((t) => t.status === "Live")
-    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
-  if (live) return live;
-
-  const open = candidates
-    .filter((t) => t.status === "Registrations Open")
-    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
-  if (open) return open;
-
-  const closed = candidates
-    .filter((t) => isLifecycleClosed(t) || t.status === "Registrations Closed")
-    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
-  if (closed) return closed;
-
-  const upcoming = candidates
-    .filter((t) => t.status === "Coming Soon")
-    .sort((a, b) => a.globalNumber - b.globalNumber)[0];
-  return upcoming ?? null;
+  return [...candidates].sort(compareTournamentsByStartDate)[0] ?? null;
 }
 
 /**
@@ -350,6 +349,39 @@ export function countRegistrationOpenTournaments(tournaments) {
     if (!tournament?.id || seen.has(tournament.id)) continue;
     seen.add(tournament.id);
     if (tournament.status === "Registrations Open") count += 1;
+  }
+
+  return count;
+}
+
+/**
+ * Count active (non-completed) tournaments currently displayed on the platform.
+ * Includes Coming Soon, Registrations Open, Registration Closed, and Live.
+ * @param {Array<object | null | undefined>} tournaments
+ * @returns {number}
+ */
+export function countActiveTournaments(tournaments) {
+  const seen = new Set();
+  let count = 0;
+
+  for (const tournament of tournaments ?? []) {
+    if (!tournament?.id || seen.has(tournament.id)) continue;
+    seen.add(tournament.id);
+
+    const status = String(tournament.status ?? "");
+    const dbStatus = String(tournament.dbStatus ?? "");
+    if (
+      status === "Completed" ||
+      status === "Cancelled" ||
+      status === "Draft" ||
+      dbStatus === "completed" ||
+      dbStatus === "cancelled" ||
+      dbStatus === "draft"
+    ) {
+      continue;
+    }
+
+    count += 1;
   }
 
   return count;
@@ -409,5 +441,6 @@ export function toUpcomingCardShape(tournament) {
     resultsPath: tournament.resultsPath ?? null,
     resultsSlug: tournament.resultsSlug ?? null,
     streamUrl: tournament.streamUrl ?? null,
+    startsAt: tournament.startsAt ?? null,
   };
 }

@@ -4,7 +4,7 @@
  */
 
 import {
-  countRegistrationOpenTournaments,
+  countActiveTournaments,
   getCompletedTournaments,
   getUpcomingTournaments,
   selectFeaturedTournament,
@@ -12,6 +12,7 @@ import {
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
+  compareTournamentsByStartDate,
 } from "../lib/tournamentModel";
 
 const completed = getCompletedTournaments();
@@ -24,7 +25,7 @@ const nextRaw = selectNextTournament(all, featuredRaw);
 /** Main Event — highest priority tournament (Live > Open > Upcoming > Completed) */
 export const featuredTournament = featuredRaw ? toFeaturedShape(featuredRaw) : null;
 
-/** Next Tournament — highest priority tournament once the Main Event is excluded */
+/** Next Tournament — chronologically next after Main Event */
 export const nextTournament = nextRaw ? toFeaturedShape(nextRaw) : null;
 
 export const upcomingTournaments = upcoming.map(toUpcomingCardShape);
@@ -35,21 +36,22 @@ export const completedTournaments = completed.map(toCompletedCardShape);
  * Resolves Main Event vs Next Tournament vs Upcoming vs Completed archive
  * for the tournaments hub. Neither the featured nor the next tournament is
  * ever duplicated into the plain upcoming grid.
- * Future: replace inputs with supabase.from("tournaments").select("*")
+ * Upcoming list is ordered by tournament start date.
  */
 export function getTournamentsPageLayout({
   featured = featuredTournament,
   next = nextTournament,
   upcoming: upcomingList = upcomingTournaments,
   completed: completedList = completedTournaments,
-  openRegistrationCount = countRegistrationOpenTournaments(all),
+  activeTournamentCount = countActiveTournaments(all),
+  openRegistrationCount = activeTournamentCount,
 } = {}) {
   const featuredId = featured?.id ?? null;
   const nextId = next?.id ?? null;
 
-  const upcomingDisplay = upcomingList.filter(
-    (t) => t.id !== featuredId && t.id !== nextId
-  );
+  const upcomingDisplay = upcomingList
+    .filter((t) => t.id !== featuredId && t.id !== nextId)
+    .sort(compareTournamentsByStartDate);
   const archivedCompleted = completedList.filter((t) => t.id !== featuredId);
 
   return {
@@ -58,6 +60,7 @@ export function getTournamentsPageLayout({
     upcomingDisplay,
     showCompletedArchive: archivedCompleted.length > 0,
     archivedCompleted,
+    activeTournamentCount,
     openRegistrationCount,
   };
 }

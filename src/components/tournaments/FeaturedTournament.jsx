@@ -20,9 +20,13 @@ import TournamentLifecycleCta from "./TournamentLifecycleCta";
  * Renders from derived lifecycle status.
  * @param {object} props
  * @param {object} props.tournament
- * @param {number} [props.openRegistrationCount=0]
+ * @param {number} [props.activeTournamentCount=0]
  */
-export default function FeaturedTournament({ tournament, openRegistrationCount = 0 }) {
+export default function FeaturedTournament({
+  tournament,
+  activeTournamentCount = 0,
+  openRegistrationCount = activeTournamentCount,
+}) {
   if (!tournament) return null;
 
   const gameSlug = tournament.gameSlug ?? tournament.game.toLowerCase().replace(/\s+/g, "-");
@@ -33,7 +37,8 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
   const isComingSoon = isLifecycleComingSoon(tournament);
   const isShowdown = isSaturdayShowdown(tournament.eventType);
   const championPlayers = tournament.championPlayers ?? [];
-  const showOpenCount = openRegistrationCount >= 2;
+  const liveTournamentCount = activeTournamentCount || openRegistrationCount;
+  const showLiveCount = liveTournamentCount >= 2;
   const capacity = tournament.registrationLimit ?? null;
   const registered = tournament.confirmedCount ?? tournament.registeredCount ?? 0;
   const slotsRemaining =
@@ -48,9 +53,9 @@ export default function FeaturedTournament({ tournament, openRegistrationCount =
     <section className="featured-section">
       <h2 className="section-heading">
         Main Event
-        {showOpenCount ? (
+        {showLiveCount ? (
           <span className="status-badge-custom live">
-            LIVE NOW • {openRegistrationCount}
+            LIVE NOW • {liveTournamentCount}
           </span>
         ) : null}
       </h2>
