@@ -1,12 +1,25 @@
 /**
- * Registration flow for individual players.
+ * Registration flow for individual players + reserve (waitlist) support.
  *
- * Stores registrations against the existing `tournament_registrations` table
- * (migration 20260628100003). Player identity lives in `players`.
- * Points summary is bootstrapped via dgl_ensure_player_points_summary (0 points).
+ * Status mapping (DB → product):
+ *   confirmed → Confirmed
+ *   waitlist  → Reserve
+ *   withdrawn → Withdrawn
+ *   checked_in → Checked In
+ *
+ * Insert status is auto-assigned by dgl_assign_registration_status trigger.
  */
 
 import { getSupabaseClient } from "../../supabase";
+
+/** Product label for DB waitlist status */
+export const REG_STATUS = {
+  CONFIRMED: "confirmed",
+  RESERVE: "waitlist",
+  WITHDRAWN: "withdrawn",
+  CHECKED_IN: "checked_in",
+  PENDING: "pending",
+};
 
 const PLATFORM_LABELS = {
   ps5: "PS5",
@@ -31,9 +44,23 @@ export function formatPlatformLabel(value) {
 }
 
 /**
+ * @param {string | null | undefined} status
+ * @returns {boolean}
+ */
+export function isReserveStatus(status) {
+  return status === REG_STATUS.RESERVE || status === "reserve";
+}
+
+/**
+ * @param {string | null | undefined} status
+ * @returns {boolean}
+ */
+export function isConfirmedStatus(status) {
+  return status === REG_STATUS.CONFIRMED || status === REG_STATUS.PENDING;
+}
+
+/**
  * Resolve or create a `players` row for a Discord username.
- * Display names are case-insensitively unique (players.display_name_key).
- *
  * @param {string} discordUsername
  * @returns {Promise<{ id: string; slug: string | null; isNew: boolean }>}
  */
@@ -62,7 +89,6 @@ async function resolveOrCreatePlayer(discordUsername) {
 }
 
 /**
- * Ensure a zeroed player_points_summary row exists (tournaments_played stays 0).
  * @param {string} playerId
  */
 async function ensurePlayerPointsSummary(playerId) {
@@ -70,26 +96,23 @@ async function ensurePlayerPointsSummary(playerId) {
   const { error } = await supabase.rpc("dgl_ensure_player_points_summary", {
     p_player_id: playerId,
   });
-  // RPC may not exist until migration is applied — don't fail registration.
   if (error) {
     console.warn("dgl_ensure_player_points_summary:", error.message);
   }
 }
 
 /**
- * Register an individual player for a tournament.
+ * Register an individual player (confirmed or reserve — assigned by DB trigger).
  *
  * @param {object} params
- * @param {string} params.tournamentId - Tournament UUID (tournaments.id)
- * @param {string} params.discordUsername - Required Discord username
- * @param {string} [params.epicId]
- * @param {string} [params.rocketLeagueRank]
- * @param {string | null} [params.teamName]
- * @param {boolean} [params.needsTeammate]
- * @param {string | null} [params.teammateDisplayName]
- * @param {string | null} [params.platform]
- * @param {Record<string, unknown>} [params.extraFormData]
- * @returns {Promise<{ registrationId: string | null; playerId: string; playerSlug: string | null; duplicate: boolean }>}
+ * @returns {Promise<{
+ *   registrationId: string | null;
+ *   playerId: string;
+ *   playerSlug: string | null;
+ *   duplicate: boolean;
+ *   status: string | null;
+ *   isReserve: boolean;
+ * }>}
  */
 export async function registerForTournament({
   tournamentId,
@@ -121,6 +144,7 @@ export async function registerForTournament({
     ...extraFormData,
   };
 
+  // Status is overwritten by dgl_assign_registration_status when needed.
   const { data, error } = await supabase
     .from("tournament_registrations")
     .insert({
@@ -134,17 +158,39 @@ export async function registerForTournament({
       needs_teammate: needsTeammate ?? false,
       teammate_display_name: teammateDisplayName ?? null,
     })
-    .select("id")
+    .select("id, status")
     .single();
 
   if (error) {
     if (error.code === "23505") {
-      return { registrationId: null, playerId, playerSlug, duplicate: true };
+      return {
+        registrationId: null,
+        playerId,
+        playerSlug,
+        duplicate: true,
+        status: null,
+        isReserve: false,
+      };
+    }
+    const msg = error.message || "";
+    if (/registrations?\s+closed/i.test(msg)) {
+      throw new Error("Registrations Closed");
+    }
+    if (/tournament full/i.test(msg)) {
+      throw new Error("Tournament Full");
     }
     throw error;
   }
 
-  return { registrationId: data.id, playerId, playerSlug, duplicate: false };
+  const status = data.status ?? "confirmed";
+  return {
+    registrationId: data.id,
+    playerId,
+    playerSlug,
+    duplicate: false,
+    status,
+    isReserve: isReserveStatus(status),
+  };
 }
 
 export {
@@ -153,29 +199,66 @@ export {
 } from "../registrationSession";
 
 /**
- * Fetch confirmed registrations with player profile/leaderboard fields.
- * Sorted by registered_at ascending (registration order). Efficient joins.
- *
+ * @param {object} row
+ * @param {Map<string, number>} rankByPlayerId
+ * @param {Map<string, string>} platformByPlayerId
+ * @param {number} [reserveIndex] 1-based reserve order when status is waitlist
+ */
+function mapRegistrationRow(row, rankByPlayerId, platformByPlayerId, reserveIndex = null) {
+  const player = row.player ?? {};
+  const summary = Array.isArray(player.points_summary)
+    ? player.points_summary[0]
+    : player.points_summary;
+  const points = Number(summary?.total_points ?? 0);
+  const tournamentsPlayed = Number(summary?.tournaments_played ?? 0);
+  const rank = rankByPlayerId.get(player.id) ?? null;
+  const formPlatform = row.form_data?.platform;
+  const platform = formatPlatformLabel(
+    formPlatform ?? platformByPlayerId.get(player.id) ?? null
+  );
+  const name =
+    row.form_data?.discord_username ||
+    player.discord_username ||
+    player.display_name ||
+    "Player";
+  const status = row.status ?? "confirmed";
+
+  return {
+    id: row.id ?? null,
+    name: String(name),
+    slug: player.slug ?? null,
+    registeredAt: row.registered_at,
+    points,
+    rank,
+    tournamentsPlayed,
+    platform,
+    isNewPlayer: points === 0 && tournamentsPlayed === 0 && rank == null,
+    status,
+    isReserve: isReserveStatus(status),
+    isConfirmed: isConfirmedStatus(status),
+    reserveNumber: reserveIndex,
+  };
+}
+
+/**
+ * Fetch confirmed + reserve registrations (registration order).
  * @param {string} tournamentId
  * @param {string | null} [gameId]
- * @returns {Promise<Array<{
- *   name: string;
- *   slug: string | null;
- *   registeredAt: string;
- *   points: number;
- *   rank: number | null;
- *   tournamentsPlayed: number;
- *   platform: string;
- *   isNewPlayer: boolean;
- * }>>}
+ * @returns {Promise<{
+ *   confirmed: Array<object>;
+ *   reserves: Array<object>;
+ *   all: Array<object>;
+ * }>}
  */
-export async function fetchTournamentRegistrations(tournamentId, gameId = null) {
+export async function fetchTournamentRoster(tournamentId, gameId = null) {
   const supabase = getSupabaseClient();
 
-  let query = supabase
+  const { data, error } = await supabase
     .from("tournament_registrations")
     .select(
       `
+      id,
+      status,
       registered_at,
       form_data,
       player:players!inner (
@@ -192,12 +275,13 @@ export async function fetchTournamentRegistrations(tournamentId, gameId = null) 
     `
     )
     .eq("tournament_id", tournamentId)
-    .eq("status", "confirmed")
+    .in("status", ["confirmed", "pending", "waitlist"])
     .order("registered_at", { ascending: true });
 
-  const { data, error } = await query;
   if (error) throw error;
-  if (!data?.length) return [];
+  if (!data?.length) {
+    return { confirmed: [], reserves: [], all: [] };
+  }
 
   const playerIds = data.map((row) => row.player?.id).filter(Boolean);
 
@@ -230,33 +314,34 @@ export async function fetchTournamentRegistrations(tournamentId, gameId = null) 
     }
   }
 
-  return data.map((row) => {
-    const player = row.player ?? {};
-    const summary = Array.isArray(player.points_summary)
-      ? player.points_summary[0]
-      : player.points_summary;
-    const points = Number(summary?.total_points ?? 0);
-    const tournamentsPlayed = Number(summary?.tournaments_played ?? 0);
-    const rank = rankByPlayerId.get(player.id) ?? null;
-    const formPlatform = row.form_data?.platform;
-    const platform = formatPlatformLabel(
-      formPlatform ?? platformByPlayerId.get(player.id) ?? null
-    );
-    const name =
-      row.form_data?.discord_username ||
-      player.discord_username ||
-      player.display_name ||
-      "Player";
+  /** @type {object[]} */
+  const confirmed = [];
+  /** @type {object[]} */
+  const reserves = [];
+  let reserveIndex = 0;
 
-    return {
-      name: String(name),
-      slug: player.slug ?? null,
-      registeredAt: row.registered_at,
-      points,
-      rank,
-      tournamentsPlayed,
-      platform,
-      isNewPlayer: points === 0 && tournamentsPlayed === 0 && rank == null,
-    };
-  });
+  for (const row of data) {
+    if (isReserveStatus(row.status)) {
+      reserveIndex += 1;
+      reserves.push(
+        mapRegistrationRow(row, rankByPlayerId, platformByPlayerId, reserveIndex)
+      );
+    } else {
+      confirmed.push(
+        mapRegistrationRow(row, rankByPlayerId, platformByPlayerId, null)
+      );
+    }
+  }
+
+  return { confirmed, reserves, all: [...confirmed, ...reserves] };
+}
+
+/**
+ * Back-compat: confirmed players only (registration order).
+ * @param {string} tournamentId
+ * @param {string | null} [gameId]
+ */
+export async function fetchTournamentRegistrations(tournamentId, gameId = null) {
+  const roster = await fetchTournamentRoster(tournamentId, gameId);
+  return roster.confirmed;
 }

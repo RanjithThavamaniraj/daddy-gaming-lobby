@@ -103,6 +103,16 @@ export default function AdminTournamentEdit() {
       <AdminTournamentRegistrationsPanel
         tournamentId={id}
         isRocketLeague={isRocketLeague}
+        registrationLimit={
+          record.values.registrationLimit
+            ? Number(record.values.registrationLimit)
+            : record.meta?.registrationLimit ?? null
+        }
+        reserveLimit={
+          record.values.reserveLimit
+            ? Number(record.values.reserveLimit)
+            : record.meta?.reserveLimit ?? 4
+        }
       />
 
       <AdminTournamentBracketPanel

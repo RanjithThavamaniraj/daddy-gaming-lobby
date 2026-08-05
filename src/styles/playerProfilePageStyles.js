@@ -301,6 +301,141 @@ export const registeredPlayersStyles = `
   font-size: 0.9rem;
 }
 
+.player-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.player-card-reserve {
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.player-card-reserve-order {
+  margin: 0.35rem 0 0;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  color: #fdba74;
+}
+
+.player-card-reserve-hint {
+  margin: 0.25rem 0 0.65rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.registered-players-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.reserve-info {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.reserve-info-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0.1rem 0.25rem;
+  border-radius: 6px;
+}
+
+.reserve-info-btn:hover,
+.reserve-info-btn:focus-visible {
+  background: rgba(251, 191, 36, 0.12);
+  outline: none;
+}
+
+.reserve-info-popover {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  top: calc(100% + 0.45rem);
+  transform: translateX(-50%);
+  width: min(260px, 70vw);
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background:
+    linear-gradient(160deg, rgba(251, 191, 36, 0.14), rgba(6, 6, 8, 0.96)),
+    rgba(13, 13, 18, 0.98);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  animation: reserveTipIn 160ms ease-out;
+}
+
+.reserve-info-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: #fbbf24;
+}
+
+.reserve-info-body {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #e5e7eb;
+}
+
+@keyframes reserveTipIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.reserve-join-banner {
+  margin: 0 0 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: linear-gradient(145deg, rgba(251, 191, 36, 0.12), rgba(6,6,8,0.9));
+}
+
+.reserve-join-banner h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  margin-bottom: 0.45rem;
+  color: #fbbf24;
+}
+
+.reserve-join-banner p {
+  color: #d1d5db;
+  line-height: 1.45;
+  margin-bottom: 0.35rem;
+}
+
+.admin-reg-section {
+  margin-top: 1.25rem;
+}
+
+.admin-reg-section h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  margin-bottom: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-reg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
 @media (max-width: 640px) {
   .registered-players-grid {
     grid-template-columns: 1fr;

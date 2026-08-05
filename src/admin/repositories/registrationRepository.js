@@ -1,8 +1,5 @@
 /**
- * Admin read access to tournament registrations.
- * Read-only — registration writes stay on the public registration flow
- * (src/lib/supabase/registrations.js). Admin pages must use this module,
- * never call Supabase tables directly.
+ * Admin registration + reserve actions (Phase 3A).
  */
 
 import { getSupabaseClient, getSupabaseConfigIssues } from "../../supabase";
@@ -36,7 +33,28 @@ function mapAdminRegistrationRow(row) {
 }
 
 /**
- * List registrations for a tournament, newest first.
+ * @param {string} status
+ * @returns {string}
+ */
+export function formatRegistrationStatus(status) {
+  switch (status) {
+    case "confirmed":
+      return "Confirmed";
+    case "waitlist":
+      return "Reserve";
+    case "withdrawn":
+      return "Withdrawn";
+    case "checked_in":
+      return "Checked In";
+    case "pending":
+      return "Pending";
+    default:
+      return status || "—";
+  }
+}
+
+/**
+ * List registrations for a tournament (oldest first for reserve order).
  * @param {string} tournamentId
  * @returns {Promise<AdminRegistrationRow[]>}
  */
@@ -60,9 +78,44 @@ export async function listRegistrationsForTournament(tournamentId) {
     `
     )
     .eq("tournament_id", tournamentId)
-    .order("registered_at", { ascending: false });
+    .order("registered_at", { ascending: true });
 
   if (error) throw error;
 
   return (data ?? []).map(mapAdminRegistrationRow);
+}
+
+/**
+ * @param {string} registrationId
+ */
+export async function promoteReserveRegistration(registrationId) {
+  const { data, error } = await requireClient().rpc(
+    "dgl_promote_reserve_registration",
+    { p_registration_id: registrationId }
+  );
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * @param {string} registrationId
+ */
+export async function withdrawRegistration(registrationId) {
+  const { data, error } = await requireClient().rpc("dgl_withdraw_registration", {
+    p_registration_id: registrationId,
+  });
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * @param {string} registrationId
+ * @param {'up' | 'down'} direction
+ */
+export async function swapReserveOrder(registrationId, direction) {
+  const { error } = await requireClient().rpc("dgl_swap_reserve_order", {
+    p_registration_id: registrationId,
+    p_direction: direction,
+  });
+  if (error) throw error;
 }

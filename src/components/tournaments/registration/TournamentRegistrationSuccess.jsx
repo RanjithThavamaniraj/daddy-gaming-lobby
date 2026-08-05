@@ -15,8 +15,19 @@ import { DISCORD_INVITE_URL } from "../../../config/siteConfig";
  * @param {number} [props.capacity]
  * @param {number|null} [props.registrationCount]
  * @param {number|null} [props.registrantNumber]
+ * @param {boolean} [props.isReserve]
+ * @param {number} [props.reserveCount]
+ * @param {number} [props.reserveLimit]
  */
-export default function TournamentRegistrationSuccess({ tournament, capacity, registrationCount, registrantNumber }) {
+export default function TournamentRegistrationSuccess({
+  tournament,
+  capacity,
+  registrationCount,
+  registrantNumber,
+  isReserve = false,
+  reserveCount = 0,
+  reserveLimit = 4,
+}) {
   const gameSlug = tournament.gameSlug ?? (tournament.game ? tournament.game.toLowerCase().replace(/\s+/g, "-") : "dgl");
   const accent = tournament.accent || "#a855f7";
 
@@ -41,8 +52,16 @@ export default function TournamentRegistrationSuccess({ tournament, capacity, re
                     <path d="M16 12 L20 28 L36 16 M24 44 C12.954 44 4 35.046 4 24 C4 12.954 12.954 4 24 4 C35.046 4 44 12.954 44 24 C44 35.046 35.046 44 24 44 Z" />
                   </svg>
                 </div>
-                <h1 className="success-title">🎉 Registration Successful!</h1>
-                <p className="success-message">Thank you for registering. Your spot has been successfully reserved.</p>
+                <h1 className="success-title">
+                  {isReserve
+                    ? "🟡 Reserve List Joined!"
+                    : "🎉 Registration Successful!"}
+                </h1>
+                <p className="success-message">
+                  {isReserve
+                    ? "You are joining the Reserve List. Reserve players are invited if a confirmed player withdraws before the tournament begins."
+                    : "Thank you for registering. Your spot has been successfully reserved."}
+                </p>
                 <p className="success-copy">
                   Please stay active in the Daddy Gaming Lobby Discord server for tournament announcements,
                   match schedules, team assignments and important updates.
@@ -52,7 +71,11 @@ export default function TournamentRegistrationSuccess({ tournament, capacity, re
                   <div className="registration-status">
                     <div className="registration-status-row">
                       <span>Players Registered: <span className="value">{registrationCount} / {capacity}</span></span>
-                      <span>Remaining Slots: <span className="value">{slotsRemaining}</span></span>
+                      {isReserve ? (
+                        <span>Reserve: <span className="value">{reserveCount} / {reserveLimit}</span></span>
+                      ) : (
+                        <span>Remaining Slots: <span className="value">{slotsRemaining}</span></span>
+                      )}
                     </div>
                     <div className="registration-progress">
                       <div className="registration-progress-fill" style={{ width: `${progressPct}%` }} />
@@ -61,7 +84,11 @@ export default function TournamentRegistrationSuccess({ tournament, capacity, re
                 )}
 
                 {registrantNumber != null && (
-                  <p className="success-registrant">You are Registrant #{registrantNumber}</p>
+                  <p className="success-registrant">
+                    {isReserve
+                      ? `You are Reserve #${registrantNumber}`
+                      : `You are Registrant #${registrantNumber}`}
+                  </p>
                 )}
 
                 <div className="success-meta">

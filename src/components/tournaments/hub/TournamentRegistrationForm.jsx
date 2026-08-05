@@ -3,18 +3,26 @@ import { useState } from "react";
 import { isSaturdayShowdown } from "../../../config/eventTypeConfig";
 
 /**
- * Registration form section for open tournaments (extracted from prior page).
+ * Registration form section for open / reserve-mode tournaments.
  *
  * @param {object} props
  * @param {object} props.tournament
  * @param {number} props.capacity
  * @param {number | null} props.registrationCount
+ * @param {number} [props.reserveCount]
+ * @param {number} [props.reserveLimit]
+ * @param {boolean} [props.isReserveMode]
+ * @param {boolean} [props.tournamentFull]
  * @param {(payload: object) => Promise<void>} props.onSubmit
  */
 export default function TournamentRegistrationForm({
   tournament,
   capacity,
   registrationCount,
+  reserveCount = 0,
+  reserveLimit = 4,
+  isReserveMode = false,
+  tournamentFull = false,
   onSubmit,
 }) {
   const {
@@ -55,8 +63,13 @@ export default function TournamentRegistrationForm({
   const trimmedEpicId = formData.epicId.trim();
   const trimmedTeammateName = formData.teammateDisplayName.trim();
   const isTeamMode = formData.registrationMode === "team";
-  const isFull =
+  const mainFull =
     registrationCount !== null && registrationCount >= capacity;
+  const isFull = tournamentFull
+    ? true
+    : isReserveMode
+      ? reserveCount >= reserveLimit
+      : mainFull;
   const slotsRemaining =
     registrationCount === null
       ? null
@@ -184,7 +197,20 @@ export default function TournamentRegistrationForm({
         </div>
       </div>
 
-      {registrationCount !== null ? (
+      {isReserveMode ? (
+        <div className="reserve-join-banner">
+          <h3>You are joining the Reserve List.</h3>
+          <p>
+            Main roster is currently full. Reserve players are invited if a
+            confirmed player withdraws before the tournament begins.
+          </p>
+          <p className="form-hint">
+            Reserve Players: {reserveCount} / {reserveLimit}
+          </p>
+        </div>
+      ) : null}
+
+      {registrationCount !== null && !isReserveMode ? (
         <div className="registration-status">
           <div className="registration-status-row">
             <span>
@@ -207,7 +233,7 @@ export default function TournamentRegistrationForm({
       ) : null}
 
       <form className="registration-form" onSubmit={handleSubmit} noValidate>
-        <h3>Register Now</h3>
+        <h3>{isReserveMode ? "Join Reserve List" : "Register Now"}</h3>
 
         <div className="form-group discord-group">
           <label htmlFor="discordUsername" className="form-label">
@@ -414,8 +440,12 @@ export default function TournamentRegistrationForm({
             {isFull
               ? "Tournament Full"
               : status === "submitting"
-                ? "Registering..."
-                : "✓ REGISTER NOW"}
+                ? isReserveMode
+                  ? "Joining reserve…"
+                  : "Registering..."
+                : isReserveMode
+                  ? "🟡 JOIN RESERVE LIST"
+                  : "✓ REGISTER NOW"}
           </span>
         </button>
       </form>

@@ -29,6 +29,7 @@ const ADMIN_LIST_SELECT = `
   is_featured,
   is_archived,
   registration_limit,
+  reserve_limit,
   registration_opens_at,
   starts_at,
   created_at,
@@ -101,6 +102,7 @@ function mapAdminTournamentRow(row) {
     isFeatured: Boolean(row.is_featured),
     isArchived: Boolean(row.is_archived),
     registrationLimit: row.registration_limit ?? null,
+    reserveLimit: row.reserve_limit ?? 4,
     registrationOpensAt: row.registration_opens_at ?? null,
     startsAt: row.starts_at ?? null,
     createdAt: row.created_at ?? null,
@@ -131,6 +133,8 @@ function mapRowToForm(row) {
       accentColor: row.accent_color ?? "",
       registrationLimit:
         row.registration_limit == null ? "" : String(row.registration_limit),
+      reserveLimit:
+        row.reserve_limit == null ? "4" : String(row.reserve_limit),
       registrationOpensAt: isoToDateTimeLocal(row.registration_opens_at),
       registrationClosesAt: isoToDateTimeLocal(row.registration_closes_at),
       startsAt: isoToDateTimeLocal(row.starts_at),
@@ -143,6 +147,8 @@ function mapRowToForm(row) {
       status: row.status,
       isFeatured: Boolean(row.is_featured),
       isArchived: Boolean(row.is_archived),
+      registrationLimit: row.registration_limit ?? null,
+      reserveLimit: row.reserve_limit ?? 4,
     },
   };
 }
@@ -213,6 +219,16 @@ async function normalizeAndValidateTournamentInput(input, { excludeId = null } =
     ) {
       fieldErrors.registrationLimit =
         "Registration limit must be a whole number greater than 0.";
+    }
+  }
+
+  const reserveLimitRaw = String(input.reserveLimit ?? "").trim();
+  let reserveLimit = 4;
+  if (reserveLimitRaw) {
+    reserveLimit = Number.parseInt(reserveLimitRaw, 10);
+    if (!Number.isInteger(reserveLimit) || reserveLimit < 0) {
+      fieldErrors.reserveLimit =
+        "Reserve capacity must be a whole number of 0 or greater.";
     }
   }
 
@@ -337,6 +353,7 @@ async function normalizeAndValidateTournamentInput(input, { excludeId = null } =
     prize_pool_currency: "INR",
     accent_color: accentColor || game.accent_color || null,
     registration_limit: registrationLimit,
+    reserve_limit: reserveLimit,
     registration_opens_at: registrationOpensAt,
     registration_closes_at: registrationClosesAt,
     starts_at: startsAt,

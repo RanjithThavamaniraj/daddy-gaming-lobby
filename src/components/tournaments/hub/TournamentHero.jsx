@@ -1,5 +1,6 @@
 import { LIFECYCLE_BADGE } from "../../../lib/tournamentLifecycle";
 import { parsePrizePoolAmount } from "../../../lib/prizePool";
+import ReserveInfoTooltip from "../ReserveInfoTooltip";
 
 /**
  * Format start timestamp for the hub hero in IST.
@@ -27,7 +28,6 @@ function splitStartDateTimeIst(iso) {
 }
 
 /**
- * Cash prize present → show Prize Pool; otherwise Entry (Free / fee).
  * @param {object} tournament
  * @returns {{ label: string, value: string }}
  */
@@ -45,13 +45,21 @@ function heroRewardStat(tournament) {
 }
 
 /**
- * Tournament hub hero — name, game, date/time, prize/entry, status, count.
+ * Tournament hub hero.
  * @param {object} props
  * @param {object} props.tournament
  * @param {number} props.playerCount
  * @param {number} props.capacity
+ * @param {number} [props.reserveCount]
+ * @param {number} [props.reserveLimit]
  */
-export default function TournamentHero({ tournament, playerCount, capacity }) {
+export default function TournamentHero({
+  tournament,
+  playerCount,
+  capacity,
+  reserveCount = 0,
+  reserveLimit = 4,
+}) {
   const badge =
     LIFECYCLE_BADGE[tournament.lifecycle] ?? tournament.status ?? "Tournament";
   const accent = tournament.accent || "#a855f7";
@@ -91,6 +99,14 @@ export default function TournamentHero({ tournament, playerCount, capacity }) {
             <span className="label">Players</span>
             <span className="value">
               {playerCount} / {capacity}
+            </span>
+          </div>
+          <div className="hub-hero-stat">
+            <span className="label">
+              Reserve <ReserveInfoTooltip />
+            </span>
+            <span className="value">
+              {reserveCount} / {reserveLimit}
             </span>
           </div>
         </div>

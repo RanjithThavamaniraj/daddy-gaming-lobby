@@ -355,6 +355,22 @@ export default function TournamentForm({
           </Field>
 
           <Field
+            label="Reserve Capacity"
+            name="reserveLimit"
+            error={fieldErrors.reserveLimit}
+          >
+            <input
+              className="admin-toolbar-input"
+              type="number"
+              min="0"
+              step="1"
+              value={values.reserveLimit}
+              onChange={(e) => updateField("reserveLimit", e.target.value)}
+              placeholder="e.g. 4"
+            />
+          </Field>
+
+          <Field
             label="Registration Opens"
             name="registrationOpensAt"
             error={fieldErrors.registrationOpensAt}

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   registerForTournament,
   markRegisteredForTournament,
-  fetchTournamentRegistrations,
+  fetchTournamentRoster,
 } from "../../../lib/supabase/registrations";
 import TournamentRegistrationSuccess from "../registration/TournamentRegistrationSuccess";
 import RegisteredPlayersGrid from "../RegisteredPlayersGrid";
@@ -25,30 +25,34 @@ import {
   isLifecycleCompleted,
   isLifecycleLive,
   isLifecycleOpen,
+  isRegistrationDeadlinePassed,
 } from "../../../lib/tournamentLifecycle";
 
 const DEFAULT_REGISTRATION_CAPACITY = 22;
+const DEFAULT_RESERVE_CAPACITY = 4;
 
 /**
- * Live tournament hub — single source of truth before / during / after.
- * Section order: Hero → Status → Countdown → Players → Groups/Bracket →
- * Schedule → Live Results → Final Standings.
- *
+ * Live tournament hub — Phase 3A includes reserve roster support.
  * @param {object} props
  * @param {object} props.tournament
  */
 export default function TournamentHubView({ tournament }) {
   const capacity =
     tournament.registrationLimit ?? DEFAULT_REGISTRATION_CAPACITY;
+  const reserveLimit = tournament.reserveLimit ?? DEFAULT_RESERVE_CAPACITY;
   const tsAccent = tournament.accent || "#a855f7";
   const isOpen = isLifecycleOpen(tournament);
   const isClosed = isLifecycleClosed(tournament);
   const isLive = isLifecycleLive(tournament);
   const isCompleted = isLifecycleCompleted(tournament);
+  const deadlinePassed = isRegistrationDeadlinePassed(tournament);
 
-  const [registrations, setRegistrations] = useState(null);
+  const [roster, setRoster] = useState(
+    /** @type {{ confirmed: object[], reserves: object[] } | null} */ (null)
+  );
   const [regStatus, setRegStatus] = useState("idle");
   const [lastRegistrantNumber, setLastRegistrantNumber] = useState(null);
+  const [joinedAsReserve, setJoinedAsReserve] = useState(false);
 
   const loadBracket =
     Boolean(tournament.tournamentId) &&
@@ -59,34 +63,58 @@ export default function TournamentHubView({ tournament }) {
     loading: bracketLoading,
   } = useTournamentBracket(tournament.tournamentId, loadBracket);
 
+  const refreshRoster = async (tid) => {
+    if (!tid) return null;
+    const next = await fetchTournamentRoster(tid);
+    setRoster(next);
+    return next;
+  };
+
   useEffect(() => {
     let cancelled = false;
     const tid = tournament.tournamentId;
-    if (!tid) {
-      return undefined;
-    }
-    fetchTournamentRegistrations(tid)
-      .then((rows) => {
-        if (!cancelled) setRegistrations(Array.isArray(rows) ? rows : []);
+    if (!tid) return undefined;
+    fetchTournamentRoster(tid)
+      .then((next) => {
+        if (!cancelled) setRoster(next);
       })
       .catch((err) => {
         console.error("Failed to fetch registrations:", err);
-        if (!cancelled) setRegistrations([]);
+        if (!cancelled) setRoster({ confirmed: [], reserves: [] });
       });
     return () => {
       cancelled = true;
     };
   }, [tournament.tournamentId]);
 
-  const registrationCount =
-    registrations === null ? null : registrations.length;
-  const playerCount =
-    registrationCount ?? tournament.registeredCount ?? 0;
+  const confirmed = roster?.confirmed ?? null;
+  const reserves = roster?.reserves ?? null;
+  const confirmedCount =
+    confirmed?.length ??
+    tournament.confirmedCount ??
+    tournament.registeredCount ??
+    0;
+  const reserveCount =
+    reserves?.length ?? tournament.reserveCount ?? 0;
+
+  const mainFull = confirmedCount >= capacity;
+  const reserveFull = reserveCount >= reserveLimit;
+  // Main + reserve both stop once the registration deadline passes.
+  const canRegisterMain = isOpen && !mainFull && !deadlinePassed;
+  const canRegisterReserve =
+    (isOpen || isClosed) &&
+    mainFull &&
+    !reserveFull &&
+    !deadlinePassed &&
+    !isLive &&
+    !isCompleted;
+  const showRegistrationForm = canRegisterMain || canRegisterReserve;
+  const isReserveMode = canRegisterReserve;
 
   const slugByName = useMemo(() => {
     /** @type {Record<string, string>} */
     const map = {};
-    for (const p of registrations ?? []) {
+    for (const p of [...(confirmed ?? []), ...(reserves ?? [])]) {
       if (p?.name && p?.slug) {
         map[String(p.name).trim().toLowerCase()] = p.slug;
       }
@@ -106,28 +134,28 @@ export default function TournamentHubView({ tournament }) {
       }
     }
     return map;
-  }, [registrations, bracket]);
+  }, [confirmed, reserves, bracket]);
 
   const matchesPlayed = (bracket?.fixtures ?? []).filter(
     (f) => f.status === "completed"
   ).length;
 
   const handleRegister = async (payload) => {
-    await registerForTournament(payload);
+    const result = await registerForTournament(payload);
     markRegisteredForTournament(
       tournament.tournamentId || tournament.slug || tournament.id
     );
-    const rows = await fetchTournamentRegistrations(tournament.tournamentId);
-    setRegistrations(rows);
+    const next = await refreshRoster(tournament.tournamentId);
     const trimmed = String(payload.discordUsername || "")
       .trim()
       .toLowerCase();
-    const registrantNumber = rows
-      ? rows
-          .map((r) => r.name.trim().toLowerCase())
-          .lastIndexOf(trimmed) + 1 || rows.length
+    const list = result.isReserve ? next?.reserves : next?.confirmed;
+    const registrantNumber = list
+      ? list.map((r) => r.name.trim().toLowerCase()).lastIndexOf(trimmed) + 1 ||
+        list.length
       : null;
     setLastRegistrantNumber(registrantNumber);
+    setJoinedAsReserve(Boolean(result.isReserve));
     setRegStatus("success");
   };
 
@@ -138,8 +166,11 @@ export default function TournamentHubView({ tournament }) {
         <TournamentRegistrationSuccess
           tournament={tournament}
           capacity={capacity}
-          registrationCount={registrations ? registrations.length : null}
+          registrationCount={confirmedCount}
           registrantNumber={lastRegistrantNumber}
+          isReserve={joinedAsReserve}
+          reserveCount={reserveCount}
+          reserveLimit={reserveLimit}
         />
       </>
     );
@@ -163,38 +194,72 @@ export default function TournamentHubView({ tournament }) {
       >
         <div className="page-shell">
           <div className="page-content">
-            {/* 1–2. Hero (status badge shown once here) */}
             <TournamentHero
               tournament={tournament}
-              playerCount={playerCount}
+              playerCount={confirmedCount}
               capacity={capacity}
+              reserveCount={reserveCount}
+              reserveLimit={reserveLimit}
             />
 
-            {/* 3. Countdown */}
             <TournamentCountdown tournament={tournament} />
 
-            {/* Registration form while open */}
-            {isOpen ? (
+            {showRegistrationForm ? (
               <div className="register-card">
                 <div className="register-body">
                   <TournamentRegistrationForm
                     tournament={tournament}
                     capacity={capacity}
-                    registrationCount={registrationCount}
+                    registrationCount={confirmedCount}
+                    reserveCount={reserveCount}
+                    reserveLimit={reserveLimit}
+                    isReserveMode={isReserveMode}
+                    tournamentFull={mainFull && reserveFull}
                     onSubmit={handleRegister}
                   />
                 </div>
               </div>
             ) : null}
 
-            {/* 4. Registered Players — always visible */}
+            {!showRegistrationForm &&
+            deadlinePassed &&
+            !isLive &&
+            !isCompleted ? (
+              <div className="register-card">
+                <div className="register-body">
+                  <div className="registration-full-notice">
+                    Registrations Closed
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {!showRegistrationForm &&
+            !deadlinePassed &&
+            mainFull &&
+            reserveFull &&
+            (isOpen || isClosed) ? (
+              <div className="register-card">
+                <div className="register-body">
+                  <div className="registration-full-notice">Tournament Full</div>
+                </div>
+              </div>
+            ) : null}
+
             <RegisteredPlayersGrid
-              players={tournament.tournamentId ? registrations : []}
+              players={tournament.tournamentId ? confirmed : []}
               accent={tsAccent}
               title="Registered Players"
             />
 
-            {/* 5. Groups / Brackets */}
+            <RegisteredPlayersGrid
+              players={tournament.tournamentId ? reserves : []}
+              accent={tsAccent}
+              title="Reserve Players"
+              showReserveTooltip
+              emptyMessage="No reserve players yet."
+            />
+
             <TournamentGroups
               groups={bracket?.groups ?? []}
               hasGroups={Boolean(bracket?.hasGroups)}
@@ -206,23 +271,20 @@ export default function TournamentHubView({ tournament }) {
               loading={bracketLoading}
             />
 
-            {/* 6. Match Schedule */}
             <MatchSchedule
               fixtures={bracket?.fixtures ?? []}
               loading={bracketLoading}
             />
 
-            {/* 7. Live Results */}
             <LiveResults
               fixtures={bracket?.fixtures ?? []}
               loading={bracketLoading}
             />
 
-            {/* 8. Final Standings */}
             {isCompleted ? (
               <FinalStandings
                 tournament={tournament}
-                totalPlayers={playerCount}
+                totalPlayers={confirmedCount}
                 matchesPlayed={matchesPlayed}
                 slugByName={slugByName}
               />

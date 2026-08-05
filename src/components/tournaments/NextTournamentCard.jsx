@@ -10,6 +10,7 @@ import {
   isLifecycleLive,
   isLifecycleOpen,
 } from "../../lib/tournamentLifecycle";
+import ReserveInfoTooltip from "./ReserveInfoTooltip";
 
 /** Short CTA label per game — cosmetic only. */
 const SHORT_GAME_LABELS = {
@@ -41,7 +42,7 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
       ? `/tournaments/${tournament.slug ?? tournament.resultsSlug}`
       : null;
   const capacity = tournament.registrationLimit ?? null;
-  const registered = tournament.registeredCount ?? 0;
+  const registered = tournament.confirmedCount ?? tournament.registeredCount ?? 0;
   const slotsRemaining =
     capacity == null ? null : Math.max(0, capacity - registered);
   const badge =
@@ -120,21 +121,29 @@ export default function NextTournamentCard({ tournament, mainEvent }) {
                   <span className="stat-value">{slotsRemaining}</span>
                 </div>
               ) : null}
+              {capacity != null ? (
+                <div className="hero-stat-box">
+                  <span className="stat-label">REGISTERED PLAYERS</span>
+                  <span className="stat-value">
+                    {(tournament.confirmedCount ?? registered)} / {capacity}
+                  </span>
+                </div>
+              ) : null}
+              <div className="hero-stat-box">
+                <span className="stat-label">
+                  RESERVE PLAYERS <ReserveInfoTooltip />
+                </span>
+                <span className="stat-value">
+                  {tournament.reserveCount ?? 0} / {tournament.reserveLimit ?? 4}
+                </span>
+              </div>
               {isRegistrationClosed && capacity != null ? (
-                <>
-                  <div className="hero-stat-box">
-                    <span className="stat-label">REGISTERED PLAYERS</span>
-                    <span className="stat-value">
-                      {registered} / {capacity}
-                    </span>
-                  </div>
-                  <div className="hero-stat-box">
-                    <span className="stat-label">TOURNAMENT START</span>
-                    <span className="stat-value">
-                      {formatTournamentStartDate(tournament.startsAt)}
-                    </span>
-                  </div>
-                </>
+                <div className="hero-stat-box">
+                  <span className="stat-label">TOURNAMENT START</span>
+                  <span className="stat-value">
+                    {formatTournamentStartDate(tournament.startsAt)}
+                  </span>
+                </div>
               ) : null}
               {isShowdown ? (
                 <>

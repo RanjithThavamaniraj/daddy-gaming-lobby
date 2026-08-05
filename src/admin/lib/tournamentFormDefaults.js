@@ -42,6 +42,7 @@ export function createEmptyTournamentFormValues() {
     registrationOpensAt: "",
     registrationClosesAt: "",
     startsAt: "",
+    reserveLimit: "4",
     entryFee: "",
   };
 }

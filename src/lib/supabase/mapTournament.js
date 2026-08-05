@@ -99,7 +99,11 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     eventType,
     accent: resolveEventAccent(eventType, row.accent_color ?? row.game_accent ?? "#a855f7"),
     registrationLimit: row.registration_limit ?? undefined,
-    registeredCount: row.registered_count ?? undefined,
+    registeredCount:
+      row.confirmed_count ?? row.registered_count ?? undefined,
+    confirmedCount: row.confirmed_count ?? row.registered_count ?? undefined,
+    reserveCount: row.waitlist_count ?? 0,
+    reserveLimit: row.reserve_limit ?? 4,
     registrationOpensAt: row.registration_opens_at ?? undefined,
     registrationClosesAt: row.registration_closes_at ?? undefined,
     startsAt: row.starts_at ?? undefined,

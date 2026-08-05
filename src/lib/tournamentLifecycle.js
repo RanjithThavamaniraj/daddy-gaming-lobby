@@ -98,7 +98,9 @@ export function deriveTournamentLifecycle(tournament, nowMs = Date.now()) {
     return LIFECYCLE.LIVE;
   }
 
-  const registered = Number(tournament.registeredCount ?? 0);
+  const registered = Number(
+    tournament.confirmedCount ?? tournament.registeredCount ?? 0
+  );
   const limit =
     tournament.registrationLimit == null
       ? null
@@ -137,6 +139,17 @@ export function applyLifecycleStatus(tournament, nowMs = Date.now()) {
     lifecycle,
     status: LIFECYCLE_LABEL[lifecycle],
   };
+}
+
+/**
+ * True when registration_closes_at has passed (locks ALL new registrations).
+ * @param {object | null | undefined} tournament
+ * @param {number} [nowMs]
+ * @returns {boolean}
+ */
+export function isRegistrationDeadlinePassed(tournament, nowMs = Date.now()) {
+  const closesAt = parseTime(tournament?.registrationClosesAt);
+  return closesAt != null && nowMs >= closesAt;
 }
 
 /**
