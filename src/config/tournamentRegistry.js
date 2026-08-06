@@ -191,6 +191,8 @@ export const TOURNAMENT_REGISTRY = [
     overtimeRule: "Unlimited Overtime (default Rocket League rules)",
     status: "Registrations Open",
     accent: "#38bdf8",
+    // 8 Aug 2026, 7:00 PM IST
+    startsAt: "2026-08-08T13:30:00.000Z",
     // Mirrors the DB is_featured flag — takes the Main Event slot ahead of
     // the status-priority fallback (see selectFeaturedTournament), the same
     // mechanism promote_next_tournament() uses live.
