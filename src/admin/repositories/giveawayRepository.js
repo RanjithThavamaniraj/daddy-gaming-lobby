@@ -667,6 +667,71 @@ export async function republishAnnouncement(id, { userId = null } = {}) {
   };
 }
 
+/**
+ * Insert giveaway_reminder into community_activity for Jarvis Discord.
+ * Does NOT post to Discord directly — Realtime → Jarvis handler only.
+ * Does not change giveaway status.
+ *
+ * @param {string} id
+ * @param {{ userId?: string | null }} [options]
+ */
+export async function sendGiveawayReminder(id, { userId = null } = {}) {
+  const row = await requireGiveaway(id);
+
+  if (row.is_archived) {
+    throw new GiveawayValidationError(
+      {},
+      "Cannot send a reminder for an archived giveaway."
+    );
+  }
+
+  if (row.status === "draft") {
+    throw new GiveawayValidationError(
+      {},
+      "Cannot send a reminder for a draft giveaway. Publish it first."
+    );
+  }
+
+  const payload = {
+    giveaway_id: row.id,
+    title: row.title?.trim() || "150+ Members Celebration Giveaway",
+    prize: row.prize?.trim() || "₹1,000 Steam or PlayStation Gift Card",
+    reminder: "Tomorrow",
+  };
+
+  const activity = await insertCommunityActivity({
+    activityType: "giveaway_reminder",
+    title: `🎁 Giveaway reminder · ${payload.title}`,
+    summary: payload.prize,
+    payload,
+    tournamentId: null,
+    isPublic: true,
+  });
+
+  await writeAdminAuditLog({
+    adminUserId: userId,
+    action: "Giveaway reminder sent",
+    entityType: "giveaway",
+    entityId: row.id,
+    tournamentId: null,
+    oldValue: {},
+    newValue: {
+      giveaway_id: row.id,
+      giveaway_status: row.status,
+      activity_type: "giveaway_reminder",
+      community_activity_id: activity.id,
+      reminder_sent_at: new Date().toISOString(),
+    },
+  });
+
+  return {
+    id: row.id,
+    status: row.status,
+    activityId: activity.id,
+    activityType: "giveaway_reminder",
+  };
+}
+
 // ---------------------------------------------------------------------------
 // CRUD + lifecycle
 // ---------------------------------------------------------------------------

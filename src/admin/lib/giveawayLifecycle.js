@@ -26,6 +26,11 @@ export function getAvailableGiveawayActions(meta) {
       ["published", "entries_closed", "winner_selected", "completed"].includes(
         status
       ),
+    sendGiveawayReminder:
+      !isArchived &&
+      ["published", "entries_closed", "winner_selected", "completed"].includes(
+        status
+      ),
   };
 }
 
