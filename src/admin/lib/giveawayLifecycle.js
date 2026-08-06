@@ -70,6 +70,14 @@ export const GIVEAWAY_ACTION_DEFS = [
     tone: "danger",
     confirm: "Archive this giveaway?",
   },
+  {
+    id: "sendGiveawayReminder",
+    label: "📢 Giveaway Reminder",
+    description: "Send a reminder to Discord about this giveaway.",
+    buttonLabel: "Send Giveaway Reminder",
+    confirm:
+      "Send the Giveaway Reminder to Discord via Jarvis? This only inserts a community_activity row — Jarvis posts the embed.",
+  },
 ];
 
 /** @type {Record<string, string>} */

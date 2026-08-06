@@ -25,6 +25,7 @@ const HANDLERS = {
   complete,
   cancel,
   archive,
+  sendGiveawayReminder,
 };
 
 /**
@@ -76,7 +77,15 @@ export default function AdminGiveawayLifecyclePanel({
         navigate("/admin/giveaways");
         return;
       }
-      setMessage(`Action completed. Status is now ${formatGiveawayStatus(result.status)}.`);
+      if (actionId === "sendGiveawayReminder") {
+        setMessage(
+          `Giveaway reminder queued (${result.activityType}). Jarvis should post shortly.`
+        );
+      } else {
+        setMessage(
+          `Action completed. Status is now ${formatGiveawayStatus(result.status)}.`
+        );
+      }
       await onChanged();
     } catch (err) {
       setError(
@@ -143,37 +152,6 @@ export default function AdminGiveawayLifecyclePanel({
     }
   }
 
-  async function handleSendGiveawayReminder() {
-    if (
-      !window.confirm(
-        "Send the Giveaway Reminder to Discord via Jarvis? This only inserts a community_activity row — Jarvis posts the embed."
-      )
-    ) {
-      return;
-    }
-
-    setBusyAction("sendGiveawayReminder");
-    setError(null);
-    setMessage(null);
-    try {
-      const result = await sendGiveawayReminder(giveawayId, {
-        userId: user?.id ?? null,
-      });
-      setMessage(
-        `Giveaway reminder queued (${result.activityType}). Jarvis should post shortly.`
-      );
-      await onChanged();
-    } catch (err) {
-      setError(
-        err instanceof GiveawayValidationError
-          ? err.message
-          : err?.message ?? "Could not send giveaway reminder."
-      );
-    } finally {
-      setBusyAction(null);
-    }
-  }
-
   return (
     <section className="admin-lifecycle" aria-label="Giveaway lifecycle">
       <div className="admin-lifecycle-header">
@@ -220,7 +198,9 @@ export default function AdminGiveawayLifecyclePanel({
               disabled={Boolean(busyAction)}
               onClick={() => runAction(action.id, action.confirm)}
             >
-              {busyAction === action.id ? "Working…" : action.label}
+              {busyAction === action.id
+                ? "Working…"
+                : action.buttonLabel ?? action.label}
             </button>
           </article>
         ))}
@@ -244,29 +224,6 @@ export default function AdminGiveawayLifecyclePanel({
               {busyAction === "republishAnnouncement"
                 ? "Working…"
                 : "Republish Announcement"}
-            </button>
-          </article>
-        ) : null}
-
-        {available.sendGiveawayReminder ? (
-          <article className="admin-lifecycle-card">
-            <h3 className="admin-lifecycle-action-title">
-              Send Giveaway Reminder
-            </h3>
-            <p className="admin-lifecycle-action-copy">
-              Queue a giveaway_reminder community activity. Jarvis posts the
-              Discord embed via Realtime — this panel never calls Discord
-              directly.
-            </p>
-            <button
-              type="button"
-              className="admin-lifecycle-btn"
-              disabled={Boolean(busyAction)}
-              onClick={handleSendGiveawayReminder}
-            >
-              {busyAction === "sendGiveawayReminder"
-                ? "Working…"
-                : "Send Giveaway Reminder"}
             </button>
           </article>
         ) : null}
