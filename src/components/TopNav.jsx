@@ -23,13 +23,15 @@ export default function TopNav({ children }) {
           display: flex; align-items: center; gap: clamp(1.5rem, 4vw, 3rem);
         }
         .global-logo-link {
-          display: flex; align-items: center; gap: 0.6rem;
+          display: flex; align-items: center; gap: 14px;
           text-decoration: none;
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .global-logo-link:hover { transform: scale(1.05); }
         .global-logo {
-          height: clamp(42px, 3vw, 48px); width: auto;
+          width: 48px;
+          height: 48px;
+          flex-shrink: 0;
           object-fit: contain;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.3));
           transition: filter 0.3s ease;

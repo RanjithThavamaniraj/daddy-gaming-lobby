@@ -124,13 +124,14 @@ export const homePageStyles = `
           text-decoration: none;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 14px;
           transition: transform .35s var(--ease-spring);
         }
         .logo-link:hover { transform: scale(1.02); }
         .logo-icon {
-          height: clamp(42px, 3vw, 48px);
-          width: auto;
+          width: 48px;
+          height: 48px;
+          flex-shrink: 0;
           filter: drop-shadow(0 0 12px rgba(168,85,247,0.25));
           transition: filter .35s ease, transform .35s var(--ease-spring);
           object-fit: contain;
