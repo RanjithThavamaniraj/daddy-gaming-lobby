@@ -1,6 +1,5 @@
 import { LIFECYCLE_BADGE } from "../../../lib/tournamentLifecycle";
 import { parsePrizePoolAmount } from "../../../lib/prizePool";
-import { getSeriesLabel } from "../../../config/eventTypeConfig";
 import ReserveInfoTooltip from "../ReserveInfoTooltip";
 
 /**
@@ -29,23 +28,6 @@ function splitStartDateTimeIst(iso) {
 }
 
 /**
- * @param {object} tournament
- * @returns {{ label: string, value: string }}
- */
-function heroRewardStat(tournament) {
-  const cash = parsePrizePoolAmount(tournament.prizePool);
-  if (cash > 0) {
-    return {
-      label: "Prize Pool",
-      value: tournament.prizePool?.trim() || `₹${cash.toLocaleString("en-IN")}`,
-    };
-  }
-  const entry =
-    (tournament.entryFee && String(tournament.entryFee).trim()) || "Free";
-  return { label: "Entry", value: entry };
-}
-
-/**
  * Tournament hub hero.
  * @param {object} props
  * @param {object} props.tournament
@@ -67,9 +49,9 @@ export default function TournamentHero({
   const { date: datePart, time: timePart } = splitStartDateTimeIst(
     tournament.startsAt
   );
-  const reward = heroRewardStat(tournament);
-  const seriesLabel =
-    tournament.seriesLabel || getSeriesLabel(tournament.eventType);
+  const cash = parsePrizePoolAmount(tournament.prizePool);
+  const entryFee =
+    (tournament.entryFee && String(tournament.entryFee).trim()) || "Free";
 
   return (
     <section className="hub-hero" style={{ "--accent": accent }}>
@@ -90,10 +72,6 @@ export default function TournamentHero({
         </div>
         <div className="hub-hero-stats">
           <div className="hub-hero-stat">
-            <span className="label">Series</span>
-            <span className="value">{seriesLabel}</span>
-          </div>
-          <div className="hub-hero-stat">
             <span className="label">Game</span>
             <span className="value">{tournament.game || "DGL"}</span>
           </div>
@@ -113,10 +91,15 @@ export default function TournamentHero({
             <span className="label">Time</span>
             <span className="value">{timePart}</span>
           </div>
-          <div className="hub-hero-stat">
-            <span className="label">{reward.label}</span>
-            <span className="value text-accent">{reward.value}</span>
-          </div>
+          {cash > 0 ? (
+            <div className="hub-hero-stat">
+              <span className="label">Prize Pool</span>
+              <span className="value text-accent">
+                {tournament.prizePool?.trim() ||
+                  `₹${cash.toLocaleString("en-IN")}`}
+              </span>
+            </div>
+          ) : null}
           <div className="hub-hero-stat">
             <span className="label">Players</span>
             <span className="value">
@@ -130,6 +113,10 @@ export default function TournamentHero({
             <span className="value">
               {reserveCount} / {reserveLimit}
             </span>
+          </div>
+          <div className="hub-hero-stat">
+            <span className="label">Entry</span>
+            <span className="value">{entryFee}</span>
           </div>
         </div>
       </div>

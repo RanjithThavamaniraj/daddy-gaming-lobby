@@ -184,7 +184,7 @@ export const TOURNAMENT_REGISTRY = [
     format: "2v2",
     matchType: "Single Elimination",
     prizePool: "₹2,000 Team Prize",
-    entryFee: "₹50 Per Player",
+    entryFee: "Free",
     registrationLimit: 16,
     teamLimit: 8,
     matchDuration: "5 Minutes",
