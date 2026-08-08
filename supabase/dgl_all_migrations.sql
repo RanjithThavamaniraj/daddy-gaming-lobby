@@ -2938,3 +2938,6 @@ commit;
 
 -- >>> 20260815100000_dgl_valorant_showdown_featured.sql
 -- See supabase/migrations/20260815100000_dgl_valorant_showdown_featured.sql
+
+-- >>> 20260815200000_dgl_valorant_showdown_capacity_22.sql
+-- See supabase/migrations/20260815200000_dgl_valorant_showdown_capacity_22.sql

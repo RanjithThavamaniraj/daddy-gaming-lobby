@@ -205,7 +205,7 @@ export const TOURNAMENT_REGISTRY = [
     format: "2v2",
     matchType: "Knockout",
     entryFee: "Free",
-    registrationLimit: 16,
+    registrationLimit: 22,
     // 15 Aug 2026, 8:00 PM IST
     startsAt: "2026-08-15T14:30:00.000Z",
     // Mirrors the DB is_featured flag — Main Event while registrations are
