@@ -2931,3 +2931,7 @@ where external_id = 'dgl-rocket-league-championship-1'
   and coalesce(metadata->>'entry_fee', '') is distinct from 'Free';
 
 commit;
+
+-- >>> 20260814100000_dgl_rocket_league_1_results.sql
+-- See supabase/migrations/20260814100000_dgl_rocket_league_1_results.sql
+-- (Rocket League Championship #1 actual results — applied via db push)

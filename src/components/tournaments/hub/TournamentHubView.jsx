@@ -5,6 +5,7 @@ import {
   registerForTournament,
   markRegisteredForTournament,
   fetchTournamentRoster,
+  fetchTournamentParticipants,
 } from "../../../lib/supabase/registrations";
 import TournamentRegistrationSuccess from "../registration/TournamentRegistrationSuccess";
 import RegisteredPlayersGrid from "../RegisteredPlayersGrid";
@@ -50,6 +51,9 @@ export default function TournamentHubView({ tournament }) {
   const [roster, setRoster] = useState(
     /** @type {{ confirmed: object[], reserves: object[] } | null} */ (null)
   );
+  const [participants, setParticipants] = useState(
+    /** @type {object[] | null} */ (null)
+  );
   const [regStatus, setRegStatus] = useState("idle");
   const [lastRegistrantNumber, setLastRegistrantNumber] = useState(null);
   const [joinedAsReserve, setJoinedAsReserve] = useState(false);
@@ -87,8 +91,28 @@ export default function TournamentHubView({ tournament }) {
     };
   }, [tournament.tournamentId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const tid = tournament.tournamentId;
+    if (!tid || !isCompleted) {
+      return undefined;
+    }
+    fetchTournamentParticipants(tid)
+      .then((next) => {
+        if (!cancelled) setParticipants(next);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch participants:", err);
+        if (!cancelled) setParticipants([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tournament.tournamentId, isCompleted]);
+
   const confirmed = roster?.confirmed ?? null;
   const reserves = roster?.reserves ?? null;
+  const displayParticipants = isCompleted ? participants : null;
   const confirmedCount =
     confirmed?.length ??
     tournament.confirmedCount ??
@@ -114,7 +138,11 @@ export default function TournamentHubView({ tournament }) {
   const slugByName = useMemo(() => {
     /** @type {Record<string, string>} */
     const map = {};
-    for (const p of [...(confirmed ?? []), ...(reserves ?? [])]) {
+    for (const p of [
+      ...(confirmed ?? []),
+      ...(reserves ?? []),
+      ...(displayParticipants ?? []),
+    ]) {
       if (p?.name && p?.slug) {
         map[String(p.name).trim().toLowerCase()] = p.slug;
       }
@@ -134,11 +162,15 @@ export default function TournamentHubView({ tournament }) {
       }
     }
     return map;
-  }, [confirmed, reserves, bracket]);
+  }, [confirmed, reserves, displayParticipants, bracket]);
 
   const matchesPlayed = (bracket?.fixtures ?? []).filter(
     (f) => f.status === "completed"
   ).length;
+  const participantCount = displayParticipants?.length ?? 0;
+  const standingsPlayerCount = isCompleted
+    ? participantCount || confirmedCount
+    : confirmedCount;
 
   const handleRegister = async (payload) => {
     const result = await registerForTournament(payload);
@@ -246,19 +278,30 @@ export default function TournamentHubView({ tournament }) {
               </div>
             ) : null}
 
-            <RegisteredPlayersGrid
-              players={tournament.tournamentId ? confirmed : []}
-              accent={tsAccent}
-              title="Registered Players"
-            />
+            {isCompleted ? (
+              <RegisteredPlayersGrid
+                players={tournament.tournamentId ? displayParticipants : []}
+                accent={tsAccent}
+                title="Participants"
+                emptyMessage="No participants recorded."
+              />
+            ) : (
+              <>
+                <RegisteredPlayersGrid
+                  players={tournament.tournamentId ? confirmed : []}
+                  accent={tsAccent}
+                  title="Registered Players"
+                />
 
-            <RegisteredPlayersGrid
-              players={tournament.tournamentId ? reserves : []}
-              accent={tsAccent}
-              title="Reserve Players"
-              showReserveTooltip
-              emptyMessage="No reserve players yet."
-            />
+                <RegisteredPlayersGrid
+                  players={tournament.tournamentId ? reserves : []}
+                  accent={tsAccent}
+                  title="Reserve Players"
+                  showReserveTooltip
+                  emptyMessage="No reserve players yet."
+                />
+              </>
+            )}
 
             <TournamentGroups
               groups={bracket?.groups ?? []}
@@ -284,7 +327,7 @@ export default function TournamentHubView({ tournament }) {
             {isCompleted ? (
               <FinalStandings
                 tournament={tournament}
-                totalPlayers={confirmedCount}
+                totalPlayers={standingsPlayerCount}
                 matchesPlayed={matchesPlayed}
                 slugByName={slugByName}
               />

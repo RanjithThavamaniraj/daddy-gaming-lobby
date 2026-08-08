@@ -7,7 +7,7 @@ import TournamentResultsChampions from "./TournamentResultsChampions";
 import TournamentResultsRunnerUp from "./TournamentResultsRunnerUp";
 import TournamentResultsPlayerTier from "./TournamentResultsPlayerTier";
 import RegisteredPlayersGrid from "../RegisteredPlayersGrid";
-import { fetchTournamentRegistrations } from "../../../lib/supabase/registrations";
+import { fetchTournamentParticipants } from "../../../lib/supabase/registrations";
 import { tournamentResultsPageStyles } from "../../../styles/tournamentResultsPageStyles";
 import { registeredPlayersStyles } from "../../../styles/playerProfilePageStyles";
 
@@ -24,18 +24,18 @@ export default function TournamentResultsView({ tournament }) {
   const glowRef = useRef({ x: 0, y: 0 });
   const trailRef = useRef({ x: 0, y: 0 });
   const hasMovedRef = useRef(false);
-  const [registrations, setRegistrations] = useState(null);
+  const [participants, setParticipants] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
     const tid = tournament?.tournamentId;
     if (!tid) return undefined;
-    fetchTournamentRegistrations(tid)
+    fetchTournamentParticipants(tid)
       .then((rows) => {
-        if (!cancelled) setRegistrations(rows);
+        if (!cancelled) setParticipants(rows);
       })
       .catch(() => {
-        if (!cancelled) setRegistrations([]);
+        if (!cancelled) setParticipants([]);
       });
     return () => {
       cancelled = true;
@@ -176,9 +176,10 @@ export default function TournamentResultsView({ tournament }) {
           />
 
           <RegisteredPlayersGrid
-            players={registrations}
+            players={participants}
             accent={tournament.accent}
-            title="Registered Players"
+            title="Participants"
+            emptyMessage="No participants recorded."
           />
 
           <nav className="results-nav">

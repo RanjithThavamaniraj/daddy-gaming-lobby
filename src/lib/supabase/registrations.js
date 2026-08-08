@@ -263,6 +263,7 @@ function mapRegistrationRow(
 
   return {
     id: row.id ?? null,
+    playerId: player.id ?? null,
     name: String(name),
     slug: player.slug ?? null,
     registeredAt: row.registered_at,
@@ -432,4 +433,142 @@ export async function fetchTournamentRoster(tournamentId, gameId = null) {
 export async function fetchTournamentRegistrations(tournamentId, gameId = null) {
   const roster = await fetchTournamentRoster(tournamentId, gameId);
   return roster.confirmed;
+}
+
+/**
+ * Actual participants for a completed (or in-progress) tournament.
+ * Distinct from registrations — may include walk-ons and exclude no-shows.
+ * @param {string} tournamentId
+ * @param {string | null} [gameId]
+ * @returns {Promise<object[]>}
+ */
+export async function fetchTournamentParticipants(tournamentId, gameId = null) {
+  const supabase = getSupabaseClient();
+  if (!tournamentId) return [];
+
+  let resolvedGameId = gameId;
+  let gameName = "Game";
+  if (!resolvedGameId) {
+    const { data: meta } = await supabase
+      .from("tournaments")
+      .select("game_id, games(name)")
+      .eq("id", tournamentId)
+      .maybeSingle();
+    resolvedGameId = meta?.game_id ?? null;
+    const game = Array.isArray(meta?.games) ? meta.games[0] : meta?.games;
+    gameName = game?.name ?? "Game";
+  } else {
+    const { data: game } = await supabase
+      .from("games")
+      .select("name")
+      .eq("id", resolvedGameId)
+      .maybeSingle();
+    gameName = game?.name ?? "Game";
+  }
+
+  const { data, error } = await supabase
+    .from("tournament_participants")
+    .select(
+      `
+      id,
+      added_at,
+      player:players!inner (
+        id,
+        display_name,
+        slug,
+        discord_username,
+        points_summary:player_points_summary (
+          total_points,
+          tournaments_played
+        )
+      )
+    `
+    )
+    .eq("tournament_id", tournamentId)
+    .order("added_at", { ascending: true });
+
+  if (error) throw error;
+  if (!data?.length) return [];
+
+  const playerIds = data.map((row) => row.player?.id).filter(Boolean);
+
+  /** @type {Map<string, number>} */
+  const dglRankByPlayerId = new Map();
+  if (playerIds.length) {
+    const { data: ranks } = await supabase
+      .from("v_player_leaderboard")
+      .select("player_id, rank")
+      .in("player_id", playerIds);
+    for (const row of ranks ?? []) {
+      dglRankByPlayerId.set(row.player_id, row.rank);
+    }
+  }
+
+  /** @type {Map<string, string>} */
+  const gameRankByPlayerId = new Map();
+  if (playerIds.length && resolvedGameId) {
+    const { data: profiles } = await supabase
+      .from("player_game_profiles")
+      .select("player_id, rank_tier")
+      .eq("game_id", resolvedGameId)
+      .in("player_id", playerIds);
+    for (const row of profiles ?? []) {
+      if (row.rank_tier != null && String(row.rank_tier).trim()) {
+        gameRankByPlayerId.set(row.player_id, String(row.rank_tier).trim());
+      }
+    }
+  }
+
+  // Prefer registration-scoped rocket_league_rank when present
+  /** @type {Map<string, string>} */
+  const rlRankByPlayerId = new Map();
+  if (playerIds.length) {
+    const { data: regs } = await supabase
+      .from("tournament_registrations")
+      .select("player_id, rocket_league_rank, form_data")
+      .eq("tournament_id", tournamentId)
+      .in("player_id", playerIds);
+    for (const row of regs ?? []) {
+      if (row.rocket_league_rank != null && String(row.rocket_league_rank).trim()) {
+        rlRankByPlayerId.set(row.player_id, String(row.rocket_league_rank).trim());
+      } else if (row.form_data?.rank) {
+        rlRankByPlayerId.set(row.player_id, String(row.form_data.rank).trim());
+      }
+    }
+  }
+
+  return data.map((row) => {
+    const player = row.player ?? {};
+    const summary = Array.isArray(player.points_summary)
+      ? player.points_summary[0]
+      : player.points_summary;
+    const points = Number(summary?.total_points ?? 0);
+    const tournamentsPlayed = Number(summary?.tournaments_played ?? 0);
+    const dglRank = dglRankByPlayerId.get(player.id) ?? null;
+    const gameRank =
+      rlRankByPlayerId.get(player.id) ??
+      gameRankByPlayerId.get(player.id) ??
+      null;
+    const name =
+      player.discord_username || player.display_name || "Player";
+
+    return {
+      id: row.id ?? null,
+      playerId: player.id ?? null,
+      name: String(name),
+      slug: player.slug ?? null,
+      registeredAt: row.added_at ?? null,
+      points,
+      dglRank,
+      gameRank,
+      gameName,
+      tournamentsPlayed,
+      platform: "Not Specified",
+      isNewPlayer: points === 0 && tournamentsPlayed === 0 && dglRank == null,
+      status: "confirmed",
+      isReserve: false,
+      isConfirmed: true,
+      reserveNumber: null,
+    };
+  });
 }

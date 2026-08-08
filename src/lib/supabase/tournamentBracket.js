@@ -29,6 +29,8 @@ import { getSupabaseClient, getSupabaseConfigIssues } from "../../supabase";
  *   winner: BracketPlayer | null,
  *   groupId: string | null,
  *   groupLabel: string | null,
+ *   player1TeamIds?: string[],
+ *   player2TeamIds?: string[],
  * }} TournamentFixture
  * @typedef {{
  *   groups: TournamentGroup[],
@@ -55,7 +57,7 @@ function requireClient() {
  */
 function mapPlayer(row) {
   if (!row || typeof row !== "object") return null;
-  const name = row.display_name || row.name || null;
+  const name = row.discord_username || row.display_name || row.name || null;
   if (!name) return null;
   return {
     id: row.id,
@@ -65,13 +67,41 @@ function mapPlayer(row) {
 }
 
 /**
+ * @param {BracketPlayer | null} player
+ * @param {Map<string, { label: string, memberIds: string[] }>} teamByPlayerId
+ * @returns {{ player: BracketPlayer | null, memberIds: string[] }}
+ */
+function applyTeamSide(player, teamByPlayerId) {
+  if (!player) return { player: null, memberIds: [] };
+  const team = teamByPlayerId.get(player.id);
+  if (!team) return { player, memberIds: [player.id] };
+  return {
+    player: { id: player.id, name: team.label, slug: null },
+    memberIds: team.memberIds,
+  };
+}
+
+/**
  * @param {object} row
+ * @param {Map<string, { label: string, memberIds: string[] }>} [teamByPlayerId]
  * @returns {TournamentFixture}
  */
-function mapFixture(row) {
+function mapFixture(row, teamByPlayerId = new Map()) {
   const group = Array.isArray(row.tournament_groups)
     ? row.tournament_groups[0]
     : row.tournament_groups;
+
+  const rawPlayer1 = mapPlayer(row.player1);
+  const rawPlayer2 = mapPlayer(row.player2);
+  const rawWinner = mapPlayer(row.winner);
+  const side1 = applyTeamSide(rawPlayer1, teamByPlayerId);
+  const side2 = applyTeamSide(rawPlayer2, teamByPlayerId);
+
+  let winner = rawWinner;
+  if (rawWinner && teamByPlayerId.has(rawWinner.id)) {
+    const team = teamByPlayerId.get(rawWinner.id);
+    winner = { id: rawWinner.id, name: team.label, slug: null };
+  }
 
   return {
     id: row.id,
@@ -85,12 +115,68 @@ function mapFixture(row) {
     player2Score: row.player2_score ?? null,
     player1Placeholder: row.player1_placeholder ?? null,
     player2Placeholder: row.player2_placeholder ?? null,
-    player1: mapPlayer(row.player1),
-    player2: mapPlayer(row.player2),
-    winner: mapPlayer(row.winner),
+    player1: side1.player,
+    player2: side2.player,
+    winner,
     groupId: row.group_id ?? group?.id ?? null,
     groupLabel: group?.label ?? null,
+    player1TeamIds: side1.memberIds,
+    player2TeamIds: side2.memberIds,
   };
+}
+
+/**
+ * Build player_id → doubles team label map for a tournament.
+ * @param {import("@supabase/supabase-js").SupabaseClient} client
+ * @param {string} tournamentId
+ * @returns {Promise<Map<string, { label: string, memberIds: string[] }>>}
+ */
+async function fetchTeamLabelsByPlayerId(client, tournamentId) {
+  /** @type {Map<string, { label: string, memberIds: string[] }>} */
+  const map = new Map();
+
+  const { data, error } = await client
+    .from("tournament_teams")
+    .select(
+      `
+      id,
+      name,
+      tournament_team_members (
+        player_id,
+        players (
+          id,
+          display_name,
+          discord_username
+        )
+      )
+    `
+    )
+    .eq("tournament_id", tournamentId);
+
+  if (error || !data?.length) return map;
+
+  for (const team of data) {
+    const members = team.tournament_team_members ?? [];
+    const names = members
+      .map((m) => {
+        const p = Array.isArray(m.players) ? m.players[0] : m.players;
+        return p?.discord_username || p?.display_name || null;
+      })
+      .filter(Boolean);
+    const memberIds = members
+      .map((m) => m.player_id)
+      .filter(Boolean)
+      .map(String);
+    const label =
+      names.length >= 2
+        ? `${names[0]} + ${names[1]}`
+        : team.name || names[0] || "Team";
+    for (const id of memberIds) {
+      map.set(id, { label, memberIds });
+    }
+  }
+
+  return map;
 }
 
 /**
@@ -136,7 +222,7 @@ export async function fetchTournamentBracket(tournamentId) {
 
   const client = requireClient();
 
-  const [groupsRes, fixturesRes] = await Promise.all([
+  const [groupsRes, fixturesRes, teamByPlayerId] = await Promise.all([
     client
       .from("tournament_groups")
       .select(
@@ -174,16 +260,19 @@ export async function fetchTournamentBracket(tournamentId) {
         player1:players!tournament_fixtures_player1_id_fkey (
           id,
           display_name,
+          discord_username,
           slug
         ),
         player2:players!tournament_fixtures_player2_id_fkey (
           id,
           display_name,
+          discord_username,
           slug
         ),
         winner:players!tournament_fixtures_winner_id_fkey (
           id,
           display_name,
+          discord_username,
           slug
         ),
         tournament_groups (
@@ -195,6 +284,7 @@ export async function fetchTournamentBracket(tournamentId) {
       .eq("tournament_id", tournamentId)
       .order("stage", { ascending: true })
       .order("fixture_order", { ascending: true }),
+    fetchTeamLabelsByPlayerId(client, tournamentId),
   ]);
 
   if (groupsRes.error) throw groupsRes.error;
@@ -211,7 +301,9 @@ export async function fetchTournamentBracket(tournamentId) {
     return { id: g.id, label: g.label, members };
   });
 
-  const fixtures = (fixturesRes.data ?? []).map(mapFixture);
+  const fixtures = (fixturesRes.data ?? []).map((row) =>
+    mapFixture(row, teamByPlayerId)
+  );
   const hasKnockout = fixtures.some((f) => f.stage !== "group");
 
   return {

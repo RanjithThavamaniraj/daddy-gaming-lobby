@@ -43,7 +43,9 @@ export default function TournamentBracket({ fixtures, hasKnockout, loading }) {
                   <div className="hub-match-players">
                     <div
                       className={
-                        match.winner?.id && match.player1?.id === match.winner.id
+                        match.winner?.id &&
+                        (match.player1TeamIds?.includes(match.winner.id) ||
+                          match.player1?.id === match.winner.id)
                           ? "hub-match-player winner"
                           : "hub-match-player"
                       }
@@ -59,7 +61,9 @@ export default function TournamentBracket({ fixtures, hasKnockout, loading }) {
                     <span className="hub-vs">vs</span>
                     <div
                       className={
-                        match.winner?.id && match.player2?.id === match.winner.id
+                        match.winner?.id &&
+                        (match.player2TeamIds?.includes(match.winner.id) ||
+                          match.player2?.id === match.winner.id)
                           ? "hub-match-player winner"
                           : "hub-match-player"
                       }
