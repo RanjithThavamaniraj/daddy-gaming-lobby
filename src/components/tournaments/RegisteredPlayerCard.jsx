@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 /**
  * Clickable registered-player card for tournament pages.
+ * DGL Rank (leaderboard) and Game Rank (in-game) are separate fields.
  * @param {object} props
  * @param {object} props.player
  * @param {string} [props.accent]
@@ -11,7 +12,9 @@ export default function RegisteredPlayerCard({ player, accent = "#a855f7" }) {
     name,
     slug,
     points = 0,
-    rank = null,
+    dglRank = null,
+    gameRank = null,
+    gameName = "Game",
     tournamentsPlayed = 0,
     isNewPlayer = false,
     isReserve = false,
@@ -19,7 +22,11 @@ export default function RegisteredPlayerCard({ player, accent = "#a855f7" }) {
   } = player ?? {};
 
   const displayName = name || "Player";
-  const rankLabel = rank != null ? `#${rank}` : "Unranked";
+  const dglRankLabel = dglRank != null ? `#${dglRank}` : "Unranked";
+  const gameRankLabel =
+    gameRank != null && String(gameRank).trim()
+      ? String(gameRank).trim()
+      : "Not provided";
   const body = (
     <>
       <div className="player-card-header">
@@ -45,8 +52,12 @@ export default function RegisteredPlayerCard({ player, accent = "#a855f7" }) {
           <span className="player-card-value">{points}</span>
         </div>
         <div className="player-card-stat">
-          <span className="player-card-label">📈 Current Rank</span>
-          <span className="player-card-value">{rankLabel}</span>
+          <span className="player-card-label">📈 DGL Rank</span>
+          <span className="player-card-value">{dglRankLabel}</span>
+        </div>
+        <div className="player-card-stat">
+          <span className="player-card-label">{gameName}</span>
+          <span className="player-card-value">{gameRankLabel}</span>
         </div>
         <div className="player-card-stat">
           <span className="player-card-label">🎯 Tournaments Played</span>

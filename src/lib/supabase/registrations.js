@@ -199,19 +199,57 @@ export {
 } from "../registrationSession";
 
 /**
+ * Resolve in-game rank from registration / profile sources.
+ * Does not invent values — returns null when nothing was stored.
+ *
+ * Priority:
+ *   1. tournament_registrations.rocket_league_rank (Rocket League)
+ *   2. form_data.rank (legacy Valorant registrations)
+ *   3. player_game_profiles.rank_tier for this tournament's game
+ *
  * @param {object} row
- * @param {Map<string, number>} rankByPlayerId
+ * @param {Map<string, string>} gameRankByPlayerId
+ * @returns {string | null}
+ */
+function resolveGameRank(row, gameRankByPlayerId) {
+  if (row.rocket_league_rank != null && String(row.rocket_league_rank).trim()) {
+    return String(row.rocket_league_rank).trim();
+  }
+  const formRank = row.form_data?.rank;
+  if (formRank != null && String(formRank).trim()) {
+    return String(formRank).trim();
+  }
+  const playerId = row.player?.id;
+  if (playerId && gameRankByPlayerId.has(playerId)) {
+    return gameRankByPlayerId.get(playerId) ?? null;
+  }
+  return null;
+}
+
+/**
+ * @param {object} row
+ * @param {Map<string, number>} dglRankByPlayerId
  * @param {Map<string, string>} platformByPlayerId
+ * @param {Map<string, string>} gameRankByPlayerId
+ * @param {string} gameName
  * @param {number} [reserveIndex] 1-based reserve order when status is waitlist
  */
-function mapRegistrationRow(row, rankByPlayerId, platformByPlayerId, reserveIndex = null) {
+function mapRegistrationRow(
+  row,
+  dglRankByPlayerId,
+  platformByPlayerId,
+  gameRankByPlayerId,
+  gameName,
+  reserveIndex = null
+) {
   const player = row.player ?? {};
   const summary = Array.isArray(player.points_summary)
     ? player.points_summary[0]
     : player.points_summary;
   const points = Number(summary?.total_points ?? 0);
   const tournamentsPlayed = Number(summary?.tournaments_played ?? 0);
-  const rank = rankByPlayerId.get(player.id) ?? null;
+  const dglRank = dglRankByPlayerId.get(player.id) ?? null;
+  const gameRank = resolveGameRank(row, gameRankByPlayerId);
   const formPlatform = row.form_data?.platform;
   const platform = formatPlatformLabel(
     formPlatform ?? platformByPlayerId.get(player.id) ?? null
@@ -229,14 +267,40 @@ function mapRegistrationRow(row, rankByPlayerId, platformByPlayerId, reserveInde
     slug: player.slug ?? null,
     registeredAt: row.registered_at,
     points,
-    rank,
+    dglRank,
+    gameRank,
+    gameName,
     tournamentsPlayed,
     platform,
-    isNewPlayer: points === 0 && tournamentsPlayed === 0 && rank == null,
+    isNewPlayer: points === 0 && tournamentsPlayed === 0 && dglRank == null,
     status,
     isReserve: isReserveStatus(status),
     isConfirmed: isConfirmedStatus(status),
     reserveNumber: reserveIndex,
+  };
+}
+
+/**
+ * @param {string} tournamentId
+ * @returns {Promise<{ gameId: string | null; gameName: string; gameSlug: string | null }>}
+ */
+async function resolveTournamentGame(tournamentId) {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("tournaments")
+    .select("game_id, games(name, slug)")
+    .eq("id", tournamentId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return { gameId: null, gameName: "Game", gameSlug: null };
+  }
+
+  const game = Array.isArray(data.games) ? data.games[0] : data.games;
+  return {
+    gameId: data.game_id ?? null,
+    gameName: game?.name ?? "Game",
+    gameSlug: game?.slug ?? null,
   };
 }
 
@@ -253,6 +317,10 @@ function mapRegistrationRow(row, rankByPlayerId, platformByPlayerId, reserveInde
 export async function fetchTournamentRoster(tournamentId, gameId = null) {
   const supabase = getSupabaseClient();
 
+  const tournamentGame = await resolveTournamentGame(tournamentId);
+  const resolvedGameId = gameId ?? tournamentGame.gameId;
+  const gameName = tournamentGame.gameName;
+
   const { data, error } = await supabase
     .from("tournament_registrations")
     .select(
@@ -261,6 +329,7 @@ export async function fetchTournamentRoster(tournamentId, gameId = null) {
       status,
       registered_at,
       form_data,
+      rocket_league_rank,
       player:players!inner (
         id,
         display_name,
@@ -286,7 +355,7 @@ export async function fetchTournamentRoster(tournamentId, gameId = null) {
   const playerIds = data.map((row) => row.player?.id).filter(Boolean);
 
   /** @type {Map<string, number>} */
-  const rankByPlayerId = new Map();
+  const dglRankByPlayerId = new Map();
   if (playerIds.length) {
     const { data: ranks, error: rankError } = await supabase
       .from("v_player_leaderboard")
@@ -294,22 +363,27 @@ export async function fetchTournamentRoster(tournamentId, gameId = null) {
       .in("player_id", playerIds);
     if (!rankError && ranks) {
       for (const row of ranks) {
-        rankByPlayerId.set(row.player_id, row.rank);
+        dglRankByPlayerId.set(row.player_id, row.rank);
       }
     }
   }
 
   /** @type {Map<string, string>} */
   const platformByPlayerId = new Map();
-  if (playerIds.length && gameId) {
+  /** @type {Map<string, string>} */
+  const gameRankByPlayerId = new Map();
+  if (playerIds.length && resolvedGameId) {
     const { data: profiles, error: profileError } = await supabase
       .from("player_game_profiles")
-      .select("player_id, platform")
-      .eq("game_id", gameId)
+      .select("player_id, platform, rank_tier")
+      .eq("game_id", resolvedGameId)
       .in("player_id", playerIds);
     if (!profileError && profiles) {
       for (const row of profiles) {
         if (row.platform) platformByPlayerId.set(row.player_id, row.platform);
+        if (row.rank_tier != null && String(row.rank_tier).trim()) {
+          gameRankByPlayerId.set(row.player_id, String(row.rank_tier).trim());
+        }
       }
     }
   }
@@ -324,11 +398,25 @@ export async function fetchTournamentRoster(tournamentId, gameId = null) {
     if (isReserveStatus(row.status)) {
       reserveIndex += 1;
       reserves.push(
-        mapRegistrationRow(row, rankByPlayerId, platformByPlayerId, reserveIndex)
+        mapRegistrationRow(
+          row,
+          dglRankByPlayerId,
+          platformByPlayerId,
+          gameRankByPlayerId,
+          gameName,
+          reserveIndex
+        )
       );
     } else {
       confirmed.push(
-        mapRegistrationRow(row, rankByPlayerId, platformByPlayerId, null)
+        mapRegistrationRow(
+          row,
+          dglRankByPlayerId,
+          platformByPlayerId,
+          gameRankByPlayerId,
+          gameName,
+          null
+        )
       );
     }
   }
