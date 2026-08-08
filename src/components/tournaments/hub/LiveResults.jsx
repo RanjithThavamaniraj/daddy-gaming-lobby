@@ -2,7 +2,7 @@ import PlayerNameLink from "./PlayerNameLink";
 import { completedFixtures } from "../../../lib/supabase/tournamentBracket";
 
 /**
- * Recently completed matches with winner + score.
+ * Recently completed matches — round, winner, and matchup only.
  * @param {object} props
  * @param {import("../../../lib/supabase/tournamentBracket").TournamentFixture[]} props.fixtures
  * @param {boolean} props.loading
@@ -21,42 +21,32 @@ export default function LiveResults({ fixtures, loading }) {
         </p>
       ) : (
         <div className="hub-results-list">
-          {done.map((match) => {
-            const score =
-              match.player1Score != null && match.player2Score != null
-                ? `${match.player1Score} – ${match.player2Score}`
-                : "—";
-            return (
-              <article key={match.id} className="hub-result-card">
-                <div className="hub-result-round">{match.roundLabel}</div>
-                <div className="hub-result-body">
-                  <div>
-                    <span className="label">Winner</span>
-                    <PlayerNameLink
-                      player={match.winner}
-                      fallback="—"
-                      className="hub-player-link hub-winner"
-                    />
-                  </div>
-                  <div>
-                    <span className="label">Score</span>
-                    <span className="value">{score}</span>
-                  </div>
-                </div>
-                <div className="hub-result-matchup">
+          {done.map((match) => (
+            <article key={match.id} className="hub-result-card">
+              <div className="hub-result-round">{match.roundLabel}</div>
+              <div className="hub-result-body">
+                <div>
+                  <span className="label">Winner</span>
                   <PlayerNameLink
-                    player={match.player1}
-                    fallback={match.player1Placeholder || "TBD"}
-                  />
-                  <span className="hub-vs">vs</span>
-                  <PlayerNameLink
-                    player={match.player2}
-                    fallback={match.player2Placeholder || "TBD"}
+                    player={match.winner}
+                    fallback="—"
+                    className="hub-player-link hub-winner"
                   />
                 </div>
-              </article>
-            );
-          })}
+              </div>
+              <div className="hub-result-matchup">
+                <PlayerNameLink
+                  player={match.player1}
+                  fallback={match.player1Placeholder || "TBD"}
+                />
+                <span className="hub-vs">vs</span>
+                <PlayerNameLink
+                  player={match.player2}
+                  fallback={match.player2Placeholder || "TBD"}
+                />
+              </div>
+            </article>
+          ))}
         </div>
       )}
     </section>
