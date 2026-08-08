@@ -189,14 +189,10 @@ export const TOURNAMENT_REGISTRY = [
     teamLimit: 8,
     matchDuration: "5 Minutes",
     overtimeRule: "Unlimited Overtime (default Rocket League rules)",
-    status: "Registrations Open",
     accent: "#38bdf8",
     // 8 Aug 2026, 7:00 PM IST
     startsAt: "2026-08-08T13:30:00.000Z",
-    // Mirrors the DB is_featured flag — takes the Main Event slot ahead of
-    // the status-priority fallback (see selectFeaturedTournament), the same
-    // mechanism promote_next_tournament() uses live.
-    isFeatured: true,
+    status: "Completed",
   },
   {
     number: 6,
@@ -212,6 +208,9 @@ export const TOURNAMENT_REGISTRY = [
     registrationLimit: 16,
     // 15 Aug 2026, 8:00 PM IST
     startsAt: "2026-08-15T14:30:00.000Z",
+    // Mirrors the DB is_featured flag — Main Event while registrations are
+    // closed (see selectFeaturedTournament tier 0).
+    isFeatured: true,
     status: "Registration Closed",
     accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
   },

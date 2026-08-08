@@ -2935,3 +2935,6 @@ commit;
 -- >>> 20260814100000_dgl_rocket_league_1_results.sql
 -- See supabase/migrations/20260814100000_dgl_rocket_league_1_results.sql
 -- (Rocket League Championship #1 actual results — applied via db push)
+
+-- >>> 20260815100000_dgl_valorant_showdown_featured.sql
+-- See supabase/migrations/20260815100000_dgl_valorant_showdown_featured.sql
