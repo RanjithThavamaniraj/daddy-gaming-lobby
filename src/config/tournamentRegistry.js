@@ -234,5 +234,27 @@ export const TOURNAMENT_REGISTRY = [
     status: "Registrations Open",
     accent: "#f5c518",
   },
-  // Future: number 8 — gameSlug "valorant" → DGL Valorant Championship #2
+  {
+    number: 8,
+    id: "dgl-fc26-saturday-showdown-3",
+    slug: "fc26-saturday-showdown-3",
+    game: "EA SPORTS FC 26",
+    gameSlug: "fc-26",
+    championshipLabel: "FC 26",
+    eventType: "saturday_showdown",
+    format: "7v7",
+    matchType: "Pro Clubs",
+    entryFee: "Free",
+    subtitle: "Pro Clubs 7v7",
+    registrationLimit: 14,
+    reserveLimit: 4,
+    teamLimit: 2,
+    matchDuration: "3 Hours",
+    // 22 Aug 2026, 4:00 PM IST – 7:00 PM IST
+    startsAt: "2026-08-22T10:30:00.000Z",
+    registrationClosesAt: "2026-08-22T09:30:00.000Z",
+    status: "Registrations Open",
+    accent: "#00c853",
+  },
+  // Future: number 9 — gameSlug "valorant" → DGL Valorant Championship #2
 ];

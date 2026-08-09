@@ -2941,3 +2941,6 @@ commit;
 
 -- >>> 20260815200000_dgl_valorant_showdown_capacity_22.sql
 -- See supabase/migrations/20260815200000_dgl_valorant_showdown_capacity_22.sql
+
+-- >>> 20260816100000_dgl_fc26_saturday_showdown_3.sql
+-- See supabase/migrations/20260816100000_dgl_fc26_saturday_showdown_3.sql
