@@ -2947,3 +2947,9 @@ commit;
 
 -- >>> 20260817100000_dgl_rocket_league_1_champion_points_350.sql
 -- See supabase/migrations/20260817100000_dgl_rocket_league_1_champion_points_350.sql
+
+-- >>> 20260818100000_dgl_valorant_showdown_capacity_28.sql
+-- See supabase/migrations/20260818100000_dgl_valorant_showdown_capacity_28.sql
+
+-- >>> 20260818200000_dgl_reopen_valorant_showdown_registration.sql
+-- See supabase/migrations/20260818200000_dgl_reopen_valorant_showdown_registration.sql

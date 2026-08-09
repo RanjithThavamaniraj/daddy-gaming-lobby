@@ -205,13 +205,14 @@ export const TOURNAMENT_REGISTRY = [
     format: "2v2",
     matchType: "Knockout",
     entryFee: "Free",
-    registrationLimit: 22,
+    registrationLimit: 28,
+    reserveLimit: 4,
     // 15 Aug 2026, 8:00 PM IST
     startsAt: "2026-08-15T14:30:00.000Z",
     // Mirrors the DB is_featured flag — Main Event while registrations are
     // closed (see selectFeaturedTournament tier 0).
     isFeatured: true,
-    status: "Registration Closed",
+    status: "Registrations Open",
     accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
   },
   {
