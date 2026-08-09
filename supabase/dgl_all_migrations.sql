@@ -2944,3 +2944,6 @@ commit;
 
 -- >>> 20260816100000_dgl_fc26_saturday_showdown_3.sql
 -- See supabase/migrations/20260816100000_dgl_fc26_saturday_showdown_3.sql
+
+-- >>> 20260817100000_dgl_rocket_league_1_champion_points_350.sql
+-- See supabase/migrations/20260817100000_dgl_rocket_league_1_champion_points_350.sql
