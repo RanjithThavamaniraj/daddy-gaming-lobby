@@ -152,7 +152,6 @@ export function buildUpcomingTournamentPreview() {
 
   return {
     ...toUpcomingCardShape(next),
-    status: "Coming Soon",
     accent: next.accent,
   };
 }

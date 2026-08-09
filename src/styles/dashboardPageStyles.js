@@ -981,6 +981,37 @@ export const dashboardPageStyles = `
     animation-delay: 0.6s;
   }
 
+  a.dashboard-widget-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  a.dashboard-widget-link:hover {
+    transform: translateY(-3px);
+    border-color: rgba(168, 85, 247, 0.45);
+    box-shadow:
+      0 0 0 1px rgba(168, 85, 247, 0.2),
+      0 12px 32px rgba(0, 0, 0, 0.35),
+      0 0 28px rgba(168, 85, 247, 0.18);
+  }
+
+  a.dashboard-widget-link:focus-visible {
+    outline: 2px solid rgba(196, 132, 252, 0.85);
+    outline-offset: 3px;
+    transform: translateY(-2px);
+    border-color: rgba(168, 85, 247, 0.55);
+    box-shadow:
+      0 0 0 1px rgba(168, 85, 247, 0.25),
+      0 10px 28px rgba(0, 0, 0, 0.3),
+      0 0 24px rgba(168, 85, 247, 0.22);
+  }
+
   .dashboard-widget .panel-header {
     margin-bottom: 1.25rem;
   }
@@ -1036,6 +1067,13 @@ export const dashboardPageStyles = `
     color: #c084fc;
     margin-bottom: 1rem;
     line-height: 1.35;
+  }
+
+  .widget-championship-name--featured {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #e9d5ff;
+    margin-bottom: 0;
   }
 
   .widget-meta-grid {
@@ -1111,10 +1149,39 @@ export const dashboardPageStyles = `
     margin-top: 0.75rem;
   }
 
-  .coming-soon-badge {
+  .coming-soon-badge,
+  .lifecycle-dashboard-badge--coming_soon {
     background: rgba(168,85,247,0.12);
     border-color: rgba(168,85,247,0.35);
     color: #c084fc;
+  }
+
+  .lifecycle-dashboard-badge--open {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #86efac;
+  }
+
+  .lifecycle-dashboard-badge--closed {
+    background: rgba(249, 115, 22, 0.12);
+    border-color: rgba(249, 115, 22, 0.4);
+    color: #fdba74;
+  }
+
+  .lifecycle-dashboard-badge--live {
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(239, 68, 68, 0.45);
+    color: #fca5a5;
+  }
+
+  .lifecycle-dashboard-badge--completed {
+    background: rgba(156, 163, 175, 0.12);
+    border-color: rgba(156, 163, 175, 0.35);
+    color: #d1d5db;
+  }
+
+  a.dashboard-widget-link .widget-link-footer {
+    pointer-events: none;
   }
 
   .leaderboard-preview-list {

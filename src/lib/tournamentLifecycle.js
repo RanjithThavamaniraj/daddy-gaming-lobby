@@ -37,6 +37,24 @@ export const LIFECYCLE_BADGE = {
 };
 
 /**
+ * Compact uppercase status badge for dashboard widgets.
+ * Same lifecycle buckets as LIFECYCLE_LABEL / LIFECYCLE_BADGE — not a second status system.
+ * @param {object | null | undefined} tournament
+ * @returns {string}
+ */
+export function getLifecycleDashboardBadge(tournament) {
+  const lifecycle =
+    tournament?.lifecycle ??
+    (tournament ? deriveTournamentLifecycle(tournament) : LIFECYCLE.COMING_SOON);
+
+  if (lifecycle === LIFECYCLE.LIVE) return "LIVE NOW";
+
+  return String(
+    LIFECYCLE_LABEL[lifecycle] ?? LIFECYCLE_LABEL.coming_soon
+  ).toUpperCase();
+}
+
+/**
  * @param {string | null | undefined} value
  * @returns {number | null}
  */
