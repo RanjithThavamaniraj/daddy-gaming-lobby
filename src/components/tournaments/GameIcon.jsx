@@ -41,6 +41,17 @@ export default function GameIcon({ slug }) {
         <path d="M10 20l6-8 6 8" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
       </svg>
     ),
+    "league-of-legends": (
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden>
+        <path
+          d="M16 4l9 5v9c0 6-4 10-9 12-5-2-9-6-9-12V9l9-5z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <circle cx="16" cy="15" r="3" fill="currentColor" />
+      </svg>
+    ),
     "among-us": (
       <svg viewBox="0 0 32 32" fill="none" aria-hidden>
         <path d="M12 6h6a8 8 0 018 8v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-8a8 8 0 018-8z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />

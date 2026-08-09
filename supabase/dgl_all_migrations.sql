@@ -2956,3 +2956,6 @@ commit;
 
 -- >>> 20260819100000_dgl_signature_branding.sql
 -- See supabase/migrations/20260819100000_dgl_signature_branding.sql
+
+-- >>> 20260820100000_dgl_add_league_of_legends_game.sql
+-- See supabase/migrations/20260820100000_dgl_add_league_of_legends_game.sql

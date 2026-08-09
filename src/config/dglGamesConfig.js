@@ -48,6 +48,13 @@ export const DGL_GAMES = [
     glow: "rgba(56, 189, 248, 0.4)",
   },
   {
+    id: "league-of-legends",
+    name: "League of Legends",
+    category: "MOBA",
+    accent: "#c89b3c",
+    glow: "rgba(200, 155, 60, 0.45)",
+  },
+  {
     id: "among-us",
     name: "Among Us",
     category: "Social Deduction",
