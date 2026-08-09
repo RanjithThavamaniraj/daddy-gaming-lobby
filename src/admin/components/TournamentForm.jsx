@@ -201,7 +201,7 @@ export default function TournamentForm({
             label="Tournament Series"
             name="seriesId"
             error={fieldErrors.seriesId}
-            hint="Controls branding: Tournament (Championship) or Saturday Showdown"
+            hint="Controls branding: DGL Signature (prize) or DGL Saturday Showdown (free)"
           >
             <select
               className="admin-toolbar-select"
@@ -214,8 +214,8 @@ export default function TournamentForm({
                 <option key={item.id} value={item.id}>
                   {item.name}
                   {item.eventType === "saturday_showdown"
-                    ? " · Saturday Showdown"
-                    : " · Tournament"}
+                    ? " · DGL Saturday Showdown"
+                    : " · DGL Signature"}
                 </option>
               ))}
             </select>

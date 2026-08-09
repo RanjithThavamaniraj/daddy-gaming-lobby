@@ -1,22 +1,22 @@
 /**
- * DGL's two permanent event series. Championship is the default/unmarked
- * case everywhere in the app (existing per-game accent colors, existing
- * "Prize Pool" wording, etc. all stay exactly as they were). Saturday
- * Showdown is the only branch that needs special-casing.
+ * DGL's two permanent event series:
+ *   - DGL Signature      → prize / premium tournaments (event_type championship)
+ *   - DGL Saturday Showdown → free community tournaments
  */
 export const EVENT_TYPES = {
   championship: {
     id: "championship",
-    label: "Championship",
-    badge: "🏆 Championship",
-    heroBadge: null, // Championships don't get an extra event-type badge — status badge alone is enough, unchanged from before this feature.
+    label: "DGL Signature",
+    badge: "🏆 DGL Signature",
+    // Title already includes "DGL Signature — …"; hero cards keep status badge only.
+    heroBadge: null,
   },
   saturday_showdown: {
     id: "saturday_showdown",
-    label: "Saturday Showdown",
-    badge: "⚡ Saturday Showdown",
-    heroBadge: "⚡ Saturday Showdown",
-    /** Burnt orange / black / white / gold — distinct from every game's own Championship accent. */
+    label: "DGL Saturday Showdown",
+    badge: "⚡ DGL Saturday Showdown",
+    heroBadge: "⚡ DGL Saturday Showdown",
+    /** Burnt orange / black / white / gold — distinct from per-game Signature accents. */
     accent: "#c2410c",
     goldAccent: "#f5b400",
   },
@@ -28,7 +28,7 @@ export function isSaturdayShowdown(eventType) {
 }
 
 /**
- * Public series label for branding (Championship vs Saturday Showdown).
+ * Public series label for branding (DGL Signature vs DGL Saturday Showdown).
  * @param {string | null | undefined} eventType
  * @returns {string}
  */
@@ -41,7 +41,7 @@ export function getSeriesLabel(eventType) {
 
 /**
  * Resolves the card accent color: Saturday Showdown always gets its own
- * burnt-orange identity regardless of game; Championship keeps whatever
+ * burnt-orange identity regardless of game; Signature keeps whatever
  * per-game/per-tournament accent it already had.
  * @param {string | null | undefined} eventType
  * @param {string | undefined} fallbackAccent

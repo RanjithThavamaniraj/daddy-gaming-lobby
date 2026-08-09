@@ -2953,3 +2953,6 @@ commit;
 
 -- >>> 20260818200000_dgl_reopen_valorant_showdown_registration.sql
 -- See supabase/migrations/20260818200000_dgl_reopen_valorant_showdown_registration.sql
+
+-- >>> 20260819100000_dgl_signature_branding.sql
+-- See supabase/migrations/20260819100000_dgl_signature_branding.sql

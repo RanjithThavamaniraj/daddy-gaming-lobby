@@ -9,7 +9,7 @@ import { applyLifecycleStatus, isLifecycleClosed } from "./tournamentLifecycle";
  * @property {number} globalNumber
  * @property {number} gameChampionshipNumber
  * @property {string} tournamentNumber - e.g. "Tournament #1"
- * @property {string} championshipName - e.g. "DGL Valorant Championship #1"
+ * @property {string} championshipName - e.g. "DGL Signature — Valorant Championship #1"
  * @property {string} championshipLabel
  */
 
@@ -27,15 +27,17 @@ export const formatTournamentNumber = formatGlobalTournamentNumber;
 
 /**
  * Per-series title — sequence resets per (game, event type) combination, so
- * a game's Championship and Saturday Showdown series number independently.
+ * a game's Signature and Saturday Showdown series number independently.
  * @param {string} championshipLabel
  * @param {number} gameChampionshipNumber
  * @param {string} [eventType] - "championship" (default) | "saturday_showdown"
  * @returns {string}
  */
 export function formatChampionshipName(championshipLabel, gameChampionshipNumber, eventType) {
-  const seriesName = eventType === "saturday_showdown" ? "Saturday Showdown" : "Championship";
-  return `DGL ${championshipLabel} ${seriesName} #${gameChampionshipNumber}`;
+  if (eventType === "saturday_showdown") {
+    return `DGL ${championshipLabel} Saturday Showdown #${gameChampionshipNumber}`;
+  }
+  return `DGL Signature — ${championshipLabel} Championship #${gameChampionshipNumber}`;
 }
 
 /**

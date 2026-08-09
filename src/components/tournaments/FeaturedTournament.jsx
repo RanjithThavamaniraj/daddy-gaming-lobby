@@ -123,7 +123,7 @@ export default function FeaturedTournament({
                   {isShowdown ? (
                     <div className="hero-stat-box">
                       <span className="stat-label">SERIES</span>
-                      <span className="stat-value">Saturday Showdown</span>
+                      <span className="stat-value">{EVENT_TYPES.saturday_showdown.label}</span>
                     </div>
                   ) : null}
                   <div className="hero-stat-box">

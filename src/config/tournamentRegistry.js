@@ -6,7 +6,8 @@
  *
  * Single source of truth for all DGL tournaments.
  * Add new tournaments here — global numbers are permanent and auto-increment.
- * Championship names are derived from game + per-game sequence (see tournamentModel).
+ * Championship / Signature names are derived from game + per-series sequence
+ * (see tournamentModel / eventTypeConfig).
  * Future: replace with supabase.from("tournaments").select("*")
  *
  * @typedef {object} TournamentRecord
@@ -15,8 +16,8 @@
  * @property {string} [slug] - URL slug for dedicated results page
  * @property {string} game - Display game name (e.g. "Valorant", "CS2")
  * @property {string} gameSlug
- * @property {string} [championshipLabel] - Used in "DGL {label} Championship #N" (defaults to `game`)
- * @property {"championship"|"saturday_showdown"} [eventType] - Defaults to "championship". Saturday Showdown gets its own burnt-orange accent and card treatment (see eventTypeConfig.js) regardless of the `accent` field below.
+ * @property {string} [championshipLabel] - Used in "DGL Signature — {label} Championship #N" (defaults to `game`)
+ * @property {"championship"|"saturday_showdown"} [eventType] - Defaults to "championship" (DGL Signature). Saturday Showdown gets its own burnt-orange accent and card treatment (see eventTypeConfig.js) regardless of the `accent` field below.
  * @property {string} [format]
  * @property {string} [matchType]
  * @property {string} [prizePool]
@@ -257,5 +258,5 @@ export const TOURNAMENT_REGISTRY = [
     status: "Registrations Open",
     accent: "#00c853",
   },
-  // Future: number 9 — gameSlug "valorant" → DGL Valorant Championship #2
+  // Future: number 9 — gameSlug "valorant" → DGL Signature — Valorant Championship #2
 ];

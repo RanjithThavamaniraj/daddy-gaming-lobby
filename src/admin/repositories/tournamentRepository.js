@@ -85,7 +85,7 @@ function mapAdminTournamentRow(row) {
   if (eventType === "saturday_showdown") {
     championshipName = `DGL ${row.championship_label} Saturday Showdown #${championshipNumber ?? "?"}`;
   } else {
-    championshipName = `DGL ${row.championship_label} Championship #${championshipNumber ?? "?"}`;
+    championshipName = `DGL Signature — ${row.championship_label} Championship #${championshipNumber ?? "?"}`;
   }
 
   return {
