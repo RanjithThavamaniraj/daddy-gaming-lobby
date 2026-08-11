@@ -10,9 +10,9 @@ export default function ReserveInfoTooltip() {
 
   return (
     <span className="reserve-info">
-      <button
-        type="button"
+      <span
         className="reserve-info-btn"
+        tabIndex={0}
         aria-label="About reserve players"
         aria-expanded={open}
         aria-controls={tipId}
@@ -25,9 +25,16 @@ export default function ReserveInfoTooltip() {
           e.stopPropagation();
           setOpen((v) => !v);
         }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            e.stopPropagation();
+            setOpen((v) => !v);
+          }
+        }}
       >
         ℹ️
-      </button>
+      </span>
       {open ? (
         <span
           id={tipId}

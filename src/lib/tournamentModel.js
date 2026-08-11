@@ -447,5 +447,10 @@ export function toUpcomingCardShape(tournament) {
     resultsSlug: tournament.resultsSlug ?? null,
     streamUrl: tournament.streamUrl ?? null,
     startsAt: tournament.startsAt ?? null,
+    registrationLimit: tournament.registrationLimit ?? null,
+    registeredCount: tournament.registeredCount ?? null,
+    confirmedCount: tournament.confirmedCount ?? tournament.registeredCount ?? null,
+    reserveCount: tournament.reserveCount ?? 0,
+    reserveLimit: tournament.reserveLimit ?? 4,
   };
 }

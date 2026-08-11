@@ -178,6 +178,113 @@ export const tournamentsPageStyles = `
     filter: drop-shadow(0 10px 30px color-mix(in srgb, var(--accent) 30%, transparent));
   }
 
+  a.hero-card--link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  a.hero-card--link:focus-visible {
+    outline: 2px solid rgba(196, 132, 252, 0.85);
+    outline-offset: 4px;
+    transform: translateY(-2px);
+    filter: drop-shadow(0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent));
+  }
+
+  .hero-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .hero-cta-visual {
+    pointer-events: none;
+  }
+
+  .hero-card--next .hero-inner {
+    padding: 1.85rem;
+  }
+
+  .hero-card--next .hero-title {
+    font-size: clamp(1.35rem, 3vw, 2.05rem);
+  }
+
+  .hero-card--next .hero-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .hero-card--next .hero-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .hero-card--next .hero-stats-grid {
+    margin-top: 1.35rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .hero-card--compact {
+    animation-delay: 0.2s;
+  }
+
+  .hero-card--compact .hero-inner {
+    padding: 1.35rem;
+  }
+
+  .hero-card--compact .hero-content {
+    gap: 1rem;
+  }
+
+  .hero-card--compact .hero-title {
+    font-size: clamp(1.05rem, 2.4vw, 1.45rem);
+  }
+
+  .hero-card--compact .hero-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .hero-card--compact .hero-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .hero-card--compact .hero-details {
+    gap: 0.5rem;
+  }
+
+  .hero-card--compact .hero-stats-grid {
+    margin-top: 1rem;
+    margin-bottom: 0.85rem;
+    gap: 0.65rem;
+  }
+
+  .hero-card--compact .hero-stat-box {
+    padding: 0.55rem 0.7rem;
+  }
+
+  .hero-card--compact .stat-label {
+    font-size: 0.65rem;
+  }
+
+  .hero-card--compact .stat-value {
+    font-size: 0.82rem;
+  }
+
+  .hero-card--compact .cyber-btn {
+    font-size: 0.78rem;
+    padding: 0.75rem 1.35rem;
+    width: 100%;
+  }
+
+  .hero-card--compact .hero-action-container {
+    width: 100%;
+    align-items: stretch;
+  }
+
   .hero-inner {
     position: relative;
     background: linear-gradient(135deg, rgba(10,10,15,0.96), rgba(20,10,30,0.96));
