@@ -2959,3 +2959,6 @@ commit;
 
 -- >>> 20260820100000_dgl_add_league_of_legends_game.sql
 -- See supabase/migrations/20260820100000_dgl_add_league_of_legends_game.sql
+
+-- >>> 20260821100000_dgl_valorant_showdown_start_3pm.sql
+-- See supabase/migrations/20260821100000_dgl_valorant_showdown_start_3pm.sql

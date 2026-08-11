@@ -208,8 +208,8 @@ export const TOURNAMENT_REGISTRY = [
     entryFee: "Free",
     registrationLimit: 28,
     reserveLimit: 4,
-    // 15 Aug 2026, 8:00 PM IST
-    startsAt: "2026-08-15T14:30:00.000Z",
+    // 15 Aug 2026, 3:00 PM IST
+    startsAt: "2026-08-15T09:30:00.000Z",
     // Mirrors the DB is_featured flag — Main Event while registrations are
     // closed (see selectFeaturedTournament tier 0).
     isFeatured: true,
