@@ -1,8 +1,12 @@
 /**
  * Generates public/sitemap.xml and public/robots.txt from the static
  * tournament registry + core public routes. Run automatically on `npm run build`.
+ *
+ * lastmod is preserved from the existing sitemap for URLs that already exist.
+ * Today's date is used only for newly added URLs, so a normal build does not
+ * rewrite the tracked sitemap solely because the calendar date changed.
  */
-import { writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -48,21 +52,47 @@ async function loadTournamentSlugs() {
     .filter(Boolean);
 }
 
-function buildSitemap(slugs) {
+/**
+ * @param {string} xml
+ * @returns {Map<string, string>}
+ */
+function readExistingLastmods(xml) {
+  const map = new Map();
+  const urlBlocks = xml.matchAll(/<url>([\s\S]*?)<\/url>/g);
+  for (const block of urlBlocks) {
+    const loc = block[1].match(/<loc>\s*([^<]+?)\s*<\/loc>/)?.[1];
+    const lastmod = block[1].match(/<lastmod>\s*([^<]+?)\s*<\/lastmod>/)?.[1];
+    if (loc && lastmod) map.set(loc, lastmod);
+  }
+  return map;
+}
+
+function writeIfChanged(filePath, contents) {
+  if (existsSync(filePath) && readFileSync(filePath, "utf8") === contents) {
+    return false;
+  }
+  writeFileSync(filePath, contents);
+  return true;
+}
+
+function buildSitemap(slugs, existingLastmods) {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     ...STATIC_ROUTES.map((route) => ({
       loc: absolute(route.path),
-      lastmod: today,
+      lastmod: existingLastmods.get(absolute(route.path)) ?? today,
       changefreq: route.changefreq,
       priority: route.priority,
     })),
-    ...slugs.map((slug) => ({
-      loc: absolute(`/tournaments/${slug}`),
-      lastmod: today,
-      changefreq: "weekly",
-      priority: "0.8",
-    })),
+    ...slugs.map((slug) => {
+      const loc = absolute(`/tournaments/${slug}`);
+      return {
+        loc,
+        lastmod: existingLastmods.get(loc) ?? today,
+        changefreq: "weekly",
+        priority: "0.8",
+      };
+    }),
   ];
 
   const body = urls
@@ -95,9 +125,17 @@ Sitemap: ${SITE_URL}/sitemap.xml
 }
 
 mkdirSync(publicDir, { recursive: true });
+const sitemapPath = join(publicDir, "sitemap.xml");
+const robotsPath = join(publicDir, "robots.txt");
+const existingLastmods = existsSync(sitemapPath)
+  ? readExistingLastmods(readFileSync(sitemapPath, "utf8"))
+  : new Map();
 const slugs = await loadTournamentSlugs();
-writeFileSync(join(publicDir, "sitemap.xml"), buildSitemap(slugs));
-writeFileSync(join(publicDir, "robots.txt"), buildRobots());
+const sitemapChanged = writeIfChanged(
+  sitemapPath,
+  buildSitemap(slugs, existingLastmods)
+);
+const robotsChanged = writeIfChanged(robotsPath, buildRobots());
 console.log(
-  `SEO: wrote robots.txt + sitemap.xml (${STATIC_ROUTES.length + slugs.length} URLs) → ${SITE_URL}`
+  `SEO: sitemap.xml (${STATIC_ROUTES.length + slugs.length} URLs)${sitemapChanged ? " updated" : " unchanged"}, robots.txt${robotsChanged ? " updated" : " unchanged"} → ${SITE_URL}`
 );
