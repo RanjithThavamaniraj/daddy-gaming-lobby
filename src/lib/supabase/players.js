@@ -16,6 +16,7 @@ import { formatPlatformLabel } from "./registrations";
  *   platform: string;
  *   joinedAt: string | null;
  *   isNewPlayer: boolean;
+ *   gameRanks: Array<{ gameName: string; gameSlug: string | null; rank: string }>;
  * } | null>}
  */
 export async function fetchPlayerBySlug(slug) {
@@ -59,14 +60,24 @@ export async function fetchPlayerBySlug(slug) {
   if (lb?.rank != null) rank = lb.rank;
 
   let platform = "Not Specified";
+  /** @type {Array<{ gameName: string; gameSlug: string | null; rank: string }>} */
+  const gameRanks = [];
   const { data: profiles } = await supabase
     .from("player_game_profiles")
-    .select("platform")
-    .eq("player_id", player.id)
-    .not("platform", "is", null)
-    .limit(1);
-  if (profiles?.[0]?.platform) {
-    platform = formatPlatformLabel(profiles[0].platform);
+    .select("rank_tier, platform, games(name, slug)")
+    .eq("player_id", player.id);
+  for (const row of profiles ?? []) {
+    if (row.platform && platform === "Not Specified") {
+      platform = formatPlatformLabel(row.platform);
+    }
+    const rankTier = row.rank_tier != null ? String(row.rank_tier).trim() : "";
+    if (!rankTier) continue;
+    const game = Array.isArray(row.games) ? row.games[0] : row.games;
+    gameRanks.push({
+      gameName: game?.name ?? "Game",
+      gameSlug: game?.slug ?? null,
+      rank: rankTier,
+    });
   }
 
   return {
@@ -78,5 +89,6 @@ export async function fetchPlayerBySlug(slug) {
     platform,
     joinedAt: player.created_at ?? null,
     isNewPlayer: points === 0 && tournamentsPlayed === 0,
+    gameRanks,
   };
 }

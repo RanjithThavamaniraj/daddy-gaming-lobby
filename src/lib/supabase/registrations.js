@@ -203,25 +203,25 @@ export {
  * Does not invent values — returns null when nothing was stored.
  *
  * Priority:
- *   1. tournament_registrations.rocket_league_rank (Rocket League)
- *   2. form_data.rank (legacy Valorant registrations)
- *   3. player_game_profiles.rank_tier for this tournament's game
+ *   1. player_game_profiles.rank_tier for this tournament's game
+ *   2. tournament_registrations.rocket_league_rank (Rocket League signup)
+ *   3. form_data.rank (legacy registration payload)
  *
  * @param {object} row
  * @param {Map<string, string>} gameRankByPlayerId
  * @returns {string | null}
  */
 function resolveGameRank(row, gameRankByPlayerId) {
+  const playerId = row.player?.id;
+  if (playerId && gameRankByPlayerId.has(playerId)) {
+    return gameRankByPlayerId.get(playerId) ?? null;
+  }
   if (row.rocket_league_rank != null && String(row.rocket_league_rank).trim()) {
     return String(row.rocket_league_rank).trim();
   }
   const formRank = row.form_data?.rank;
   if (formRank != null && String(formRank).trim()) {
     return String(formRank).trim();
-  }
-  const playerId = row.player?.id;
-  if (playerId && gameRankByPlayerId.has(playerId)) {
-    return gameRankByPlayerId.get(playerId) ?? null;
   }
   return null;
 }
@@ -546,8 +546,8 @@ export async function fetchTournamentParticipants(tournamentId, gameId = null) {
     const tournamentsPlayed = Number(summary?.tournaments_played ?? 0);
     const dglRank = dglRankByPlayerId.get(player.id) ?? null;
     const gameRank =
-      rlRankByPlayerId.get(player.id) ??
       gameRankByPlayerId.get(player.id) ??
+      rlRankByPlayerId.get(player.id) ??
       null;
     const name =
       player.discord_username || player.display_name || "Player";

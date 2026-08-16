@@ -187,6 +187,12 @@ export const registeredPlayersStyles = `
   color: #f8fafc;
 }
 
+.player-card-game-rank {
+  font-family: 'Rajdhani', Arial, sans-serif;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
 .player-card-new {
   font-size: 0.72rem;
   font-weight: 700;

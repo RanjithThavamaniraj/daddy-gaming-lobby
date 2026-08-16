@@ -128,6 +128,12 @@ export default function PlayerProfile() {
                 <span className="label">🌱 Joined DGL</span>
                 <span className="value">{joined}</span>
               </div>
+              {(player.gameRanks ?? []).map((entry) => (
+                <div className="player-profile-stat" key={entry.gameSlug ?? entry.gameName}>
+                  <span className="label">{entry.gameName}</span>
+                  <span className="value">{entry.rank}</span>
+                </div>
+              ))}
             </div>
             <div className="player-profile-actions">
               <Link to="/tournaments" className="cyber-btn outline">

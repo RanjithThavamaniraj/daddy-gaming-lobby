@@ -30,7 +30,12 @@ export default function RegisteredPlayerCard({ player, accent = "#a855f7" }) {
   const body = (
     <>
       <div className="player-card-header">
-        <span className="player-card-name">🎮 {displayName}</span>
+        <span className="player-card-name">
+          🎮 {displayName}
+          {gameRank != null && String(gameRank).trim() ? (
+            <span className="player-card-game-rank"> · {String(gameRank).trim()}</span>
+          ) : null}
+        </span>
         <span className="player-card-badges">
           {isReserve ? (
             <span className="player-card-reserve">🟡 Reserve Player</span>
