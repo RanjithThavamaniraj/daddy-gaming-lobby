@@ -210,10 +210,11 @@ export const TOURNAMENT_REGISTRY = [
     reserveLimit: 4,
     // 15 Aug 2026, 3:00 PM IST
     startsAt: "2026-08-15T09:30:00.000Z",
-    // Mirrors the DB is_featured flag — Main Event while registrations are
-    // closed (see selectFeaturedTournament tier 0).
-    isFeatured: true,
-    status: "Registrations Open",
+    completedDate: "August 15, 2026",
+    isFeatured: false,
+    status: "Completed",
+    championPlayers: ["K.O.N.G", "NADDY"],
+    runnerUpPlayers: ["Bumblee_Bee", "Tomato"],
     accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
   },
   {
