@@ -1,10 +1,4 @@
-const DGL_POINTS_TIERS = [
-  { icon: "🥇", label: "Champion", points: 200 },
-  { icon: "🥈", label: "Runner-Up", points: 150 },
-  { icon: "🥉", label: "Semi Final", points: 100 },
-  { icon: "🎯", label: "Quarter Final", points: 50 },
-  { icon: "👥", label: "Group Stage", points: 50 },
-];
+import { DGL_POINTS_LEGEND } from "../../config/dglPointsConfig";
 
 /**
  * Compact DGL Points legend — a quick reference for how points are earned.
@@ -15,7 +9,7 @@ const DGL_POINTS_TIERS = [
 export default function DglPointsInfo() {
   return (
     <section className="hall-section">
-      <h2 className="section-heading hall-section-heading">🏆 DGL Points</h2>
+      <h2 className="section-heading hall-section-heading">DGL POINTS</h2>
       <article className="hall-card" style={{ "--accent": "#a855f7" }}>
         <div className="card-border" aria-hidden />
         <div className="card-shine" aria-hidden />
@@ -29,7 +23,7 @@ export default function DglPointsInfo() {
               gap: "0.5rem 0.9rem",
             }}
           >
-            {DGL_POINTS_TIERS.map((tier, i) => (
+            {DGL_POINTS_LEGEND.map((tier, i) => (
               <span
                 key={tier.label}
                 style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}

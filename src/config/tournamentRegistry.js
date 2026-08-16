@@ -27,7 +27,7 @@
  * @property {string} accent
  * @property {string[]} [championPlayers]
  * @property {string[]} [runnerUpPlayers]
- * @property {{ champion?: number; runnerUp?: number; thirdPlace?: number }} [pointsAwarded] - Per-tournament override; missing fields fall back to DGL_POINTS
+ * @property {{ champion?: number; runnerUp?: number; semiFinalist?: number; quarterFinalist?: number; groupStage?: number; thirdPlace?: number }} [pointsAwarded] - Stored cumulative totals for this event; missing fields fall back to DGL_POINTS_CUMULATIVE
  */
 
 /** @type {TournamentRecord[]} */

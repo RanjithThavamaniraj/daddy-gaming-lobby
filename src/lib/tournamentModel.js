@@ -1,4 +1,4 @@
-import { DGL_POINTS } from "../config/dglPointsConfig";
+import { DGL_POINTS_CUMULATIVE } from "../config/dglPointsConfig";
 import { TOURNAMENT_REGISTRY } from "../config/tournamentRegistry";
 import { normalizePrizePoolDisplay } from "./prizePool";
 import { getSeriesLabel, resolveEventAccent } from "../config/eventTypeConfig";
@@ -156,15 +156,16 @@ export function enrichTournament(tournament, identifiers) {
     quarterFinalistPlayers,
     groupStagePlayers,
     pointsAwarded: {
-      champion: tournament.pointsAwarded?.champion ?? DGL_POINTS.champion,
-      runnerUp: tournament.pointsAwarded?.runnerUp ?? DGL_POINTS.runnerUp,
-      semiFinalist: tournament.pointsAwarded?.semiFinalist ?? DGL_POINTS.semiFinalist,
-      quarterFinalist: tournament.pointsAwarded?.quarterFinalist ?? DGL_POINTS.quarterFinalist,
-      groupStage: tournament.pointsAwarded?.groupStage ?? DGL_POINTS.groupStage,
-      thirdPlace: tournament.pointsAwarded?.thirdPlace ?? DGL_POINTS.thirdPlace,
+      champion: tournament.pointsAwarded?.champion ?? DGL_POINTS_CUMULATIVE.champion,
+      runnerUp: tournament.pointsAwarded?.runnerUp ?? DGL_POINTS_CUMULATIVE.runnerUp,
+      semiFinalist: tournament.pointsAwarded?.semiFinalist ?? DGL_POINTS_CUMULATIVE.semiFinalist,
+      quarterFinalist:
+        tournament.pointsAwarded?.quarterFinalist ?? DGL_POINTS_CUMULATIVE.quarterFinalist,
+      groupStage: tournament.pointsAwarded?.groupStage ?? DGL_POINTS_CUMULATIVE.groupStage,
+      thirdPlace: tournament.pointsAwarded?.thirdPlace ?? DGL_POINTS_CUMULATIVE.thirdPlace,
     },
-    dglPoints: tournament.pointsAwarded?.champion ?? DGL_POINTS.champion,
-    runnerUpDglPoints: tournament.pointsAwarded?.runnerUp ?? DGL_POINTS.runnerUp,
+    dglPoints: tournament.pointsAwarded?.champion ?? DGL_POINTS_CUMULATIVE.champion,
+    runnerUpDglPoints: tournament.pointsAwarded?.runnerUp ?? DGL_POINTS_CUMULATIVE.runnerUp,
   });
 }
 

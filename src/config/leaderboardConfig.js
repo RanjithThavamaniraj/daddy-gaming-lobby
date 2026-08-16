@@ -1,5 +1,5 @@
 import { getCompletedTournaments } from "../lib/tournamentModel";
-import { DGL_POINTS } from "./dglPointsConfig";
+import { DGL_POINTS_CUMULATIVE } from "./dglPointsConfig";
 
 /**
  * Build Hall of Champions entries from completed tournaments.
@@ -46,7 +46,8 @@ const PROGRESSION_TIERS = [
  * progression tier (champion, runner-up, semi-finalist, quarter-finalist,
  * group stage) — mirrors Supabase's player_points_ledger, which sums an
  * explicit cumulative points_awarded per placement rather than just
- * champion/runner-up.
+ * champion/runner-up. Offline fallback uses DGL_POINTS_CUMULATIVE when a
+ * registry entry has no stored totals.
  *
  * Players are merged case-insensitively (trimmed, lowercased key), matching
  * Supabase's generated display_name_key column — the same player appearing
@@ -64,7 +65,8 @@ export function buildDglPointsLeaderboard() {
   for (const tournament of getCompletedTournaments()) {
     for (const tier of PROGRESSION_TIERS) {
       const roster = tournament[tier.rosterKey] ?? [];
-      const points = tournament.pointsAwarded?.[tier.pointsKey] ?? DGL_POINTS[tier.pointsKey];
+      const points =
+        tournament.pointsAwarded?.[tier.pointsKey] ?? DGL_POINTS_CUMULATIVE[tier.pointsKey];
 
       for (const name of roster) {
         const key = name.trim().toLowerCase();

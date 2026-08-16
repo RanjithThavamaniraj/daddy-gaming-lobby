@@ -10,7 +10,8 @@
     "seo:generate": "node scripts/generate-seo-files.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "verify:supabase": "node scripts/verify-supabase-data.mjs"
+    "verify:supabase": "node scripts/verify-supabase-data.mjs",
+    "verify:points": "node scripts/verify-dgl-points.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",

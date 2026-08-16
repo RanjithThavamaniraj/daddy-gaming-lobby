@@ -1,4 +1,4 @@
-import { DGL_POINTS } from "../../config/dglPointsConfig";
+import { DGL_POINTS_CUMULATIVE } from "../../config/dglPointsConfig";
 import {
   formatChampionshipName,
   formatGlobalTournamentNumber,
@@ -121,18 +121,28 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     groupStagePlayers,
     pointsAwarded: {
       champion:
-        resultsRow?.champion_points ?? row.champion_points ?? DGL_POINTS.champion,
+        resultsRow?.champion_points ??
+        row.champion_points ??
+        DGL_POINTS_CUMULATIVE.champion,
       runnerUp:
-        resultsRow?.runner_up_points ?? row.runner_up_points ?? DGL_POINTS.runnerUp,
-      semiFinalist: resultsRow?.semi_finalist_points ?? DGL_POINTS.semiFinalist,
-      quarterFinalist: resultsRow?.quarter_finalist_points ?? DGL_POINTS.quarterFinalist,
-      groupStage: resultsRow?.group_stage_points ?? DGL_POINTS.groupStage,
-      thirdPlace: DGL_POINTS.thirdPlace,
+        resultsRow?.runner_up_points ??
+        row.runner_up_points ??
+        DGL_POINTS_CUMULATIVE.runnerUp,
+      semiFinalist:
+        resultsRow?.semi_finalist_points ?? DGL_POINTS_CUMULATIVE.semiFinalist,
+      quarterFinalist:
+        resultsRow?.quarter_finalist_points ?? DGL_POINTS_CUMULATIVE.quarterFinalist,
+      groupStage: resultsRow?.group_stage_points ?? DGL_POINTS_CUMULATIVE.groupStage,
+      thirdPlace: DGL_POINTS_CUMULATIVE.thirdPlace,
     },
     dglPoints:
-      resultsRow?.champion_points ?? row.champion_points ?? DGL_POINTS.champion,
+      resultsRow?.champion_points ??
+      row.champion_points ??
+      DGL_POINTS_CUMULATIVE.champion,
     runnerUpDglPoints:
-      resultsRow?.runner_up_points ?? row.runner_up_points ?? DGL_POINTS.runnerUp,
+      resultsRow?.runner_up_points ??
+      row.runner_up_points ??
+      DGL_POINTS_CUMULATIVE.runnerUp,
   });
 }
 
@@ -182,15 +192,16 @@ export function mapTournamentResultsRow(row) {
     quarterFinalistPlayers: parsePlayerNameList(row.quarter_finalist_players),
     groupStagePlayers: parsePlayerNameList(row.group_stage_players),
     pointsAwarded: {
-      champion: row.champion_points ?? DGL_POINTS.champion,
-      runnerUp: row.runner_up_points ?? DGL_POINTS.runnerUp,
-      semiFinalist: row.semi_finalist_points ?? DGL_POINTS.semiFinalist,
-      quarterFinalist: row.quarter_finalist_points ?? DGL_POINTS.quarterFinalist,
-      groupStage: row.group_stage_points ?? DGL_POINTS.groupStage,
-      thirdPlace: DGL_POINTS.thirdPlace,
+      champion: row.champion_points ?? DGL_POINTS_CUMULATIVE.champion,
+      runnerUp: row.runner_up_points ?? DGL_POINTS_CUMULATIVE.runnerUp,
+      semiFinalist: row.semi_finalist_points ?? DGL_POINTS_CUMULATIVE.semiFinalist,
+      quarterFinalist:
+        row.quarter_finalist_points ?? DGL_POINTS_CUMULATIVE.quarterFinalist,
+      groupStage: row.group_stage_points ?? DGL_POINTS_CUMULATIVE.groupStage,
+      thirdPlace: DGL_POINTS_CUMULATIVE.thirdPlace,
     },
-    dglPoints: row.champion_points ?? DGL_POINTS.champion,
-    runnerUpDglPoints: row.runner_up_points ?? DGL_POINTS.runnerUp,
+    dglPoints: row.champion_points ?? DGL_POINTS_CUMULATIVE.champion,
+    runnerUpDglPoints: row.runner_up_points ?? DGL_POINTS_CUMULATIVE.runnerUp,
   });
 }
 
