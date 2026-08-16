@@ -6,6 +6,7 @@ import {
   getCompletedTournaments,
   getUpcomingTournaments,
   toUpcomingCardShape,
+  compareTournamentsByCompletedDateDesc,
 } from "./tournamentModel";
 
 /**
@@ -163,7 +164,7 @@ export function buildUpcomingTournamentPreview() {
  */
 export function buildCompletedTournamentsPreview() {
   return [...getCompletedTournaments()]
-    .sort((a, b) => b.number - a.number)
+    .sort(compareTournamentsByCompletedDateDesc)
     .map((tournament) => ({
       id: tournament.id,
       name: tournament.championshipName,

@@ -13,6 +13,7 @@ import {
   toFeaturedShape,
   toUpcomingCardShape,
   compareTournamentsByStartDate,
+  compareTournamentsByCompletedDateDesc,
 } from "../lib/tournamentModel";
 
 const completed = getCompletedTournaments();
@@ -52,7 +53,9 @@ export function getTournamentsPageLayout({
   const upcomingDisplay = upcomingList
     .filter((t) => t.id !== featuredId && t.id !== nextId)
     .sort(compareTournamentsByStartDate);
-  const archivedCompleted = completedList.filter((t) => t.id !== featuredId);
+  const archivedCompleted = completedList
+    .filter((t) => t.id !== featuredId)
+    .sort(compareTournamentsByCompletedDateDesc);
 
   return {
     mainEvent: featured,

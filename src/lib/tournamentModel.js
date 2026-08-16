@@ -179,7 +179,9 @@ export function getAllTournaments() {
 
 /** @returns {ReturnType<typeof enrichTournament>[]} */
 export function getCompletedTournaments() {
-  return getAllTournaments().filter((t) => t.status === "Completed");
+  return getAllTournaments()
+    .filter((t) => t.status === "Completed")
+    .sort(compareTournamentsByCompletedDateDesc);
 }
 
 /** @returns {ReturnType<typeof enrichTournament>[]} */
@@ -273,6 +275,56 @@ export function compareTournamentsByStartDate(a, b) {
   if (aValid && !bValid) return -1;
   if (!aValid && bValid) return 1;
   return (a?.globalNumber ?? 0) - (b?.globalNumber ?? 0);
+}
+
+/**
+ * Milliseconds for completed-archive sort. Prefers completedAt, then startsAt,
+ * then a parseable completedDate. Missing values sort last.
+ * @param {{
+ *   completedAt?: string | null,
+ *   startsAt?: string | null,
+ *   completedDate?: string | null,
+ * }} tournament
+ * @returns {number}
+ */
+function tournamentCompletedMs(tournament) {
+  for (const value of [
+    tournament?.completedAt,
+    tournament?.startsAt,
+    tournament?.completedDate,
+  ]) {
+    if (!value) continue;
+    const ms = Date.parse(value);
+    if (!Number.isNaN(ms)) return ms;
+  }
+  return Number.NaN;
+}
+
+/**
+ * Latest completed first. Ties use globalNumber descending.
+ * @param {{
+ *   completedAt?: string | null,
+ *   startsAt?: string | null,
+ *   completedDate?: string | null,
+ *   globalNumber?: number,
+ * }} a
+ * @param {{
+ *   completedAt?: string | null,
+ *   startsAt?: string | null,
+ *   completedDate?: string | null,
+ *   globalNumber?: number,
+ * }} b
+ * @returns {number}
+ */
+export function compareTournamentsByCompletedDateDesc(a, b) {
+  const aMs = tournamentCompletedMs(a);
+  const bMs = tournamentCompletedMs(b);
+  const aValid = !Number.isNaN(aMs);
+  const bValid = !Number.isNaN(bMs);
+  if (aValid && bValid && aMs !== bMs) return bMs - aMs;
+  if (aValid && !bValid) return -1;
+  if (!aValid && bValid) return 1;
+  return (b?.globalNumber ?? 0) - (a?.globalNumber ?? 0);
 }
 
 /**
@@ -412,11 +464,13 @@ export function toCompletedCardShape(tournament) {
     gameSlug: tournament.gameSlug,
     eventType: tournament.eventType ?? "championship",
     completedDate: tournament.completedDate,
+    completedAt: tournament.completedAt ?? null,
     championPlayers: tournament.championPlayers,
     prizePool: tournament.prizePool,
     accent: tournament.accent,
     resultsPath: tournament.resultsPath,
     resultsSlug: tournament.resultsSlug,
+    startsAt: tournament.startsAt ?? null,
   };
 }
 

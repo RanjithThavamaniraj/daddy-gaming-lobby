@@ -26,6 +26,7 @@ import {
   toFeaturedShape,
   toUpcomingCardShape,
   countActiveTournaments,
+  compareTournamentsByCompletedDateDesc,
 } from "../tournamentModel";
 import { buildHomeCommunityProof, buildLatestPlatformUpdate, formatNextEventTitle } from "../homeModel";
 import {
@@ -231,7 +232,9 @@ export async function fetchAllTournaments() {
  * @param {ReturnType<typeof mapEnrichedTournamentRow>[]} tournaments
  */
 function partitionTournaments(tournaments) {
-  const completed = tournaments.filter((t) => t.status === "Completed");
+  const completed = tournaments
+    .filter((t) => t.status === "Completed")
+    .sort(compareTournamentsByCompletedDateDesc);
   const upcoming = tournaments.filter(
     (t) =>
       t.status === "Coming Soon" ||
