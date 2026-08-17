@@ -348,3 +348,41 @@ export function formatTournamentStartDate(iso) {
     minute: "2-digit",
   });
 }
+
+const IST_TIME_ZONE = "Asia/Kolkata";
+
+/**
+ * Card schedule in IST. With endsAt, renders a window
+ * (e.g. "August 22, 2026 · 6:00 PM – 10:00 PM IST").
+ * @param {string | null | undefined} startsAt
+ * @param {string | null | undefined} [endsAt]
+ * @returns {string}
+ */
+export function formatTournamentSchedule(startsAt, endsAt) {
+  const startMs = parseTime(startsAt);
+  if (startMs == null) return "TBA";
+  const start = new Date(startMs);
+  const datePart = start.toLocaleDateString("en-US", {
+    timeZone: IST_TIME_ZONE,
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const startTime = start.toLocaleTimeString("en-US", {
+    timeZone: IST_TIME_ZONE,
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const endMs = parseTime(endsAt);
+  if (endMs == null) {
+    return `${datePart} · ${startTime} IST`;
+  }
+  const endTime = new Date(endMs).toLocaleTimeString("en-US", {
+    timeZone: IST_TIME_ZONE,
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return `${datePart} · ${startTime} – ${endTime} IST`;
+}

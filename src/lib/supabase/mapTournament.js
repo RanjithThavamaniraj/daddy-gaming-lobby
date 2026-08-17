@@ -4,7 +4,7 @@ import {
   formatGlobalTournamentNumber,
   sortPlayerNames,
 } from "../tournamentModel";
-import { normalizePrizePoolDisplay } from "../prizePool";
+import { normalizePrizePoolDisplay, resolvePrizePoolDisplay } from "../prizePool";
 import {
   getSeriesLabel,
   resolveEventAccent,
@@ -59,9 +59,12 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
   const championshipLabel = row.championship_label ?? row.game_name;
   const eventType = row.event_type ?? "championship";
   const championshipName =
-    row.championship_name ??
+    row.metadata?.title ||
+    row.championship_name ||
     formatChampionshipName(championshipLabel, gameChampionshipNumber, eventType);
   const slug = row.slug ?? null;
+  const confirmedCount = row.confirmed_count ?? row.registered_count ?? 0;
+  const prizePerConfirmed = row.metadata?.prize_per_confirmed ?? undefined;
 
   const championPlayers = parsePlayerNameList(
     resultsRow?.champion_players ?? row.champion_players
@@ -90,9 +93,18 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     gameSlug: row.game_slug,
     format: row.format ?? undefined,
     matchType: row.match_type ?? undefined,
-    prizePool: normalizePrizePoolDisplay(row.prize_pool_display) ?? undefined,
+    prizePerConfirmed,
+    prizePool: resolvePrizePoolDisplay({
+      prizePool: row.prize_pool_display,
+      prizePerConfirmed,
+      confirmedCount,
+      registrationLimit: row.registration_limit,
+    }) ?? undefined,
     entryFee: row.metadata?.entry_fee ?? undefined,
     subtitle: row.metadata?.subtitle ?? undefined,
+    platform: row.metadata?.platform ?? undefined,
+    rewards: row.metadata?.rewards ?? undefined,
+    rules: row.metadata?.rules ?? undefined,
     teamLimit: row.metadata?.team_limit ?? undefined,
     matchDuration: row.metadata?.match_duration ?? undefined,
     overtimeRule: row.metadata?.overtime_rule ?? undefined,
@@ -105,14 +117,14 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     seriesLabel: getSeriesLabel(eventType),
     accent: resolveEventAccent(eventType, row.accent_color ?? row.game_accent ?? "#a855f7"),
     registrationLimit: row.registration_limit ?? undefined,
-    registeredCount:
-      row.confirmed_count ?? row.registered_count ?? undefined,
-    confirmedCount: row.confirmed_count ?? row.registered_count ?? undefined,
+    registeredCount: confirmedCount,
+    confirmedCount,
     reserveCount: row.waitlist_count ?? 0,
     reserveLimit: row.reserve_limit ?? 4,
     registrationOpensAt: row.registration_opens_at ?? undefined,
     registrationClosesAt: row.registration_closes_at ?? undefined,
     startsAt: row.starts_at ?? undefined,
+    endsAt: row.metadata?.ends_at ?? undefined,
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,
     championPlayers,

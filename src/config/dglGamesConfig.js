@@ -55,6 +55,13 @@ export const DGL_GAMES = [
     glow: "rgba(200, 155, 60, 0.45)",
   },
   {
+    id: "f1",
+    name: "F1",
+    category: "Racing",
+    accent: "#e10600",
+    glow: "rgba(225, 6, 0, 0.45)",
+  },
+  {
     id: "among-us",
     name: "Among Us",
     category: "Social Deduction",

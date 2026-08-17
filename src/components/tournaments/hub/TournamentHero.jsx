@@ -7,7 +7,7 @@ import ReserveInfoTooltip from "../ReserveInfoTooltip";
  * @param {string | null | undefined} iso
  * @returns {{ date: string, time: string }}
  */
-function splitStartDateTimeIst(iso) {
+function splitStartDateTimeIst(iso, endsAt) {
   if (!iso) return { date: "TBA", time: "TBA" };
   const ms = Date.parse(iso);
   if (Number.isNaN(ms)) return { date: "TBA", time: "TBA" };
@@ -24,7 +24,17 @@ function splitStartDateTimeIst(iso) {
     minute: "2-digit",
     hour12: true,
   });
-  return { date, time: `${clock} IST` };
+  const endMs = endsAt ? Date.parse(endsAt) : Number.NaN;
+  if (Number.isNaN(endMs)) {
+    return { date, time: `${clock} IST` };
+  }
+  const endClock = new Date(endMs).toLocaleTimeString("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return { date, time: `${clock} – ${endClock} IST` };
 }
 
 /**
@@ -47,9 +57,12 @@ export default function TournamentHero({
     LIFECYCLE_BADGE[tournament.lifecycle] ?? tournament.status ?? "Tournament";
   const accent = tournament.accent || "#a855f7";
   const { date: datePart, time: timePart } = splitStartDateTimeIst(
-    tournament.startsAt
+    tournament.startsAt,
+    tournament.endsAt
   );
-  const cash = parsePrizePoolAmount(tournament.prizePool);
+  const cash =
+    parsePrizePoolAmount(tournament.prizePool) > 0 ||
+    Number(tournament.prizePerConfirmed) > 0;
   const entryFee =
     (tournament.entryFee && String(tournament.entryFee).trim()) || "Free";
 
@@ -57,9 +70,9 @@ export default function TournamentHero({
     <section className="hub-hero" style={{ "--accent": accent }}>
       <div className="hub-hero-banner" aria-hidden="true" />
       <div className="hub-hero-content">
-        <p className="hub-hero-eyebrow">
-          Tournament #{tournament.number ?? tournament.globalNumber ?? "—"}
-        </p>
+        {tournament.tournamentNumber ? (
+          <p className="hub-hero-eyebrow">{tournament.tournamentNumber}</p>
+        ) : null}
         <h1 className="hub-hero-title">
           {tournament.title || tournament.championshipName || tournament.name}
         </h1>
@@ -91,13 +104,18 @@ export default function TournamentHero({
             <span className="label">Time</span>
             <span className="value">{timePart}</span>
           </div>
-          {cash > 0 ? (
+          {cash ? (
             <div className="hub-hero-stat">
               <span className="label">Prize Pool</span>
               <span className="value text-accent">
-                {tournament.prizePool?.trim() ||
-                  `₹${cash.toLocaleString("en-IN")}`}
+                {tournament.prizePool?.trim() || "₹0"}
               </span>
+            </div>
+          ) : null}
+          {tournament.platform ? (
+            <div className="hub-hero-stat">
+              <span className="label">Platform</span>
+              <span className="value">{tournament.platform}</span>
             </div>
           ) : null}
           <div className="hub-hero-stat">
@@ -106,14 +124,16 @@ export default function TournamentHero({
               {playerCount} / {capacity}
             </span>
           </div>
-          <div className="hub-hero-stat">
-            <span className="label">
-              Reserve <ReserveInfoTooltip />
-            </span>
-            <span className="value">
-              {reserveCount} / {reserveLimit}
-            </span>
-          </div>
+          {Number(reserveLimit) > 0 ? (
+            <div className="hub-hero-stat">
+              <span className="label">
+                Reserve <ReserveInfoTooltip />
+              </span>
+              <span className="value">
+                {reserveCount} / {reserveLimit}
+              </span>
+            </div>
+          ) : null}
           <div className="hub-hero-stat">
             <span className="label">Entry</span>
             <span className="value">{entryFee}</span>

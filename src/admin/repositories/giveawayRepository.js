@@ -7,6 +7,7 @@
  */
 
 import { getSupabaseClient, getSupabaseConfigIssues } from "../../supabase";
+import { formatGlobalTournamentNumber } from "../../lib/tournamentModel";
 import {
   createEmptyGiveawayFormValues,
   dateTimeLocalToIso,
@@ -297,7 +298,9 @@ export async function listTournamentsForGiveawaySelector() {
   return (data ?? []).map((row) => ({
     id: row.id,
     globalNumber: row.global_number,
-    label: `Tournament #${row.global_number} · ${row.championship_label}`,
+    label: formatGlobalTournamentNumber(row.global_number)
+      ? `${formatGlobalTournamentNumber(row.global_number)} · ${row.championship_label}`
+      : row.championship_label,
     championshipLabel: row.championship_label,
     game: row.games?.name ?? "—",
     status: row.status,
@@ -351,8 +354,9 @@ export async function computeEligibility(tournamentIds) {
   /** @type {Record<string, string>} */
   const tournamentLabelsById = {};
   for (const t of tournaments ?? []) {
-    tournamentLabelsById[t.id] =
-      `Tournament #${t.global_number} · ${t.championship_label}`;
+    tournamentLabelsById[t.id] = formatGlobalTournamentNumber(t.global_number)
+      ? `${formatGlobalTournamentNumber(t.global_number)} · ${t.championship_label}`
+      : t.championship_label;
   }
 
   const { data: registrations, error: rError } = await client

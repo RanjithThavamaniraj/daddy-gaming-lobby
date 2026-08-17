@@ -21,6 +21,7 @@ import useTournamentBracket from "../../../hooks/useTournamentBracket";
 import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistrationStyles";
 import { registeredPlayersStyles } from "../../../styles/playerProfilePageStyles";
 import { tournamentHubStyles } from "../../../styles/tournamentHubStyles";
+import { resolvePrizePoolDisplay } from "../../../lib/prizePool";
 import {
   isLifecycleClosed,
   isLifecycleCompleted,
@@ -118,6 +119,16 @@ export default function TournamentHubView({ tournament }) {
     tournament.confirmedCount ??
     tournament.registeredCount ??
     0;
+  const liveTournament = {
+    ...tournament,
+    confirmedCount,
+    prizePool: resolvePrizePoolDisplay({
+      prizePool: tournament.prizePool,
+      prizePerConfirmed: tournament.prizePerConfirmed,
+      confirmedCount,
+      registrationLimit: capacity,
+    }),
+  };
   const reserveCount =
     reserves?.length ?? tournament.reserveCount ?? 0;
 
@@ -227,20 +238,20 @@ export default function TournamentHubView({ tournament }) {
         <div className="page-shell">
           <div className="page-content">
             <TournamentHero
-              tournament={tournament}
+              tournament={liveTournament}
               playerCount={confirmedCount}
               capacity={capacity}
               reserveCount={reserveCount}
               reserveLimit={reserveLimit}
             />
 
-            <TournamentCountdown tournament={tournament} />
+            <TournamentCountdown tournament={liveTournament} />
 
             {showRegistrationForm ? (
               <div className="register-card">
                 <div className="register-body">
                   <TournamentRegistrationForm
-                    tournament={tournament}
+                    tournament={liveTournament}
                     capacity={capacity}
                     registrationCount={confirmedCount}
                     reserveCount={reserveCount}
@@ -293,13 +304,15 @@ export default function TournamentHubView({ tournament }) {
                   title="Registered Players"
                 />
 
-                <RegisteredPlayersGrid
-                  players={tournament.tournamentId ? reserves : []}
-                  accent={tsAccent}
-                  title="Reserve Players"
-                  showReserveTooltip
-                  emptyMessage="No reserve players yet."
-                />
+                {Number(reserveLimit) > 0 ? (
+                  <RegisteredPlayersGrid
+                    players={tournament.tournamentId ? reserves : []}
+                    accent={tsAccent}
+                    title="Reserve Players"
+                    showReserveTooltip
+                    emptyMessage="No reserve players yet."
+                  />
+                ) : null}
               </>
             )}
 

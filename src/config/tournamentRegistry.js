@@ -11,7 +11,7 @@
  * Future: replace with supabase.from("tournaments").select("*")
  *
  * @typedef {object} TournamentRecord
- * @property {number} number - Permanent global tournament number (never reassign)
+ * @property {number | null} [number] - Public global tournament number. Omit/null for internal community events that must not consume Tournament #N.
  * @property {string} id
  * @property {string} [slug] - URL slug for dedicated results page
  * @property {string} game - Display game name (e.g. "Valorant", "CS2")
@@ -21,6 +21,12 @@
  * @property {string} [format]
  * @property {string} [matchType]
  * @property {string} [prizePool]
+ * @property {number} [prizePerConfirmed] - ₹ per confirmed participant (dynamic prize pool)
+ * @property {boolean} [isFeatured]
+ * @property {string} [title] - Overrides generated championship name
+ * @property {string} [platform]
+ * @property {string} [endsAt]
+ * @property {string} [rewards]
  * @property {string} [entryFee] - Display string e.g. "Free"
  * @property {"Completed"|"Coming Soon"|"Registrations Open"|"Live"} status
  * @property {string} [completedDate]
@@ -218,7 +224,7 @@ export const TOURNAMENT_REGISTRY = [
     accent: "#ff4655", // overridden to burnt orange automatically — see eventTypeConfig.js
   },
   {
-    number: 7,
+    number: 8,
     id: "dgl-marvel-rivals-saturday-showdown-2",
     slug: "marvel-rivals-saturday-showdown-2",
     game: "Marvel Rivals",
@@ -238,7 +244,9 @@ export const TOURNAMENT_REGISTRY = [
     accent: "#f5c518",
   },
   {
-    number: 8,
+    // Internal/community Clubs event — kept for live registrations.
+    // Must not consume a public DGL Tournament #N.
+    number: null,
     id: "dgl-fc26-saturday-showdown-3",
     slug: "fc26-saturday-showdown-3",
     game: "EA SPORTS FC 26",
@@ -257,7 +265,41 @@ export const TOURNAMENT_REGISTRY = [
     startsAt: "2026-08-22T10:30:00.000Z",
     registrationClosesAt: "2026-08-22T09:30:00.000Z",
     status: "Registrations Open",
+    isFeatured: false,
     accent: "#00c853",
   },
-  // Future: number 9 — gameSlug "valorant" → DGL Signature — Valorant Championship #2
+  {
+    number: 7,
+    id: "dgl-f1-hotlap-1",
+    slug: "f1-hotlap-1",
+    game: "F1",
+    gameSlug: "f1",
+    championshipLabel: "F1",
+    eventType: "championship",
+    title: "DGL F1 Hotlap Event",
+    format: "Hotlap / Time Trial",
+    matchType: "Time Trial",
+    entryFee: "Free",
+    subtitle: "Track: To Be Announced",
+    platform: "PC / PS5 / Xbox",
+    prizePerConfirmed: 100,
+    isFeatured: true,
+    registrationLimit: 20,
+    reserveLimit: 0,
+    matchDuration: "4 Hours",
+    rewards: "DGL Points • Hall of Titans Recognition",
+    rules: [
+      "No Assists",
+      "Equal Conditions",
+      "Same car/settings for everyone where applicable",
+      "No custom setups",
+    ],
+    // 22 Aug 2026, 6:00 PM IST – 10:00 PM IST
+    startsAt: "2026-08-22T12:30:00.000Z",
+    endsAt: "2026-08-22T16:30:00.000Z",
+    registrationClosesAt: "2026-08-22T11:30:00.000Z",
+    status: "Registrations Open",
+    accent: "#e10600",
+  },
+  // Future: number 10 — gameSlug "valorant" → DGL Signature — Valorant Championship #2
 ];

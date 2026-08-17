@@ -7,6 +7,7 @@ import { EVENT_TYPES, getSeriesLabel, isSaturdayShowdown } from "../../config/ev
 import { parsePrizePoolAmount } from "../../lib/prizePool";
 import {
   deriveTournamentLifecycle,
+  formatTournamentSchedule,
   formatTournamentStartDate,
   getLifecycleDashboardBadge,
   isLifecycleClosed,
@@ -72,7 +73,9 @@ export default function TournamentPresentationCard({
   const registered = tournament.confirmedCount ?? tournament.registeredCount ?? 0;
   const slotsRemaining =
     capacity == null ? null : Math.max(0, capacity - registered);
-  const hasCashPrize = parsePrizePoolAmount(tournament.prizePool) > 0;
+  const hasDynamicPrize = Number(tournament.prizePerConfirmed) > 0;
+  const hasCashPrize =
+    parsePrizePoolAmount(tournament.prizePool) > 0 || hasDynamicPrize;
   const showFreeEntry = isShowdown || !hasCashPrize;
   const championPlayers = tournament.championPlayers ?? [];
   const compact = variant === "compact";
@@ -271,6 +274,9 @@ function buildStatItems(tournament, ctx) {
   if (!compact) {
     push("MATCH TYPE", tournament.matchType);
   }
+  if (!compact && tournament.platform) {
+    push("PLATFORM", tournament.platform);
+  }
   if (!compact && tournament.registrationLimit != null) {
     push("PLAYERS", tournament.registrationLimit);
   }
@@ -280,13 +286,10 @@ function buildStatItems(tournament, ctx) {
   if (capacity != null) {
     push("REGISTERED PLAYERS", `${tournament.confirmedCount ?? registered} / ${capacity}`);
   }
-  if (
-    !compact &&
-    (tournament.reserveLimit != null || tournament.reserveCount != null)
-  ) {
+  if (!compact && Number(tournament.reserveLimit) > 0) {
     push(
       "RESERVE PLAYERS",
-      `${tournament.reserveCount ?? 0} / ${tournament.reserveLimit ?? 4}`,
+      `${tournament.reserveCount ?? 0} / ${tournament.reserveLimit}`,
       { tooltip: true }
     );
   }
@@ -295,10 +298,21 @@ function buildStatItems(tournament, ctx) {
   }
   if (showFreeEntry) {
     push("ENTRY", tournament.entryFee?.trim() || "Free", { gold: true });
-  } else if (tournament.prizePool) {
+  } else if (tournament.prizePool || hasCashPrize) {
     push(compact ? "PRIZE" : "PRIZE POOL", tournament.prizePool, { gold: true });
   }
-  if (isShowdown) {
+  if (hasCashPrize && Number(tournament.prizePerConfirmed) > 0 && !compact) {
+    const per = Number(tournament.prizePerConfirmed);
+    const maxPool =
+      capacity != null ? `₹${(capacity * per).toLocaleString("en-IN")}` : null;
+    push(
+      "PRIZE RULE",
+      maxPool ? `₹${per.toLocaleString("en-IN")} × confirmed · up to ${maxPool}` : `₹${per.toLocaleString("en-IN")} × confirmed`
+    );
+  }
+  if (tournament.rewards) {
+    push("REWARDS", compact ? "DGL Points" : tournament.rewards, { gold: true });
+  } else if (isShowdown) {
     push(
       "REWARDS",
       compact ? "DGL Points" : "DGL Points • Hall of Titans Recognition",
@@ -309,7 +323,12 @@ function buildStatItems(tournament, ctx) {
     push("ENTRY", tournament.entryFee);
   }
   if (tournament.startsAt) {
-    push("TOURNAMENT START", formatTournamentStartDate(tournament.startsAt));
+    push(
+      tournament.endsAt ? "EVENT WINDOW" : "TOURNAMENT START",
+      tournament.endsAt
+        ? formatTournamentSchedule(tournament.startsAt, tournament.endsAt)
+        : formatTournamentStartDate(tournament.startsAt)
+    );
   }
 
   return items;

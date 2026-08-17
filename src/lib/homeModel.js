@@ -14,6 +14,7 @@ const GAME_EMOJI = {
   "marvel-rivals": "🦸",
   "rocket-league": "🚗",
   "league-of-legends": "⚔️",
+  f1: "🏎️",
 };
 
 /**
@@ -37,6 +38,7 @@ export const HOME_FEATURED_GAME_IDS = [
   "marvel-rivals",
   "rocket-league",
   "league-of-legends",
+  "f1",
   "among-us",
 ];
 
@@ -48,6 +50,7 @@ export const HOME_GAME_TAGLINES = {
   "marvel-rivals": "Hero team battles in the multi-game lineup.",
   "rocket-league": "High-speed sports action on the DGL roadmap.",
   "league-of-legends": "5v5 MOBA ready for DGL community and Signature events.",
+  f1: "Competitive hotlap time trials on the DGL circuit.",
   "among-us": "Social deduction party game for community events.",
 };
 
@@ -98,6 +101,7 @@ const HOME_TOURNAMENT_READY_GAME_IDS = [
   "fc-26",
   "rocket-league",
   "among-us",
+  "f1",
 ];
 
 /**

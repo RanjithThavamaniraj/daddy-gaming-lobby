@@ -52,6 +52,14 @@ export default function GameIcon({ slug }) {
         <circle cx="16" cy="15" r="3" fill="currentColor" />
       </svg>
     ),
+    f1: (
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden>
+        <path d="M6 20h20l-3-8H12L6 20z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <circle cx="11" cy="23" r="3" stroke="currentColor" strokeWidth="2" />
+        <circle cx="21" cy="23" r="3" stroke="currentColor" strokeWidth="2" />
+        <path d="M12 12l3-5h6l2 5" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    ),
     "among-us": (
       <svg viewBox="0 0 32 32" fill="none" aria-hidden>
         <path d="M12 6h6a8 8 0 018 8v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-8a8 8 0 018-8z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />

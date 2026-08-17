@@ -35,3 +35,45 @@ export function normalizePrizePoolDisplay(prizePool) {
   if (!prizePool) return prizePool;
   return formatInrPrize(parsePrizePoolAmount(prizePool));
 }
+
+/**
+ * Dynamic prize-pool rule used by some DGL events:
+ *   confirmed participants × ₹{prizePerConfirmed}
+ * capped at registration_limit × ₹{prizePerConfirmed} (capacity).
+ * Tournaments without prizePerConfirmed keep the stored prize_pool_display.
+ *
+ * @param {object} [input]
+ * @param {string | null | undefined} [input.prizePool]
+ * @param {number | string | null | undefined} [input.prizePerConfirmed]
+ * @param {number | string | null | undefined} [input.confirmedCount]
+ * @param {number | string | null | undefined} [input.registrationLimit]
+ * @returns {number}
+ */
+export function derivePrizePoolAmount({
+  prizePool,
+  prizePerConfirmed,
+  confirmedCount = 0,
+  registrationLimit,
+} = {}) {
+  const per = Number(prizePerConfirmed);
+  if (Number.isFinite(per) && per > 0) {
+    const confirmed = Math.max(0, Number(confirmedCount) || 0);
+    const limit = Number(registrationLimit);
+    const cappedCount =
+      Number.isFinite(limit) && limit > 0 ? Math.min(confirmed, limit) : confirmed;
+    return cappedCount * per;
+  }
+  return parsePrizePoolAmount(prizePool);
+}
+
+/**
+ * @param {Parameters<typeof derivePrizePoolAmount>[0]} [input]
+ * @returns {string | null | undefined}
+ */
+export function resolvePrizePoolDisplay(input = {}) {
+  const per = Number(input.prizePerConfirmed);
+  if (Number.isFinite(per) && per > 0) {
+    return formatInrPrize(derivePrizePoolAmount(input));
+  }
+  return normalizePrizePoolDisplay(input.prizePool);
+}

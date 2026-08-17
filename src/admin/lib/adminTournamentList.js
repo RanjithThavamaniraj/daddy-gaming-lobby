@@ -154,7 +154,7 @@ export function sortAdminTournaments(rows, sortKey) {
   sorted.sort((a, b) => {
     switch (sortKey) {
       case "global_number_asc":
-        return a.globalNumber - b.globalNumber;
+        return (a.globalNumber ?? Number.POSITIVE_INFINITY) - (b.globalNumber ?? Number.POSITIVE_INFINITY);
       case "starts_at_desc":
         return timeValue(b.startsAt) - timeValue(a.startsAt);
       case "starts_at_asc":
@@ -171,7 +171,7 @@ export function sortAdminTournaments(rows, sortKey) {
         return formatAdminStatus(a.status).localeCompare(formatAdminStatus(b.status));
       case "global_number_desc":
       default:
-        return b.globalNumber - a.globalNumber;
+        return (b.globalNumber ?? Number.NEGATIVE_INFINITY) - (a.globalNumber ?? Number.NEGATIVE_INFINITY);
     }
   });
 

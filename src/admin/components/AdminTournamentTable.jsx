@@ -50,7 +50,7 @@ export default function AdminTournamentTable({
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td className="admin-table-mono">{row.tournamentNumber}</td>
+                <td className="admin-table-mono">{row.tournamentNumber ?? "—"}</td>
                 <td className="admin-table-primary">{row.championshipName}</td>
                 <td>{row.game}</td>
                 <td>
@@ -89,7 +89,7 @@ export default function AdminTournamentTable({
         {rows.map((row) => (
           <article key={row.id} className="admin-mobile-card">
             <p className="admin-table-mono" style={{ margin: 0 }}>
-              {row.tournamentNumber}
+                {row.tournamentNumber ?? "—"}
             </p>
             <h3 className="admin-mobile-card-title">{row.championshipName}</h3>
             <span className="admin-status-pill" data-status={row.status}>

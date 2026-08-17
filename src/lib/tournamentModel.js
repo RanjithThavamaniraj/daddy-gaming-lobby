@@ -1,14 +1,14 @@
 import { DGL_POINTS_CUMULATIVE } from "../config/dglPointsConfig";
 import { TOURNAMENT_REGISTRY } from "../config/tournamentRegistry";
-import { normalizePrizePoolDisplay } from "./prizePool";
+import { resolvePrizePoolDisplay } from "./prizePool";
 import { getSeriesLabel, resolveEventAccent } from "../config/eventTypeConfig";
 import { applyLifecycleStatus, isLifecycleClosed } from "./tournamentLifecycle";
 
 /**
  * @typedef {object} TournamentIdentifiers
- * @property {number} globalNumber
+ * @property {number | null} globalNumber
  * @property {number} gameChampionshipNumber
- * @property {string} tournamentNumber - e.g. "Tournament #1"
+ * @property {string | null} tournamentNumber - e.g. "Tournament #1"; null if unnumbered
  * @property {string} championshipName - e.g. "DGL Signature — Valorant Championship #1"
  * @property {string} championshipLabel
  */
@@ -19,7 +19,9 @@ import { applyLifecycleStatus, isLifecycleClosed } from "./tournamentLifecycle";
  * @returns {string}
  */
 export function formatGlobalTournamentNumber(number) {
-  return `Tournament #${number}`;
+  const n = Number(number);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return `Tournament #${n}`;
 }
 
 /** @deprecated Use formatGlobalTournamentNumber */
@@ -51,7 +53,9 @@ export function formatChampionshipName(championshipLabel, gameChampionshipNumber
  * @returns {Map<string, TournamentIdentifiers>}
  */
 export function buildTournamentIdentifierMap(registry) {
-  const sorted = [...registry].sort((a, b) => a.number - b.number);
+  const sorted = [...registry].sort(
+    (a, b) => (a.number ?? Number.POSITIVE_INFINITY) - (b.number ?? Number.POSITIVE_INFINITY)
+  );
   const seriesCounts = new Map();
   /** @type {Map<string, TournamentIdentifiers>} */
   const map = new Map();
@@ -64,15 +68,17 @@ export function buildTournamentIdentifierMap(registry) {
     seriesCounts.set(seriesKey, gameChampionshipNumber);
 
     map.set(tournament.id, {
-      globalNumber: tournament.number,
+      globalNumber: tournament.number ?? null,
       gameChampionshipNumber,
       tournamentNumber: formatGlobalTournamentNumber(tournament.number),
       championshipLabel,
-      championshipName: formatChampionshipName(
-        championshipLabel,
-        gameChampionshipNumber,
-        eventType
-      ),
+      championshipName:
+        tournament.title ??
+        formatChampionshipName(
+          championshipLabel,
+          gameChampionshipNumber,
+          eventType
+        ),
     });
   }
 
@@ -117,15 +123,17 @@ export function enrichTournament(tournament, identifiers) {
   const ids =
     identifiers ??
     getTournamentIdentifiers(tournament.id) ?? {
-      globalNumber: tournament.number,
+      globalNumber: tournament.number ?? null,
       gameChampionshipNumber: 1,
       tournamentNumber: formatGlobalTournamentNumber(tournament.number),
       championshipLabel: tournament.championshipLabel ?? tournament.game,
-      championshipName: formatChampionshipName(
-        tournament.championshipLabel ?? tournament.game,
-        1,
-        eventType
-      ),
+      championshipName:
+        tournament.title ??
+        formatChampionshipName(
+          tournament.championshipLabel ?? tournament.game,
+          1,
+          eventType
+        ),
     };
 
   const championPlayers = sortPlayerNames(tournament.championPlayers ?? []);
@@ -134,19 +142,34 @@ export function enrichTournament(tournament, identifiers) {
   const quarterFinalistPlayers = sortPlayerNames(tournament.quarterFinalistPlayers ?? []);
   const groupStagePlayers = sortPlayerNames(tournament.groupStagePlayers ?? []);
   const slug = tournament.slug ?? null;
+  const confirmedCount = tournament.confirmedCount ?? tournament.registeredCount ?? 0;
+  const prizePerConfirmed = tournament.prizePerConfirmed ?? null;
+  const championshipName = tournament.title ?? ids.championshipName;
 
   return applyLifecycleStatus({
     ...tournament,
     tournamentId: tournament.tournamentId ?? null,
     ...ids,
-    name: ids.championshipName,
-    title: ids.championshipName,
+    championshipName,
+    name: championshipName,
+    title: championshipName,
     eventType,
     seriesLabel: getSeriesLabel(eventType),
     accent: resolveEventAccent(eventType, tournament.accent),
-    prizePool: normalizePrizePoolDisplay(tournament.prizePool),
+    prizePerConfirmed,
+    prizePool: resolvePrizePoolDisplay({
+      prizePool: tournament.prizePool,
+      prizePerConfirmed,
+      confirmedCount,
+      registrationLimit: tournament.registrationLimit,
+    }),
     entryFee: tournament.entryFee ?? null,
     subtitle: tournament.subtitle ?? null,
+    platform: tournament.platform ?? null,
+    endsAt: tournament.endsAt ?? null,
+    rewards: tournament.rewards ?? null,
+    rules: tournament.rules ?? null,
+    confirmedCount,
     reserveLimit: tournament.reserveLimit ?? 4,
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,
@@ -241,7 +264,12 @@ export function toFeaturedShape(tournament) {
     format: tournament.format ?? "—",
     matchType: tournament.matchType ?? "—",
     prizePool: tournament.prizePool ?? "TBA",
+    prizePerConfirmed: tournament.prizePerConfirmed ?? null,
     entryFee: tournament.entryFee ?? null,
+    subtitle: tournament.subtitle ?? null,
+    platform: tournament.platform ?? null,
+    rewards: tournament.rewards ?? null,
+    rules: tournament.rules ?? null,
     status: tournament.status ?? "Coming Soon",
     completedDate: tournament.completedDate,
     accent: tournament.accent,
@@ -252,6 +280,7 @@ export function toFeaturedShape(tournament) {
     reserveLimit: tournament.reserveLimit ?? 4,
     registrationClosesAt: tournament.registrationClosesAt ?? null,
     startsAt: tournament.startsAt ?? null,
+    endsAt: tournament.endsAt ?? null,
     lifecycle: tournament.lifecycle ?? null,
     resultsPath: tournament.resultsPath ?? null,
     resultsSlug: tournament.resultsSlug ?? null,
@@ -496,12 +525,16 @@ export function toUpcomingCardShape(tournament) {
     accent: tournament.accent,
     entryFee: tournament.entryFee ?? null,
     prizePool: tournament.prizePool ?? null,
+    prizePerConfirmed: tournament.prizePerConfirmed ?? null,
     format: tournament.format ?? null,
     matchType: tournament.matchType ?? null,
+    platform: tournament.platform ?? null,
+    rewards: tournament.rewards ?? null,
     resultsPath: tournament.resultsPath ?? null,
     resultsSlug: tournament.resultsSlug ?? null,
     streamUrl: tournament.streamUrl ?? null,
     startsAt: tournament.startsAt ?? null,
+    endsAt: tournament.endsAt ?? null,
     registrationLimit: tournament.registrationLimit ?? null,
     registeredCount: tournament.registeredCount ?? null,
     confirmedCount: tournament.confirmedCount ?? tournament.registeredCount ?? null,

@@ -2962,3 +2962,9 @@ commit;
 
 -- >>> 20260821100000_dgl_valorant_showdown_start_3pm.sql
 -- See supabase/migrations/20260821100000_dgl_valorant_showdown_start_3pm.sql
+
+-- >>> 20260825100000_dgl_f1_hotlap_event.sql
+-- See supabase/migrations/20260825100000_dgl_f1_hotlap_event.sql
+
+-- >>> 20260825110000_dgl_unnumber_fc26_clubs_event.sql
+-- See supabase/migrations/20260825110000_dgl_unnumber_fc26_clubs_event.sql

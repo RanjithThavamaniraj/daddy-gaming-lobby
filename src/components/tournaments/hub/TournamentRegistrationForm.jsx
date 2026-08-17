@@ -32,6 +32,7 @@ export default function TournamentRegistrationForm({
     format,
     matchType,
     prizePool,
+    prizePerConfirmed,
     entryFee,
     gameSlug,
     game,
@@ -40,6 +41,9 @@ export default function TournamentRegistrationForm({
     matchDuration,
     overtimeRule,
     registrationLimit,
+    platform,
+    rewards,
+    rules,
   } = tournament;
 
   const isShowdown = isSaturdayShowdown(eventType);
@@ -159,7 +163,7 @@ export default function TournamentRegistrationForm({
             <span className="value">{matchType}</span>
           </div>
           <div className="info-item">
-            {isShowdown || !prizePool ? (
+            {isShowdown || (!prizePool && !prizePerConfirmed) ? (
               <>
                 <span className="label">Reward</span>
                 <span className="value text-accent">DGL Points</span>
@@ -167,10 +171,22 @@ export default function TournamentRegistrationForm({
             ) : (
               <>
                 <span className="label">Prize Pool</span>
-                <span className="value text-accent">{prizePool}</span>
+                <span className="value text-accent">{prizePool || "₹0"}</span>
               </>
             )}
           </div>
+          {platform ? (
+            <div className="info-item">
+              <span className="label">Platform</span>
+              <span className="value">{platform}</span>
+            </div>
+          ) : null}
+          {rewards ? (
+            <div className="info-item">
+              <span className="label">Rewards</span>
+              <span className="value text-accent">{rewards}</span>
+            </div>
+          ) : null}
           <div className="info-item">
             <span className="label">Entry</span>
             <span className="value">{entryFee || "Free"}</span>
@@ -201,6 +217,17 @@ export default function TournamentRegistrationForm({
           ) : null}
         </div>
       </div>
+
+      {Array.isArray(rules) && rules.length > 0 ? (
+        <div className="register-info">
+          <h3>Event Rules</h3>
+          <ul className="form-hint" style={{ margin: 0, paddingLeft: "1.2rem" }}>
+            {rules.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {isReserveMode ? (
         <div className="reserve-join-banner">

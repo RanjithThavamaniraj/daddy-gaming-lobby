@@ -121,11 +121,13 @@ export function buildCommunityActivity() {
     );
   }
 
-  const nextTournament = [...upcoming].sort((a, b) => a.number - b.number)[0];
+  const nextTournament = [...upcoming].sort(
+    (a, b) => (a.number ?? Number.POSITIVE_INFINITY) - (b.number ?? Number.POSITIVE_INFINITY)
+  )[0];
   if (nextTournament) {
     items.push({
       id: `${nextTournament.id}-coming-soon`,
-      text: `🎮 ${formatGlobalTournamentNumber(nextTournament.globalNumber)} coming soon`,
+      text: `🎮 ${formatGlobalTournamentNumber(nextTournament.globalNumber) ?? nextTournament.championshipName ?? "Upcoming tournament"} coming soon`,
       time: "Upcoming",
       type: "join",
     });

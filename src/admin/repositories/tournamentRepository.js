@@ -10,6 +10,7 @@
  */
 
 import { getSupabaseClient, getSupabaseConfigIssues } from "../../supabase";
+import { formatGlobalTournamentNumber } from "../../lib/tournamentModel";
 import {
   createEmptyTournamentFormValues,
   dateTimeLocalToIso,
@@ -92,7 +93,7 @@ function mapAdminTournamentRow(row) {
     id: row.id,
     slug: row.slug ?? null,
     globalNumber: row.global_number,
-    tournamentNumber: `Tournament #${row.global_number}`,
+    tournamentNumber: formatGlobalTournamentNumber(row.global_number),
     championshipName,
     championshipLabel: row.championship_label,
     gameChampionshipNumber: championshipNumber,
@@ -143,7 +144,7 @@ function mapRowToForm(row) {
     meta: {
       id: row.id,
       globalNumber: row.global_number,
-      tournamentNumber: `Tournament #${row.global_number}`,
+      tournamentNumber: formatGlobalTournamentNumber(row.global_number),
       status: row.status,
       isFeatured: Boolean(row.is_featured),
       isArchived: Boolean(row.is_archived),
@@ -368,6 +369,7 @@ async function nextGlobalNumber() {
   const { data, error } = await requireClient()
     .from("tournaments")
     .select("global_number")
+    .not("global_number", "is", null)
     .order("global_number", { ascending: false })
     .limit(1)
     .maybeSingle();
