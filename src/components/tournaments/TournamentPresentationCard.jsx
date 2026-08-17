@@ -4,7 +4,7 @@ import { Calendar, Trophy } from "lucide-react";
 import GameIcon from "./GameIcon";
 import ReserveInfoTooltip from "./ReserveInfoTooltip";
 import { EVENT_TYPES, getSeriesLabel, isSaturdayShowdown } from "../../config/eventTypeConfig";
-import { parsePrizePoolAmount } from "../../lib/prizePool";
+import { formatInrPrize, parsePrizePoolAmount } from "../../lib/prizePool";
 import {
   deriveTournamentLifecycle,
   formatTournamentSchedule,
@@ -81,6 +81,7 @@ export default function TournamentPresentationCard({
   const compact = variant === "compact";
   const stats = buildStatItems(tournament, {
     compact,
+    isMain: variant === "main",
     isShowdown,
     isRegistrationOpen,
     capacity,
@@ -252,6 +253,7 @@ export default function TournamentPresentationCard({
 function buildStatItems(tournament, ctx) {
   const {
     compact,
+    isMain,
     isShowdown,
     isRegistrationOpen,
     capacity,
@@ -299,16 +301,12 @@ function buildStatItems(tournament, ctx) {
   if (showFreeEntry) {
     push("ENTRY", tournament.entryFee?.trim() || "Free", { gold: true });
   } else if (tournament.prizePool || hasCashPrize) {
-    push(compact ? "PRIZE" : "PRIZE POOL", tournament.prizePool, { gold: true });
-  }
-  if (hasCashPrize && Number(tournament.prizePerConfirmed) > 0 && !compact) {
     const per = Number(tournament.prizePerConfirmed);
-    const maxPool =
-      capacity != null ? `₹${(capacity * per).toLocaleString("en-IN")}` : null;
-    push(
-      "PRIZE RULE",
-      maxPool ? `₹${per.toLocaleString("en-IN")} × confirmed · up to ${maxPool}` : `₹${per.toLocaleString("en-IN")} × confirmed`
-    );
+    const prizeValue =
+      isMain && per > 0 && capacity != null
+        ? `Up to ${formatInrPrize(capacity * per)}`
+        : tournament.prizePool;
+    push(compact ? "PRIZE" : "PRIZE POOL", prizeValue, { gold: true });
   }
   if (tournament.rewards) {
     push("REWARDS", compact ? "DGL Points" : tournament.rewards, { gold: true });
