@@ -312,9 +312,11 @@ export const TOURNAMENT_REGISTRY = [
     game: "Valorant",
     gameSlug: "valorant",
     format: "5v5",
-    matchType: "Best of 3",
+    matchType: "Knockout",
     prizePool: "₹2,000",
     entryFee: "Free",
+    registrationLimit: 30,
+    reserveLimit: 4,
     isFeatured: false,
     // 5 Sep 2026, 4:00 PM IST
     startsAt: "2026-09-05T10:30:00.000Z",
