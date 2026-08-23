@@ -48,6 +48,7 @@ export function getLifecycleDashboardBadge(tournament) {
     (tournament ? deriveTournamentLifecycle(tournament) : LIFECYCLE.COMING_SOON);
 
   if (lifecycle === LIFECYCLE.LIVE) return "LIVE NOW";
+  if (lifecycle === LIFECYCLE.COMING_SOON) return "REGISTRATION COMING SOON";
 
   return String(
     LIFECYCLE_LABEL[lifecycle] ?? LIFECYCLE_LABEL.coming_soon
@@ -151,6 +152,17 @@ export function deriveTournamentLifecycle(tournament, nowMs = Date.now()) {
  * @returns {T & { lifecycle: TournamentLifecycle, status: string }}
  */
 export function applyLifecycleStatus(tournament, nowMs = Date.now()) {
+  const rawDbStatus = String(tournament?.dbStatus ?? "")
+    .trim()
+    .toLowerCase();
+  if (rawDbStatus === "cancelled") {
+    return {
+      ...tournament,
+      lifecycle: LIFECYCLE.COMING_SOON,
+      status: "Cancelled",
+    };
+  }
+
   const lifecycle = deriveTournamentLifecycle(tournament, nowMs);
   return {
     ...tournament,
@@ -303,7 +315,7 @@ export function resolveTournamentLifecycleCta(tournament, options = {}) {
 
   return {
     kind: "coming_soon",
-    label: "COMING SOON",
+    label: "REGISTRATION COMING SOON",
     href: null,
     disabled: true,
   };

@@ -830,6 +830,20 @@ export const tournamentsPageStyles = `
     color: #f59e0b;
   }
 
+  .archived-card {
+    opacity: 0.92;
+  }
+
+  .archived-card .tournament-hub-card-inner {
+    border-color: rgba(156,163,175,0.18);
+  }
+
+  .hub-card-badge-archived {
+    border-color: rgba(239,68,68,0.35);
+    background: rgba(239,68,68,0.1);
+    color: #fca5a5;
+  }
+
   .hub-card-action {
     margin-top: auto;
   }

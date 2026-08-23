@@ -5,10 +5,12 @@
 
 import {
   countActiveTournaments,
+  getArchivedTournaments,
   getCompletedTournaments,
   getUpcomingTournaments,
   selectFeaturedTournament,
   selectNextTournament,
+  toArchivedCardShape,
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
@@ -33,6 +35,8 @@ export const upcomingTournaments = upcoming.map(toUpcomingCardShape);
 
 export const completedTournaments = completed.map(toCompletedCardShape);
 
+export const archivedTournaments = getArchivedTournaments().map(toArchivedCardShape);
+
 /**
  * Resolves Main Event vs Next Tournament vs Upcoming vs Completed archive
  * for the tournaments hub. Neither the featured nor the next tournament is
@@ -44,6 +48,7 @@ export function getTournamentsPageLayout({
   next = nextTournament,
   upcoming: upcomingList = upcomingTournaments,
   completed: completedList = completedTournaments,
+  archived: archivedList = archivedTournaments,
   activeTournamentCount = countActiveTournaments(all),
   openRegistrationCount = activeTournamentCount,
 } = {}) {
@@ -63,6 +68,8 @@ export function getTournamentsPageLayout({
     upcomingDisplay,
     showCompletedArchive: archivedCompleted.length > 0,
     archivedCompleted,
+    showArchivedEvents: archivedList.length > 0,
+    archivedEvents: archivedList,
     activeTournamentCount,
     openRegistrationCount,
   };

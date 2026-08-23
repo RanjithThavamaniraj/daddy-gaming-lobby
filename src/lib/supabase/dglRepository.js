@@ -17,16 +17,19 @@ import {
   parsePlayerNameList,
 } from "./mapTournament";
 import {
+  getArchivedTournaments,
   getCompletedTournaments,
   getTournamentBySlug,
   getUpcomingTournaments,
   selectFeaturedTournament,
   selectNextTournament,
+  toArchivedCardShape,
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
   countActiveTournaments,
   compareTournamentsByCompletedDateDesc,
+  isTournamentArchived,
 } from "../tournamentModel";
 import { buildHomeCommunityProof, buildLatestPlatformUpdate, formatNextEventTitle } from "../homeModel";
 import {
@@ -225,17 +228,28 @@ export async function fetchAllTournaments() {
     return tournaments.map((row) =>
       mapEnrichedTournamentRow(row, resultsById.get(row.id))
     );
-  }, () => [...getCompletedTournaments(), ...getUpcomingTournaments()]);
+  }, () => [...getCompletedTournaments(), ...getUpcomingTournaments(), ...getArchivedTournaments()]);
 }
 
 /**
  * @param {ReturnType<typeof mapEnrichedTournamentRow>[]} tournaments
  */
 function partitionTournaments(tournaments) {
-  const completed = tournaments
+  const active = tournaments.filter((t) => !isTournamentArchived(t));
+  const archived = tournaments
+    .filter((t) => isTournamentArchived(t))
+    .sort((a, b) => {
+      const aMs = a.startsAt ? Date.parse(a.startsAt) : Number.NaN;
+      const bMs = b.startsAt ? Date.parse(b.startsAt) : Number.NaN;
+      if (!Number.isNaN(aMs) && !Number.isNaN(bMs) && aMs !== bMs) {
+        return bMs - aMs;
+      }
+      return (b.globalNumber ?? 0) - (a.globalNumber ?? 0);
+    });
+  const completed = active
     .filter((t) => t.status === "Completed")
     .sort(compareTournamentsByCompletedDateDesc);
-  const upcoming = tournaments.filter(
+  const upcoming = active.filter(
     (t) =>
       t.status === "Coming Soon" ||
       t.status === "Registrations Open" ||
@@ -243,7 +257,7 @@ function partitionTournaments(tournaments) {
       t.status === "Registrations Closed" ||
       t.status === "Live"
   );
-  return { completed, upcoming, all: tournaments };
+  return { completed, upcoming, archived, all: tournaments };
 }
 
 /**
@@ -538,7 +552,7 @@ export async function fetchTournamentsPageLayout() {
       mapEnrichedTournamentRow(row, resultsById.get(row.id))
     );
 
-    const { completed, upcoming } = partitionTournaments(all);
+    const { completed, upcoming, archived } = partitionTournaments(all);
 
     const featuredTournament = selectFeaturedTournament(all);
     const featuredShape = featuredTournament ? toFeaturedShape(featuredTournament) : null;
@@ -548,12 +562,14 @@ export async function fetchTournamentsPageLayout() {
 
     const upcomingTournaments = upcoming.map(toUpcomingCardShape);
     const completedTournaments = completed.map(toCompletedCardShape);
+    const archivedEvents = archived.map(toArchivedCardShape);
 
     return getTournamentsPageLayout({
       featured: featuredShape,
       next: nextShape,
       upcoming: upcomingTournaments,
       completed: completedTournaments,
+      archived: archivedEvents,
       activeTournamentCount: countActiveTournaments(all),
     });
   }, () => getTournamentsPageLayout());

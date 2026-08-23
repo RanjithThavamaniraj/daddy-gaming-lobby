@@ -17,11 +17,15 @@ import { adminTournamentStyles } from "../styles/adminTournamentStyles";
 export default function AdminTournaments() {
   useAdmin();
 
-  const { tournaments, loading, error, reload } = useAdminTournamentData();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [sort, setSort] = useState("global_number_desc");
   const [page, setPage] = useState(1);
+  const includeArchived = status === "archived";
+
+  const { tournaments, loading, error, reload } = useAdminTournamentData({
+    includeArchived,
+  });
 
   useEffect(() => {
     setPage(1);

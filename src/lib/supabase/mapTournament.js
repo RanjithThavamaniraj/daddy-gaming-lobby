@@ -113,6 +113,7 @@ export function mapEnrichedTournamentRow(row, resultsRow) {
     completedDate: row.completed_date_label ?? undefined,
     completedAt: row.completed_at ?? null,
     isFeatured: row.is_featured ?? false,
+    isArchived: row.is_archived ?? false,
     eventType,
     seriesLabel: getSeriesLabel(eventType),
     accent: resolveEventAccent(eventType, row.accent_color ?? row.game_accent ?? "#a855f7"),

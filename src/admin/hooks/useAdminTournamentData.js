@@ -8,7 +8,7 @@ import {
 /**
  * Loads the admin tournament list via the repository only.
  */
-export function useAdminTournamentData() {
+export function useAdminTournamentData({ includeArchived = false } = {}) {
   const [tournaments, setTournaments] = useState(
     /** @type {import("../lib/adminTournamentList").AdminTournamentRow[]} */ ([])
   );
@@ -20,7 +20,7 @@ export function useAdminTournamentData() {
     setError(null);
 
     try {
-      const list = await listTournaments({ includeArchived: false });
+      const list = await listTournaments({ includeArchived });
       setTournaments(list);
     } catch (err) {
       setTournaments([]);
@@ -28,7 +28,7 @@ export function useAdminTournamentData() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [includeArchived]);
 
   useEffect(() => {
     reload();

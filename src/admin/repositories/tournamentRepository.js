@@ -995,6 +995,28 @@ export async function archiveTournament(id, { userId = null } = {}) {
 }
 
 /**
+ * Restore an archived tournament (same record — no duplicate).
+ * @param {string} id
+ * @param {{ userId?: string | null }} [options]
+ */
+export async function restoreTournament(id, { userId = null } = {}) {
+  const row = await requireTournamentRow(id);
+
+  if (!row.is_archived) {
+    throw new TournamentValidationError(
+      {},
+      "This tournament is not archived."
+    );
+  }
+
+  return applyTournamentPatch(
+    id,
+    { is_archived: false },
+    { userId }
+  );
+}
+
+/**
  * Cancel → cancelled status.
  * @param {string} id
  * @param {{ userId?: string | null }} [options]

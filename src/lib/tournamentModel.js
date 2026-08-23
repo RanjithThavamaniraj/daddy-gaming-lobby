@@ -2,7 +2,11 @@ import { DGL_POINTS_CUMULATIVE } from "../config/dglPointsConfig";
 import { TOURNAMENT_REGISTRY } from "../config/tournamentRegistry";
 import { resolvePrizePoolDisplay } from "./prizePool";
 import { getSeriesLabel, resolveEventAccent } from "../config/eventTypeConfig";
-import { applyLifecycleStatus, isLifecycleClosed } from "./tournamentLifecycle";
+import {
+  applyLifecycleStatus,
+  formatTournamentSchedule,
+  isLifecycleClosed,
+} from "./tournamentLifecycle";
 
 /**
  * @typedef {object} TournamentIdentifiers
@@ -171,6 +175,8 @@ export function enrichTournament(tournament, identifiers) {
     rules: tournament.rules ?? null,
     confirmedCount,
     reserveLimit: tournament.reserveLimit ?? 4,
+    isFeatured: tournament.isFeatured ?? false,
+    isArchived: tournament.isArchived ?? false,
     resultsPath: slug ? `/tournaments/${slug}` : null,
     resultsSlug: slug,
     championPlayers,
@@ -207,16 +213,40 @@ export function getCompletedTournaments() {
     .sort(compareTournamentsByCompletedDateDesc);
 }
 
+/**
+ * @param {object | null | undefined} tournament
+ * @returns {boolean}
+ */
+export function isTournamentArchived(tournament) {
+  return Boolean(tournament?.isArchived);
+}
+
+/**
+ * @param {Array<object | null | undefined>} tournaments
+ * @returns {ReturnType<typeof enrichTournament>[]}
+ */
+export function excludeArchivedTournaments(tournaments) {
+  return (tournaments ?? []).filter((t) => t && !isTournamentArchived(t));
+}
+
 /** @returns {ReturnType<typeof enrichTournament>[]} */
 export function getUpcomingTournaments() {
   return getAllTournaments().filter(
     (t) =>
-      t.status === "Coming Soon" ||
-      t.status === "Registrations Open" ||
-      t.status === "Registration Closed" ||
-      t.status === "Registrations Closed" ||
-      t.status === "Live"
+      !isTournamentArchived(t) &&
+      (t.status === "Coming Soon" ||
+        t.status === "Registrations Open" ||
+        t.status === "Registration Closed" ||
+        t.status === "Registrations Closed" ||
+        t.status === "Live")
   );
+}
+
+/** @returns {ReturnType<typeof enrichTournament>[]} */
+export function getArchivedTournaments() {
+  return getAllTournaments()
+    .filter((t) => isTournamentArchived(t))
+    .sort((a, b) => compareTournamentsByStartDate(b, a));
 }
 
 /**
@@ -373,29 +403,30 @@ export function compareTournamentsByCompletedDateDesc(a, b) {
  * @returns {ReturnType<typeof enrichTournament> | null}
  */
 export function selectFeaturedTournament(tournaments) {
-  if (!tournaments?.length) return null;
+  const visible = excludeArchivedTournaments(tournaments);
+  if (!visible.length) return null;
 
-  const featured = tournaments
+  const featured = visible
     .filter((t) => t.isFeatured)
     .sort((a, b) => (a.globalNumber ?? 0) - (b.globalNumber ?? 0))[0];
   if (featured) return featured;
 
-  const live = tournaments
+  const live = visible
     .filter((t) => t.status === "Live")
     .sort(compareTournamentsByStartDate)[0];
   if (live) return live;
 
-  const open = tournaments
+  const open = visible
     .filter((t) => t.status === "Registrations Open")
     .sort(compareTournamentsByStartDate)[0];
   if (open) return open;
 
-  const closed = tournaments
+  const closed = visible
     .filter((t) => isLifecycleClosed(t) || t.status === "Registrations Closed")
     .sort(compareTournamentsByStartDate)[0];
   if (closed) return closed;
 
-  const completed = tournaments
+  const completed = visible
     .filter((t) => t.status === "Completed")
     .sort((a, b) => (b.globalNumber ?? 0) - (a.globalNumber ?? 0))[0];
   return completed ?? null;
@@ -410,9 +441,10 @@ export function selectFeaturedTournament(tournaments) {
  * @returns {ReturnType<typeof enrichTournament> | null}
  */
 export function selectNextTournament(tournaments, mainEvent) {
-  if (!tournaments?.length) return null;
+  const visible = excludeArchivedTournaments(tournaments);
+  if (!visible.length) return null;
 
-  const candidates = tournaments.filter(
+  const candidates = visible.filter(
     (t) =>
       t.status !== "Completed" &&
       t.status !== "Cancelled" &&
@@ -458,6 +490,7 @@ export function countActiveTournaments(tournaments) {
     const status = String(tournament.status ?? "");
     const dbStatus = String(tournament.dbStatus ?? "");
     if (
+      isTournamentArchived(tournament) ||
       status === "Completed" ||
       status === "Cancelled" ||
       status === "Draft" ||
@@ -507,6 +540,31 @@ export function toCompletedCardShape(tournament) {
  * Upcoming tournament card shape for hub and dashboard widgets.
  * @param {ReturnType<typeof enrichTournament>} tournament
  */
+/**
+ * Archived card shape for the public archive section.
+ * @param {ReturnType<typeof enrichTournament>} tournament
+ */
+export function toArchivedCardShape(tournament) {
+  const rawDbStatus = String(tournament.dbStatus ?? "").trim().toLowerCase();
+  const notConducted =
+    rawDbStatus === "cancelled" || tournament.status === "Cancelled";
+
+  return {
+    id: tournament.id,
+    title: tournament.title,
+    game: tournament.game,
+    gameSlug: tournament.gameSlug,
+    eventType: tournament.eventType ?? "championship",
+    accent: tournament.accent,
+    startsAt: tournament.startsAt ?? null,
+    scheduledLabel: formatTournamentSchedule(
+      tournament.startsAt,
+      tournament.endsAt
+    ),
+    archiveLabel: notConducted ? "Not Conducted" : "Archived",
+  };
+}
+
 export function toUpcomingCardShape(tournament) {
   return {
     id: tournament.id,

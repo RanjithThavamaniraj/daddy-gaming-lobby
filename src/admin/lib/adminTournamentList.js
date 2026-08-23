@@ -31,6 +31,7 @@ export const ADMIN_TOURNAMENT_STATUS_OPTIONS = [
   { value: "active", label: "Active / Live" },
   { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },
+  { value: "archived", label: "Archived" },
 ];
 
 export const ADMIN_TOURNAMENT_SORT_OPTIONS = [
@@ -130,7 +131,10 @@ export function filterTournamentsBySearch(rows, query) {
  */
 export function filterTournamentsByStatus(rows, status) {
   if (!status || status === "all") return rows;
-  return rows.filter((row) => row.status === status);
+  if (status === "archived") {
+    return rows.filter((row) => row.isArchived);
+  }
+  return rows.filter((row) => row.status === status && !row.isArchived);
 }
 
 /**

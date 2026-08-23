@@ -16,6 +16,7 @@ import {
   featureTournament,
   openRegistration,
   publishTournament,
+  restoreTournament,
   startTournament,
 } from "../repositories/tournamentRepository";
 import { formatAdminStatus } from "../lib/adminTournamentList";
@@ -30,6 +31,7 @@ const ACTION_HANDLERS = {
   archiveTournament,
   cancelTournament,
   duplicateTournament,
+  restoreTournament,
 };
 
 /**
@@ -81,6 +83,12 @@ export default function AdminTournamentLifecyclePanel({
         setMessage("Tournament archived.");
         await onChanged();
         navigate("/admin/tournaments");
+        return;
+      }
+
+      if (actionId === "restoreTournament") {
+        setMessage("Tournament restored from archive.");
+        await onChanged();
         return;
       }
 

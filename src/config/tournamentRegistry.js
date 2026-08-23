@@ -23,12 +23,13 @@
  * @property {string} [prizePool]
  * @property {number} [prizePerConfirmed] - ₹ per confirmed participant (dynamic prize pool)
  * @property {boolean} [isFeatured]
+ * @property {boolean} [isArchived]
  * @property {string} [title] - Overrides generated championship name
  * @property {string} [platform]
  * @property {string} [endsAt]
  * @property {string} [rewards]
  * @property {string} [entryFee] - Display string e.g. "Free"
- * @property {"Completed"|"Coming Soon"|"Registrations Open"|"Live"} status
+ * @property {"Completed"|"Coming Soon"|"Registrations Open"|"Live"|"Cancelled"} status
  * @property {string} [completedDate]
  * @property {string} accent
  * @property {string[]} [championPlayers]
@@ -240,6 +241,7 @@ export const TOURNAMENT_REGISTRY = [
     // 29 Aug 2026, 7:30 PM IST
     startsAt: "2026-08-29T14:00:00.000Z",
     registrationClosesAt: "2026-08-29T13:00:00.000Z",
+    isFeatured: true,
     status: "Registrations Open",
     accent: "#f5c518",
   },
@@ -264,7 +266,8 @@ export const TOURNAMENT_REGISTRY = [
     // 22 Aug 2026, 4:00 PM IST – 7:00 PM IST
     startsAt: "2026-08-22T10:30:00.000Z",
     registrationClosesAt: "2026-08-22T09:30:00.000Z",
-    status: "Registrations Open",
+    status: "Cancelled",
+    isArchived: true,
     isFeatured: false,
     accent: "#00c853",
   },
@@ -283,7 +286,8 @@ export const TOURNAMENT_REGISTRY = [
     subtitle: "Track: To Be Announced",
     platform: "PC / PS5 / Xbox",
     prizePerConfirmed: 100,
-    isFeatured: true,
+    isFeatured: false,
+    isArchived: true,
     registrationLimit: 20,
     reserveLimit: 0,
     matchDuration: "4 Hours",
@@ -298,8 +302,23 @@ export const TOURNAMENT_REGISTRY = [
     startsAt: "2026-08-22T12:30:00.000Z",
     endsAt: "2026-08-22T16:30:00.000Z",
     registrationClosesAt: "2026-08-22T11:30:00.000Z",
-    status: "Registrations Open",
+    status: "Cancelled",
     accent: "#e10600",
   },
-  // Future: number 10 — gameSlug "valorant" → DGL Signature — Valorant Championship #2
+  {
+    number: 9,
+    id: "dgl-valorant-championship-2",
+    slug: "valorant-2",
+    game: "Valorant",
+    gameSlug: "valorant",
+    format: "5v5",
+    matchType: "Best of 3",
+    prizePool: "₹2,000",
+    entryFee: "Free",
+    isFeatured: false,
+    // 5 Sep 2026, 4:00 PM IST
+    startsAt: "2026-09-05T10:30:00.000Z",
+    status: "Coming Soon",
+    accent: "#ff4655",
+  },
 ];

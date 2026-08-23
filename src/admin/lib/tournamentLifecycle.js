@@ -11,6 +11,7 @@
 
 /**
  * @param {TournamentLifecycleMeta | null | undefined} meta
+ * @property {boolean} [isArchived]
  * @returns {{
  *   publish: boolean,
  *   openRegistration: boolean,
@@ -19,6 +20,7 @@
  *   completeTournament: boolean,
  *   featureTournament: boolean,
  *   archiveTournament: boolean,
+ *   restoreTournament: boolean,
  *   cancelTournament: boolean,
  *   duplicateTournament: boolean,
  * }}
@@ -28,23 +30,37 @@ export function getAvailableLifecycleActions(meta) {
   const isArchived = Boolean(meta?.isArchived);
   const isFeatured = Boolean(meta?.isFeatured);
 
-  const canMutateStatus = !isArchived && status !== "cancelled" && status !== "completed";
+  if (isArchived) {
+    return {
+      publish: false,
+      openRegistration: false,
+      closeRegistration: false,
+      startTournament: false,
+      completeTournament: false,
+      featureTournament: false,
+      archiveTournament: false,
+      restoreTournament: true,
+      cancelTournament: false,
+      duplicateTournament: true,
+    };
+  }
+
+  const canMutateStatus = status !== "cancelled" && status !== "completed";
 
   return {
-    publish: !isArchived && status === "draft",
-    openRegistration: !isArchived && status === "coming_soon",
-    closeRegistration: !isArchived && status === "registration_open",
+    publish: status === "draft",
+    openRegistration: status === "coming_soon",
+    closeRegistration: status === "registration_open",
     startTournament:
-      !isArchived &&
-      (status === "registration_open" || status === "registration_closed"),
-    completeTournament: !isArchived && status === "active",
+      status === "registration_open" || status === "registration_closed",
+    completeTournament: status === "active",
     featureTournament:
-      !isArchived &&
       !isFeatured &&
       ["coming_soon", "registration_open", "registration_closed", "active"].includes(
         status
       ),
-    archiveTournament: !isArchived,
+    archiveTournament: true,
+    restoreTournament: false,
     cancelTournament: canMutateStatus,
     duplicateTournament: true,
   };
@@ -89,6 +105,12 @@ export const LIFECYCLE_ACTION_DEFS = [
     description: "Hide from admin lists (status unchanged)",
     tone: "danger",
     confirm: "Archive this tournament? Status will not change.",
+  },
+  {
+    id: "restoreTournament",
+    label: "Restore",
+    description: "Return to admin lists without creating a new record",
+    confirm: "Restore this tournament from the archive?",
   },
   {
     id: "cancelTournament",

@@ -8,6 +8,7 @@ import FeaturedTournament from "../components/tournaments/FeaturedTournament";
 import NextTournamentCard from "../components/tournaments/NextTournamentCard";
 import UpcomingTournamentCard from "../components/tournaments/UpcomingTournamentCard";
 import CompletedTournamentCard from "../components/tournaments/CompletedTournamentCard";
+import ArchivedTournamentCard from "../components/tournaments/ArchivedTournamentCard";
 import { getTournamentsPageLayout } from "../config/tournamentConfig";
 import { fetchTournamentsPageLayout } from "../lib/supabase/dglRepository";
 import { PAGE_META } from "../config/siteConfig";
@@ -24,6 +25,8 @@ export default function Tournaments() {
     upcomingDisplay,
     showCompletedArchive,
     archivedCompleted,
+    showArchivedEvents,
+    archivedEvents,
     openRegistrationCount = 0,
     activeTournamentCount = openRegistrationCount,
   } = layout;
@@ -78,6 +81,20 @@ export default function Tournaments() {
                 <div className="hub-cards-grid">
                   {archivedCompleted.map((tournament, index) => (
                     <CompletedTournamentCard
+                      key={tournament.id}
+                      tournament={{ ...tournament, index }}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {showArchivedEvents ? (
+              <section className="archived-section">
+                <h2 className="section-heading">Archived Events</h2>
+                <div className="hub-cards-grid">
+                  {archivedEvents.map((tournament, index) => (
+                    <ArchivedTournamentCard
                       key={tournament.id}
                       tournament={{ ...tournament, index }}
                     />
