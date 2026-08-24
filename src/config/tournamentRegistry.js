@@ -315,7 +315,7 @@ export const TOURNAMENT_REGISTRY = [
     matchType: "Knockout",
     prizePool: "₹2,000",
     entryFee: "Free",
-    registrationLimit: 30,
+    registrationLimit: 40,
     reserveLimit: 4,
     isFeatured: false,
     // 5 Sep 2026, 4:00 PM IST
