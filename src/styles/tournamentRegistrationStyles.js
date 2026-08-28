@@ -471,6 +471,91 @@ html, body {
   border-radius: 4px;
 }
 
+.registration-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.registration-mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.registration-mode-card:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-2px);
+}
+
+.registration-mode-card.disabled,
+.registration-mode-card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.registration-mode-card .mode-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.registration-mode-card .mode-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.registration-mode-card .mode-copy {
+  font-size: 0.95rem;
+  opacity: 0.8;
+}
+
+.registration-mode-back {
+  align-self: flex-start;
+  margin-bottom: 1rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: color-mix(in srgb, var(--accent) 85%, white);
+  font: inherit;
+  cursor: pointer;
+}
+
+.registration-mode-back:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.team-player-block {
+  padding: 1rem 0 0.25rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.team-player-block:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.team-player-title {
+  margin-bottom: 0.75rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 80%, white);
+}
+
 /* Submit button */
 .submit-btn {
   position: relative;

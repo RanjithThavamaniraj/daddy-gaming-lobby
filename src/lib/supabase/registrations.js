@@ -193,6 +193,139 @@ export async function registerForTournament({
   };
 }
 
+/**
+ * Upsert Valorant rank on player_game_profiles.
+ * @param {string} playerId
+ * @param {string} gameId
+ * @param {string} rank
+ */
+async function upsertPlayerGameRank(playerId, gameId, rank) {
+  if (!playerId || !gameId || !rank?.trim()) return;
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from("player_game_profiles").upsert(
+    {
+      player_id: playerId,
+      game_id: gameId,
+      rank_tier: rank.trim(),
+    },
+    { onConflict: "player_id,game_id" }
+  );
+  if (error) {
+    console.warn("player_game_profiles upsert:", error.message);
+  }
+}
+
+/**
+ * Solo registration for Valorant Championship #2 (1 player slot).
+ *
+ * @param {object} params
+ * @returns {Promise<object>}
+ */
+export async function registerValorantSolo({
+  tournamentId,
+  discordUsername,
+  valorantRank,
+  gameId,
+}) {
+  const rank = String(valorantRank ?? "").trim();
+  if (!rank) {
+    throw new Error("Valorant rank is required.");
+  }
+
+  let resolvedGameId = gameId ?? null;
+  if (!resolvedGameId) {
+    const tournamentGame = await resolveTournamentGame(tournamentId);
+    resolvedGameId = tournamentGame.gameId;
+  }
+
+  const result = await registerForTournament({
+    tournamentId,
+    discordUsername,
+    extraFormData: {
+      registration_type: "solo",
+      rank,
+    },
+  });
+
+  if (!result.duplicate && result.playerId && resolvedGameId) {
+    await upsertPlayerGameRank(result.playerId, resolvedGameId, rank);
+  }
+
+  return {
+    ...result,
+    registrationType: "solo",
+  };
+}
+
+/**
+ * Full 5-player team registration for Valorant Championship #2.
+ *
+ * @param {object} params
+ * @param {string} params.tournamentId
+ * @param {string} params.teamName
+ * @param {Array<{ discordUsername: string; rank: string; isCaptain?: boolean }>} params.players
+ * @returns {Promise<object>}
+ */
+export async function registerValorantTeam({
+  tournamentId,
+  teamName,
+  players,
+}) {
+  const supabase = getSupabaseClient();
+  const trimmedTeam = String(teamName ?? "").trim();
+
+  if (!trimmedTeam) {
+    throw new Error("Team name is required.");
+  }
+  if (!Array.isArray(players) || players.length !== 5) {
+    throw new Error("A full team requires exactly 5 players.");
+  }
+
+  const payload = players.map((player, index) => ({
+    discord_username: String(player.discordUsername ?? "").trim(),
+    rank: String(player.rank ?? "").trim(),
+    is_captain: Boolean(player.isCaptain ?? index === 0),
+  }));
+
+  const { data, error } = await supabase.rpc("dgl_register_valorant_team", {
+    p_tournament_id: tournamentId,
+    p_team_name: trimmedTeam,
+    p_players: payload,
+  });
+
+  if (error) {
+    const msg = error.message || "";
+    if (/registrations?\s+closed/i.test(msg)) {
+      throw new Error("Registrations Closed");
+    }
+    if (/tournament full/i.test(msg)) {
+      throw new Error("Tournament Full");
+    }
+    if (/already registered/i.test(msg)) {
+      throw new Error(msg);
+    }
+    if (/not enough capacity|not enough main capacity/i.test(msg)) {
+      throw new Error(
+        "Not enough main capacity for a full team. Teams require 5 available main player slots."
+      );
+    }
+    throw new Error(msg || "Team registration failed. Please try again.");
+  }
+
+  const status = data?.status ?? "confirmed";
+  return {
+    registrationType: "team",
+    teamName: data?.team_name ?? trimmedTeam,
+    teamId: data?.team_id ?? null,
+    registrationGroupId: data?.registration_group_id ?? null,
+    registrationIds: data?.registration_ids ?? [],
+    playerCount: Number(data?.player_count ?? 5),
+    status,
+    isReserve: Boolean(data?.is_reserve),
+    duplicate: false,
+  };
+}
+
 export {
   isRegisteredForTournament,
   markRegisteredForTournament,

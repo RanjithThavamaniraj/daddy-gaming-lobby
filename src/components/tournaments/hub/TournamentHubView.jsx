@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   registerForTournament,
+  registerValorantSolo,
+  registerValorantTeam,
   markRegisteredForTournament,
   fetchTournamentRoster,
   fetchTournamentParticipants,
@@ -17,6 +19,7 @@ import MatchSchedule from "./MatchSchedule";
 import LiveResults from "./LiveResults";
 import FinalStandings from "./FinalStandings";
 import TournamentRegistrationForm from "./TournamentRegistrationForm";
+import ValorantRegistrationForm from "./ValorantRegistrationForm";
 import useTournamentBracket from "../../../hooks/useTournamentBracket";
 import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistrationStyles";
 import { registeredPlayersStyles } from "../../../styles/playerProfilePageStyles";
@@ -58,6 +61,7 @@ export default function TournamentHubView({ tournament }) {
   const [regStatus, setRegStatus] = useState("idle");
   const [lastRegistrantNumber, setLastRegistrantNumber] = useState(null);
   const [joinedAsReserve, setJoinedAsReserve] = useState(false);
+  const [registrationSummary, setRegistrationSummary] = useState(null);
 
   const loadBracket =
     Boolean(tournament.tournamentId) &&
@@ -183,6 +187,8 @@ export default function TournamentHubView({ tournament }) {
     ? participantCount || confirmedCount
     : confirmedCount;
 
+  const isValorantChampionship2 = tournament.slug === "valorant-2";
+
   const handleRegister = async (payload) => {
     const result = await registerForTournament(payload);
     markRegisteredForTournament(
@@ -199,6 +205,63 @@ export default function TournamentHubView({ tournament }) {
       : null;
     setLastRegistrantNumber(registrantNumber);
     setJoinedAsReserve(Boolean(result.isReserve));
+    setRegistrationSummary(null);
+    setRegStatus("success");
+  };
+
+  const handleValorantRegister = async (payload) => {
+    const tournamentKey =
+      tournament.tournamentId || tournament.slug || tournament.id;
+    let result;
+
+    if (payload.registrationType === "team") {
+      result = await registerValorantTeam({
+        tournamentId: payload.tournamentId,
+        teamName: payload.teamName,
+        players: payload.players,
+      });
+    } else {
+      result = await registerValorantSolo({
+        tournamentId: payload.tournamentId,
+        discordUsername: payload.discordUsername,
+        valorantRank: payload.valorantRank,
+        gameId: tournament.gameId ?? null,
+      });
+    }
+
+    if (result.duplicate) {
+      throw new Error("This player is already registered for this tournament.");
+    }
+
+    markRegisteredForTournament(tournamentKey);
+    const next = await refreshRoster(tournament.tournamentId);
+
+    if (payload.registrationType === "team") {
+      setRegistrationSummary({
+        registrationType: "team",
+        teamName: result.teamName,
+        playerCount: result.playerCount,
+        isReserve: Boolean(result.isReserve),
+      });
+      setLastRegistrantNumber(null);
+    } else {
+      const trimmed = String(payload.discordUsername || "")
+        .trim()
+        .toLowerCase();
+      const list = result.isReserve ? next?.reserves : next?.confirmed;
+      const registrantNumber = list
+        ? list.map((r) => r.name.trim().toLowerCase()).lastIndexOf(trimmed) +
+            1 || list.length
+        : null;
+      setRegistrationSummary({
+        registrationType: "solo",
+        playerName: payload.discordUsername,
+        isReserve: Boolean(result.isReserve),
+      });
+      setLastRegistrantNumber(registrantNumber);
+    }
+
+    setJoinedAsReserve(Boolean(result.isReserve));
     setRegStatus("success");
   };
 
@@ -214,6 +277,7 @@ export default function TournamentHubView({ tournament }) {
           isReserve={joinedAsReserve}
           reserveCount={reserveCount}
           reserveLimit={reserveLimit}
+          registrationSummary={registrationSummary}
         />
       </>
     );
@@ -250,16 +314,29 @@ export default function TournamentHubView({ tournament }) {
             {showRegistrationForm ? (
               <div className="register-card">
                 <div className="register-body">
-                  <TournamentRegistrationForm
-                    tournament={liveTournament}
-                    capacity={capacity}
-                    registrationCount={confirmedCount}
-                    reserveCount={reserveCount}
-                    reserveLimit={reserveLimit}
-                    isReserveMode={isReserveMode}
-                    tournamentFull={mainFull && reserveFull}
-                    onSubmit={handleRegister}
-                  />
+                  {isValorantChampionship2 ? (
+                    <ValorantRegistrationForm
+                      tournament={liveTournament}
+                      capacity={capacity}
+                      registrationCount={confirmedCount}
+                      reserveCount={reserveCount}
+                      reserveLimit={reserveLimit}
+                      isReserveMode={isReserveMode}
+                      tournamentFull={mainFull && reserveFull}
+                      onSubmit={handleValorantRegister}
+                    />
+                  ) : (
+                    <TournamentRegistrationForm
+                      tournament={liveTournament}
+                      capacity={capacity}
+                      registrationCount={confirmedCount}
+                      reserveCount={reserveCount}
+                      reserveLimit={reserveLimit}
+                      isReserveMode={isReserveMode}
+                      tournamentFull={mainFull && reserveFull}
+                      onSubmit={handleRegister}
+                    />
+                  )}
                 </div>
               </div>
             ) : null}

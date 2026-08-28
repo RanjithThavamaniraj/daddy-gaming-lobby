@@ -18,6 +18,7 @@ import { DISCORD_INVITE_URL } from "../../../config/siteConfig";
  * @param {boolean} [props.isReserve]
  * @param {number} [props.reserveCount]
  * @param {number} [props.reserveLimit]
+ * @param {object | null} [props.registrationSummary]
  */
 export default function TournamentRegistrationSuccess({
   tournament,
@@ -27,13 +28,14 @@ export default function TournamentRegistrationSuccess({
   isReserve = false,
   reserveCount = 0,
   reserveLimit = 4,
+  registrationSummary = null,
 }) {
   const gameSlug = tournament.gameSlug ?? (tournament.game ? tournament.game.toLowerCase().replace(/\s+/g, "-") : "dgl");
   const accent = tournament.accent || "#a855f7";
 
   const hasStats = capacity != null && registrationCount != null;
-  const slotsRemaining = hasStats ? Math.max(0, capacity - registrationCount) : null;
   const progressPct = hasStats ? Math.min(100, (registrationCount / capacity) * 100) : 0;
+  const isTeamRegistration = registrationSummary?.registrationType === "team";
 
   return (
     <>
@@ -60,7 +62,9 @@ export default function TournamentRegistrationSuccess({
                 <p className="success-message">
                   {isReserve
                     ? "You are joining the Reserve List. Reserve players are invited if a confirmed player withdraws before the tournament begins."
-                    : "Thank you for registering. Your spot has been successfully reserved."}
+                    : isTeamRegistration
+                      ? `Your team "${registrationSummary?.teamName}" has been registered successfully. All 5 players are confirmed in the main roster.`
+                      : "Thank you for registering. Your spot has been successfully reserved."}
                 </p>
                 <p className="success-copy">
                   Please stay active in the Daddy Gaming Lobby Discord server for tournament announcements,
@@ -70,12 +74,18 @@ export default function TournamentRegistrationSuccess({
                 {hasStats && (
                   <div className="registration-status">
                     <div className="registration-status-row">
-                      <span>Players Registered: <span className="value">{registrationCount} / {capacity}</span></span>
-                      {isReserve ? (
-                        <span>Reserve: <span className="value">{reserveCount} / {reserveLimit}</span></span>
-                      ) : (
-                        <span>Remaining Slots: <span className="value">{slotsRemaining}</span></span>
-                      )}
+                      <span>
+                        Main Players:{" "}
+                        <span className="value">
+                          {registrationCount} / {capacity}
+                        </span>
+                      </span>
+                      <span>
+                        Reserve:{" "}
+                        <span className="value">
+                          {reserveCount} / {reserveLimit}
+                        </span>
+                      </span>
                     </div>
                     <div className="registration-progress">
                       <div className="registration-progress-fill" style={{ width: `${progressPct}%` }} />
@@ -83,13 +93,51 @@ export default function TournamentRegistrationSuccess({
                   </div>
                 )}
 
-                {registrantNumber != null && (
+                {registrantNumber != null && !isTeamRegistration ? (
                   <p className="success-registrant">
                     {isReserve
                       ? `You are Reserve #${registrantNumber}`
                       : `You are Registrant #${registrantNumber}`}
                   </p>
-                )}
+                ) : null}
+
+                {registrationSummary ? (
+                  <div className="success-meta">
+                    <div className="success-stat">
+                      <span className="label">Registration Type</span>
+                      <span className="value">
+                        {isTeamRegistration ? "Full Team" : "Solo Player"}
+                      </span>
+                    </div>
+                    {isTeamRegistration ? (
+                      <div className="success-stat">
+                        <span className="label">Team Name</span>
+                        <span className="value">{registrationSummary.teamName}</span>
+                      </div>
+                    ) : (
+                      <div className="success-stat">
+                        <span className="label">Player</span>
+                        <span className="value">
+                          {registrationSummary.playerName}
+                        </span>
+                      </div>
+                    )}
+                    <div className="success-stat">
+                      <span className="label">Roster Status</span>
+                      <span className="value">
+                        {isReserve ? "Reserve" : "Main"}
+                      </span>
+                    </div>
+                    {isTeamRegistration ? (
+                      <div className="success-stat">
+                        <span className="label">Players Registered</span>
+                        <span className="value">
+                          {registrationSummary.playerCount ?? 5}
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
 
                 <div className="success-meta">
                   <div className="success-stat">
