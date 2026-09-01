@@ -22,7 +22,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!robots\\.txt|sitemap\\.xml).*)",
+      "source": "/((?!robots\\.txt|sitemap\\.xml|\\.well-known/discord).*)",
       "destination": "/index.html"
     }
   ]
