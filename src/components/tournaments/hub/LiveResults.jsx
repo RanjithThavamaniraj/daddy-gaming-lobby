@@ -1,4 +1,4 @@
-import PlayerNameLink from "./PlayerNameLink";
+import FixtureSide from "./FixtureSide";
 import { completedFixtures } from "../../../lib/supabase/tournamentBracket";
 
 /**
@@ -27,21 +27,24 @@ export default function LiveResults({ fixtures, loading }) {
               <div className="hub-result-body">
                 <div>
                   <span className="label">Winner</span>
-                  <PlayerNameLink
+                  <FixtureSide
                     player={match.winner}
+                    members={match.winnerMembers}
                     fallback="—"
                     className="hub-player-link hub-winner"
                   />
                 </div>
               </div>
               <div className="hub-result-matchup">
-                <PlayerNameLink
+                <FixtureSide
                   player={match.player1}
+                  members={match.player1Members}
                   fallback={match.player1Placeholder || "TBD"}
                 />
                 <span className="hub-vs">vs</span>
-                <PlayerNameLink
+                <FixtureSide
                   player={match.player2}
+                  members={match.player2Members}
                   fallback={match.player2Placeholder || "TBD"}
                 />
               </div>

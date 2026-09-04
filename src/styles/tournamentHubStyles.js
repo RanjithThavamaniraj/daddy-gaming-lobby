@@ -254,6 +254,10 @@ ${dglLayoutTokens}
   align-items: center;
 }
 
+.hub-match-player:has(.hub-side-roster) {
+  align-items: flex-start;
+}
+
 .hub-match-player.winner .hub-player-link,
 .hub-winner {
   color: #86efac;
@@ -303,6 +307,37 @@ ${dglLayoutTokens}
   gap: 0.45rem 0.7rem;
   align-items: center;
   font-weight: 600;
+}
+
+.hub-side-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.hub-side-roster-title {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  font-weight: 700;
+}
+
+.hub-side-roster-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.hub-schedule-players:has(.hub-side-roster),
+.hub-result-matchup:has(.hub-side-roster) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem 0.75rem;
 }
 
 .hub-result-round {
@@ -365,6 +400,11 @@ ${dglLayoutTokens}
 @media (max-width: 640px) {
   .hub-hero-content { padding: 1.15rem; }
   .hub-schedule-meta { flex-direction: column; gap: 0.35rem; }
+  .hub-schedule-players:has(.hub-side-roster),
+  .hub-result-matchup:has(.hub-side-roster) {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
 }
 
 .reserve-info {

@@ -31,6 +31,9 @@ import { getSupabaseClient, getSupabaseConfigIssues } from "../../supabase";
  *   groupLabel: string | null,
  *   player1TeamIds?: string[],
  *   player2TeamIds?: string[],
+ *   player1Members?: BracketPlayer[],
+ *   player2Members?: BracketPlayer[],
+ *   winnerMembers?: BracketPlayer[],
  * }} TournamentFixture
  * @typedef {{
  *   groups: TournamentGroup[],
@@ -67,23 +70,37 @@ function mapPlayer(row) {
 }
 
 /**
+ * Doubles stay "A + B". Larger rosters use the stored team name; the full
+ * member list is rendered by FixtureSide.
+ * @param {string | null | undefined} teamName
+ * @param {string[]} names
+ * @returns {string}
+ */
+function formatTeamLabel(teamName, names) {
+  if (names.length >= 3) return teamName || names.join(" + ");
+  if (names.length === 2) return `${names[0]} + ${names[1]}`;
+  return names[0] || teamName || "Team";
+}
+
+/**
  * @param {BracketPlayer | null} player
- * @param {Map<string, { label: string, memberIds: string[] }>} teamByPlayerId
- * @returns {{ player: BracketPlayer | null, memberIds: string[] }}
+ * @param {Map<string, { label: string, memberIds: string[], members: BracketPlayer[], teamName: string | null }>} teamByPlayerId
+ * @returns {{ player: BracketPlayer | null, memberIds: string[], members: BracketPlayer[] }}
  */
 function applyTeamSide(player, teamByPlayerId) {
-  if (!player) return { player: null, memberIds: [] };
+  if (!player) return { player: null, memberIds: [], members: [] };
   const team = teamByPlayerId.get(player.id);
-  if (!team) return { player, memberIds: [player.id] };
+  if (!team) return { player, memberIds: [player.id], members: [player] };
   return {
     player: { id: player.id, name: team.label, slug: null },
     memberIds: team.memberIds,
+    members: team.members,
   };
 }
 
 /**
  * @param {object} row
- * @param {Map<string, { label: string, memberIds: string[] }>} [teamByPlayerId]
+ * @param {Map<string, { label: string, memberIds: string[], members: BracketPlayer[], teamName: string | null }>} [teamByPlayerId]
  * @returns {TournamentFixture}
  */
 function mapFixture(row, teamByPlayerId = new Map()) {
@@ -96,12 +113,7 @@ function mapFixture(row, teamByPlayerId = new Map()) {
   const rawWinner = mapPlayer(row.winner);
   const side1 = applyTeamSide(rawPlayer1, teamByPlayerId);
   const side2 = applyTeamSide(rawPlayer2, teamByPlayerId);
-
-  let winner = rawWinner;
-  if (rawWinner && teamByPlayerId.has(rawWinner.id)) {
-    const team = teamByPlayerId.get(rawWinner.id);
-    winner = { id: rawWinner.id, name: team.label, slug: null };
-  }
+  const winnerSide = applyTeamSide(rawWinner, teamByPlayerId);
 
   return {
     id: row.id,
@@ -117,22 +129,27 @@ function mapFixture(row, teamByPlayerId = new Map()) {
     player2Placeholder: row.player2_placeholder ?? null,
     player1: side1.player,
     player2: side2.player,
-    winner,
+    winner: winnerSide.player,
     groupId: row.group_id ?? group?.id ?? null,
     groupLabel: group?.label ?? null,
     player1TeamIds: side1.memberIds,
     player2TeamIds: side2.memberIds,
+    player1Members: side1.members,
+    player2Members: side2.members,
+    winnerMembers: winnerSide.members,
   };
 }
 
 /**
- * Build player_id → doubles team label map for a tournament.
+ * Build player_id → team roster map for a tournament.
+ * Doubles keep an "A + B" label; 3+ member teams keep the stored team name
+ * and the full member list for FixtureSide.
  * @param {import("@supabase/supabase-js").SupabaseClient} client
  * @param {string} tournamentId
- * @returns {Promise<Map<string, { label: string, memberIds: string[] }>>}
+ * @returns {Promise<Map<string, { label: string, memberIds: string[], members: BracketPlayer[], teamName: string | null }>>}
  */
 async function fetchTeamLabelsByPlayerId(client, tournamentId) {
-  /** @type {Map<string, { label: string, memberIds: string[] }>} */
+  /** @type {Map<string, { label: string, memberIds: string[], members: BracketPlayer[], teamName: string | null }>} */
   const map = new Map();
 
   const { data, error } = await client
@@ -143,10 +160,12 @@ async function fetchTeamLabelsByPlayerId(client, tournamentId) {
       name,
       tournament_team_members (
         player_id,
+        joined_at,
         players (
           id,
           display_name,
-          discord_username
+          discord_username,
+          slug
         )
       )
     `
@@ -156,23 +175,40 @@ async function fetchTeamLabelsByPlayerId(client, tournamentId) {
   if (error || !data?.length) return map;
 
   for (const team of data) {
-    const members = team.tournament_team_members ?? [];
-    const names = members
-      .map((m) => {
-        const p = Array.isArray(m.players) ? m.players[0] : m.players;
-        return p?.discord_username || p?.display_name || null;
-      })
-      .filter(Boolean);
-    const memberIds = members
+    const rawMembers = [...(team.tournament_team_members ?? [])];
+    if (rawMembers.length >= 3) {
+      rawMembers.sort((a, b) => {
+        const at = a.joined_at ? Date.parse(a.joined_at) : 0;
+        const bt = b.joined_at ? Date.parse(b.joined_at) : 0;
+        return at - bt;
+      });
+    }
+
+    const members = [];
+    const compactNames = [];
+    for (const m of rawMembers) {
+      const p = Array.isArray(m.players) ? m.players[0] : m.players;
+      const rosterName = p?.display_name || p?.discord_username || null;
+      const compactName = p?.discord_username || p?.display_name || null;
+      if (rosterName) {
+        members.push({
+          id: p?.id || m.player_id,
+          name: rosterName,
+          slug: p?.slug || null,
+        });
+      }
+      if (compactName) compactNames.push(compactName);
+    }
+
+    const memberIds = rawMembers
       .map((m) => m.player_id)
       .filter(Boolean)
       .map(String);
-    const label =
-      names.length >= 2
-        ? `${names[0]} + ${names[1]}`
-        : team.name || names[0] || "Team";
+    const teamName = team.name || null;
+    const label = formatTeamLabel(teamName, compactNames);
+    const entry = { label, memberIds, members, teamName };
     for (const id of memberIds) {
-      map.set(id, { label, memberIds });
+      map.set(id, entry);
     }
   }
 

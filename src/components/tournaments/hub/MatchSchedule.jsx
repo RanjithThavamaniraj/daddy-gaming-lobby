@@ -1,4 +1,4 @@
-import PlayerNameLink from "./PlayerNameLink";
+import FixtureSide from "./FixtureSide";
 import { fixtureStatusLabel } from "../../../lib/supabase/tournamentBracket";
 import { formatTournamentStartDate } from "../../../lib/tournamentLifecycle";
 
@@ -31,13 +31,15 @@ export default function MatchSchedule({ fixtures, loading }) {
           {list.map((match) => (
             <article key={match.id} className="hub-schedule-row">
               <div className="hub-schedule-players">
-                <PlayerNameLink
+                <FixtureSide
                   player={match.player1}
+                  members={match.player1Members}
                   fallback={match.player1Placeholder || "TBD"}
                 />
                 <span className="hub-vs">vs</span>
-                <PlayerNameLink
+                <FixtureSide
                   player={match.player2}
+                  members={match.player2Members}
                   fallback={match.player2Placeholder || "TBD"}
                 />
               </div>

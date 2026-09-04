@@ -1,4 +1,4 @@
-import PlayerNameLink from "./PlayerNameLink";
+import FixtureSide from "./FixtureSide";
 import {
   KNOCKOUT_STAGE_ORDER,
   groupKnockoutByStage,
@@ -50,8 +50,9 @@ export default function TournamentBracket({ fixtures, hasKnockout, loading }) {
                           : "hub-match-player"
                       }
                     >
-                      <PlayerNameLink
+                      <FixtureSide
                         player={match.player1}
+                        members={match.player1Members}
                         fallback={match.player1Placeholder || "TBD"}
                       />
                       {match.player1Score != null ? (
@@ -68,8 +69,9 @@ export default function TournamentBracket({ fixtures, hasKnockout, loading }) {
                           : "hub-match-player"
                       }
                     >
-                      <PlayerNameLink
+                      <FixtureSide
                         player={match.player2}
+                        members={match.player2Members}
                         fallback={match.player2Placeholder || "TBD"}
                       />
                       {match.player2Score != null ? (
