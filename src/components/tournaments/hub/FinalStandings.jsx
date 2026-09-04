@@ -3,6 +3,8 @@ import { formatTournamentStartDate } from "../../../lib/tournamentLifecycle";
 
 /**
  * Final standings after completion — champion / runner-up / semis + totals.
+ * Semi-finalists are omitted when that stage has no roster,
+ * matching TournamentResultsPlayerTier.
  *
  * @param {object} props
  * @param {object} props.tournament
@@ -40,10 +42,12 @@ export default function FinalStandings({
           <h3>🥈 Runner-up</h3>
           <StandingNames names={runners} slugByName={slugByName} />
         </div>
-        <div className="hub-standing-tier">
-          <h3>🥉 Semi-finalists</h3>
-          <StandingNames names={semis} slugByName={slugByName} />
-        </div>
+        {semis.length > 0 ? (
+          <div className="hub-standing-tier">
+            <h3>🥉 Semi-finalists</h3>
+            <StandingNames names={semis} slugByName={slugByName} />
+          </div>
+        ) : null}
       </div>
 
       <div className="hub-standings-meta">

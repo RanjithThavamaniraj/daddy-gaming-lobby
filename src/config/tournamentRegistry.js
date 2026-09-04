@@ -238,11 +238,32 @@ export const TOURNAMENT_REGISTRY = [
     subtitle: "Marvel Rivals Community Cup",
     registrationLimit: 12,
     reserveLimit: 6,
-    // 29 Aug 2026, 7:30 PM IST
-    startsAt: "2026-08-29T14:00:00.000Z",
-    registrationClosesAt: "2026-08-29T13:00:00.000Z",
-    isFeatured: true,
-    status: "Registrations Open",
+    // 4 Sep 2026, 9:00 PM IST
+    startsAt: "2026-09-04T15:30:00.000Z",
+    registrationClosesAt: "2026-09-04T14:30:00.000Z",
+    completedDate: "September 3, 2026",
+    isFeatured: false,
+    status: "Completed",
+    pointsAwarded: {
+      champion: 200,
+      runnerUp: 150,
+    },
+    championPlayers: [
+      "rama1122002",
+      "lagleon2015",
+      "spryzen.xxx",
+      "thasaprakasam",
+      "bananaman2060",
+      "dorathedestroyer3036",
+    ],
+    runnerUpPlayers: [
+      "sushiii",
+      "noisyboy96",
+      "SH4D0W",
+      "TOMMY",
+      "harish",
+      "sNippY",
+    ],
     accent: "#f5c518",
   },
   {
@@ -317,7 +338,7 @@ export const TOURNAMENT_REGISTRY = [
     entryFee: "Free",
     registrationLimit: 40,
     reserveLimit: 4,
-    isFeatured: false,
+    isFeatured: true,
     // 5 Sep 2026, 4:00 PM IST
     startsAt: "2026-09-05T10:30:00.000Z",
     status: "Coming Soon",
