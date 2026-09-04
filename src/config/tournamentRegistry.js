@@ -337,7 +337,7 @@ export const TOURNAMENT_REGISTRY = [
     prizePool: "₹2,000",
     entryFee: "Free",
     registrationLimit: 40,
-    reserveLimit: 4,
+    reserveLimit: 0,
     isFeatured: true,
     // 5 Sep 2026, 4:00 PM IST
     startsAt: "2026-09-05T10:30:00.000Z",
