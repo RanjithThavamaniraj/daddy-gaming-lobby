@@ -338,10 +338,31 @@ export const TOURNAMENT_REGISTRY = [
     entryFee: "Free",
     registrationLimit: 40,
     reserveLimit: 0,
-    isFeatured: true,
+    isFeatured: false,
     // 5 Sep 2026, 4:00 PM IST
     startsAt: "2026-09-05T10:30:00.000Z",
-    status: "Coming Soon",
+    completedDate: "September 5, 2026",
+    status: "Completed",
     accent: "#ff4655",
+    pointsAwarded: {
+      champion: 350,
+      runnerUp: 300,
+      semiFinalist: 150,
+      quarterFinalist: 50,
+    },
+    championPlayers: [
+      "END",
+      "ROCKIE",
+      "ZUKO",
+      "Aqua 🦋",
+      "Vasanth GR",
+    ],
+    runnerUpPlayers: [
+      "Spontaneous_Bear",
+      "MxthThunder",
+      "FrenzyVJN",
+      "SmallboY",
+      "Farhan_Mhd",
+    ],
   },
 ];

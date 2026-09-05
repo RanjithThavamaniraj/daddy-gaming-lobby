@@ -170,7 +170,8 @@ async function fetchTeamLabelsByPlayerId(client, tournamentId) {
       )
     `
     )
-    .eq("tournament_id", tournamentId);
+    .eq("tournament_id", tournamentId)
+    .order("created_at", { ascending: true });
 
   if (error || !data?.length) return map;
 
