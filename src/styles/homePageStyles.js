@@ -544,6 +544,39 @@ export const homePageStyles = `
           color: #fff; transform: translateX(4px);
         }
 
+        /* ── GIVEAWAY WINNERS (compact community milestone) ── */
+        .giveaway-winners .section-eyebrow { margin-bottom: 1rem; }
+        .giveaway-winners-inner {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+          background: linear-gradient(135deg, rgba(168,85,247,.08), rgba(255,255,255,.02));
+          border: 1px solid rgba(168,85,247,.18);
+          border-radius: 20px;
+          padding: 1.25rem 1.5rem;
+          backdrop-filter: blur(16px);
+          animation: fadeUp .6s var(--ease-smooth) both;
+        }
+        .giveaway-winner {
+          min-width: 0;
+          padding: .15rem .25rem;
+          animation: fadeUp .5s var(--ease-smooth) both;
+        }
+        .giveaway-winner-event {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+          text-transform: none; color: #c084fc;
+          margin-bottom: .4rem;
+        }
+        .giveaway-winner-line {
+          font-size: .95rem; font-weight: 700; color: #fff;
+          letter-spacing: .01em; line-height: 1.4;
+        }
+        .giveaway-winner-name { color: #fff; }
+        .giveaway-winner-prize {
+          font-weight: 600; color: #9ca3af;
+        }
+
         /* ── STATS (legacy, unused on homepage) ── */
         .stats-bar {
           display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 1.25rem;
@@ -1048,6 +1081,7 @@ export const homePageStyles = `
           .nav-left { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
           .nav-links { gap: 1rem; flex-wrap: wrap; }
           .community-proof-grid { grid-template-columns: 1fr; }
+          .giveaway-winners-inner { grid-template-columns: 1fr; }
           .platform-update-next {
             border-left: none; border-top: 1px solid rgba(168,85,247,.25);
             padding-top: 1rem; width: 100%;
@@ -1058,6 +1092,7 @@ export const homePageStyles = `
           :root { --space-section: 3rem; } /* 48px */
           .section-header { margin-bottom: 1.5rem; } /* 24px */
           .platform-update-inner { padding: 1.5rem; } /* 24px */
+          .giveaway-winners-inner { padding: 1.15rem 1.25rem; }
           .discord-cta-card { padding: 2rem 1.5rem; } /* 32px / 24px */
           .hero-section { min-height: auto; padding-block: 3rem 2rem; }
           .community-proof-stats { grid-template-columns: 1fr 1fr; }

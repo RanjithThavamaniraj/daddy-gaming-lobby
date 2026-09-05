@@ -7,10 +7,12 @@ import LatestPlatformUpdate from "../components/home/LatestPlatformUpdate";
 import WhyDgl from "../components/home/WhyDgl";
 import HomeFeaturedGames from "../components/home/HomeFeaturedGames";
 import CommunityProof from "../components/home/CommunityProof";
+import GiveawayWinners from "../components/home/GiveawayWinners";
 import JoinDiscordCta from "../components/home/JoinDiscordCta";
 import useSupabaseData from "../hooks/useSupabaseData";
 import {
   DISCORD_INVITE_URL,
+  giveawayWinners,
   homeCommunityProof,
   latestPlatformUpdate,
   whyDglPillars,
@@ -218,7 +220,9 @@ export default function Home() {
           <WhyDgl pillars={whyDglPillars} />
           <HomeFeaturedGames games={featuredGames} />
           <CommunityProof proof={communityProof} />
+          <GiveawayWinners winners={giveawayWinners} />
           <JoinDiscordCta discordUrl={DISCORD_INVITE_URL} />
+
           </main>
 
           <footer className="home-footer">

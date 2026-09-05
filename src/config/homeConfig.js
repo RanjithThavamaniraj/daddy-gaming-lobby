@@ -15,4 +15,20 @@ export const homeFeaturedGames = buildHomeFeaturedGames();
 export const latestPlatformUpdate = buildLatestPlatformUpdate();
 export const homeCommunityProof = buildHomeCommunityProof();
 
+/** Confirmed Discord community giveaway winners — homepage milestone only. */
+export const giveawayWinners = [
+  {
+    id: "150-member",
+    event: "150 Member Giveaway",
+    winner: "thelonewolf",
+    prize: "₹1,000 Steam Gift Card",
+  },
+  {
+    id: "300-member",
+    event: "300 Member Giveaway",
+    winner: "Shinigami Ishigami",
+    prize: "₹1,000 Steam Gift Card",
+  },
+];
+
 export { DISCORD_INVITE_URL } from "./siteConfig";
