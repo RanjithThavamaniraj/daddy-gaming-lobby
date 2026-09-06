@@ -73,6 +73,7 @@ export default function TournamentPresentationCard({
   const registered = tournament.confirmedCount ?? tournament.registeredCount ?? 0;
   const slotsRemaining =
     capacity == null ? null : Math.max(0, capacity - registered);
+  const isTeamSlots = tournament.registrationMode === "team_slots";
   const hasDynamicPrize = Number(tournament.prizePerConfirmed) > 0;
   const hasCashPrize =
     parsePrizePoolAmount(tournament.prizePool) > 0 || hasDynamicPrize;
@@ -90,6 +91,7 @@ export default function TournamentPresentationCard({
     showFreeEntry,
     hasCashPrize,
     seriesLabel,
+    isTeamSlots,
   });
 
   const slug = tournament.slug ?? tournament.resultsSlug ?? null;
@@ -262,6 +264,7 @@ function buildStatItems(tournament, ctx) {
     showFreeEntry,
     hasCashPrize,
     seriesLabel,
+    isTeamSlots,
   } = ctx;
 
   /** @type {{ label: string, value: string | number, gold?: boolean, tooltip?: boolean }[]} */
@@ -279,13 +282,15 @@ function buildStatItems(tournament, ctx) {
   if (!compact && tournament.platform) {
     push("PLATFORM", tournament.platform);
   }
-  if (!compact && tournament.registrationLimit != null) {
+  if (isTeamSlots && tournament.teamLimit != null) {
+    push("TEAMS", tournament.teamLimit);
+  } else if (!compact && tournament.registrationLimit != null) {
     push("PLAYERS", tournament.registrationLimit);
   }
-  if (isRegistrationOpen && slotsRemaining != null) {
+  if (!isTeamSlots && isRegistrationOpen && slotsRemaining != null) {
     push("SLOTS REMAINING", slotsRemaining);
   }
-  if (capacity != null) {
+  if (!isTeamSlots && capacity != null) {
     push("REGISTERED PLAYERS", `${tournament.confirmedCount ?? registered} / ${capacity}`);
   }
   if (!compact && Number(tournament.reserveLimit) > 0) {
@@ -306,7 +311,13 @@ function buildStatItems(tournament, ctx) {
       isMain && per > 0 && capacity != null
         ? `Up to ${formatInrPrize(capacity * per)}`
         : tournament.prizePool;
-    push(compact ? "PRIZE" : "PRIZE POOL", prizeValue, { gold: true });
+    const prizeLabel =
+      isTeamSlots && hasCashPrize && prizeValue
+        ? /team prize/i.test(String(prizeValue))
+          ? prizeValue
+          : `${prizeValue} Team Prize`
+        : prizeValue;
+    push(compact ? "PRIZE" : "PRIZE POOL", prizeLabel, { gold: true });
   }
   if (tournament.rewards) {
     push("REWARDS", compact ? "DGL Points" : tournament.rewards, { gold: true });

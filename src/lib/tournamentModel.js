@@ -18,6 +18,15 @@ import {
  */
 
 /**
+ * Team-slot events register into pre-created Team 1…N shells (not solo slots).
+ * @param {{ registrationMode?: string | null }} [tournament]
+ * @returns {boolean}
+ */
+export function isTeamSlotRegistration(tournament) {
+  return tournament?.registrationMode === "team_slots";
+}
+
+/**
  * Global DGL tournament label — increments after every event.
  * @param {number} number
  * @returns {string}
@@ -300,6 +309,10 @@ export function toFeaturedShape(tournament) {
     platform: tournament.platform ?? null,
     rewards: tournament.rewards ?? null,
     rules: tournament.rules ?? null,
+    teamLimit: tournament.teamLimit ?? null,
+    teamMainSize: tournament.teamMainSize ?? null,
+    teamSubstituteSize: tournament.teamSubstituteSize ?? null,
+    registrationMode: tournament.registrationMode ?? null,
     status: tournament.status ?? "Coming Soon",
     completedDate: tournament.completedDate,
     accent: tournament.accent,
@@ -598,5 +611,9 @@ export function toUpcomingCardShape(tournament) {
     confirmedCount: tournament.confirmedCount ?? tournament.registeredCount ?? null,
     reserveCount: tournament.reserveCount ?? 0,
     reserveLimit: tournament.reserveLimit ?? 4,
+    teamLimit: tournament.teamLimit ?? null,
+    teamMainSize: tournament.teamMainSize ?? null,
+    teamSubstituteSize: tournament.teamSubstituteSize ?? null,
+    registrationMode: tournament.registrationMode ?? null,
   };
 }

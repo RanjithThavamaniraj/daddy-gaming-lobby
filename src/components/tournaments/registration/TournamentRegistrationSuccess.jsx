@@ -63,7 +63,11 @@ export default function TournamentRegistrationSuccess({
                   {isReserve
                     ? "You are joining the Reserve List. Reserve players are invited if a confirmed player withdraws before the tournament begins."
                     : isTeamRegistration
-                      ? `Your team "${registrationSummary?.teamName}" has been registered successfully. All 5 players are confirmed in the main roster.`
+                      ? `Your team "${registrationSummary?.teamName}" has been registered successfully.${
+                          registrationSummary?.substituteCount
+                            ? ` ${registrationSummary.playerCount} starting players and ${registrationSummary.substituteCount} substitutes are confirmed.`
+                            : ` ${registrationSummary?.playerCount ?? ""} starting players are confirmed in the main roster.`
+                        }`
                       : "Thank you for registering. Your spot has been successfully reserved."}
                 </p>
                 <p className="success-copy">

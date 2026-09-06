@@ -45,6 +45,7 @@ function splitStartDateTimeIst(iso, endsAt) {
  * @param {number} props.capacity
  * @param {number} [props.reserveCount]
  * @param {number} [props.reserveLimit]
+ * @param {number} [props.teamFilled]
  */
 export default function TournamentHero({
   tournament,
@@ -52,6 +53,7 @@ export default function TournamentHero({
   capacity,
   reserveCount = 0,
   reserveLimit = 4,
+  teamFilled = 0,
 }) {
   const badge =
     LIFECYCLE_BADGE[tournament.lifecycle] ?? tournament.status ?? "Tournament";
@@ -65,6 +67,13 @@ export default function TournamentHero({
     Number(tournament.prizePerConfirmed) > 0;
   const entryFee =
     (tournament.entryFee && String(tournament.entryFee).trim()) || "Free";
+  const isTeamSlots = tournament.registrationMode === "team_slots";
+  const prizeLabel =
+    isTeamSlots && cash
+      ? /team prize/i.test(String(tournament.prizePool ?? ""))
+        ? tournament.prizePool.trim()
+        : `${tournament.prizePool?.trim() || "₹0"} Team Prize`
+      : tournament.prizePool?.trim() || "₹0";
 
   return (
     <section className="hub-hero" style={{ "--accent": accent }}>
@@ -108,7 +117,7 @@ export default function TournamentHero({
             <div className="hub-hero-stat">
               <span className="label">Prize Pool</span>
               <span className="value text-accent">
-                {tournament.prizePool?.trim() || "₹0"}
+                {isTeamSlots ? prizeLabel : tournament.prizePool?.trim() || "₹0"}
               </span>
             </div>
           ) : null}
@@ -118,12 +127,21 @@ export default function TournamentHero({
               <span className="value">{tournament.platform}</span>
             </div>
           ) : null}
-          <div className="hub-hero-stat">
-            <span className="label">Players</span>
-            <span className="value">
-              {playerCount} / {capacity}
-            </span>
-          </div>
+          {isTeamSlots ? (
+            <div className="hub-hero-stat">
+              <span className="label">Teams</span>
+              <span className="value">
+                {teamFilled} / {tournament.teamLimit}
+              </span>
+            </div>
+          ) : (
+            <div className="hub-hero-stat">
+              <span className="label">Players</span>
+              <span className="value">
+                {playerCount} / {capacity}
+              </span>
+            </div>
+          )}
           {Number(reserveLimit) > 0 ? (
             <div className="hub-hero-stat">
               <span className="label">

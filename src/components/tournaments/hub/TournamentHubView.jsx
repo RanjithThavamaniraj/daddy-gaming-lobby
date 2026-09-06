@@ -5,9 +5,11 @@ import {
   registerForTournament,
   registerValorantSolo,
   registerValorantTeam,
+  registerTeamSlot,
   markRegisteredForTournament,
   fetchTournamentRoster,
   fetchTournamentParticipants,
+  fetchTournamentTeamSlots,
 } from "../../../lib/supabase/registrations";
 import TournamentRegistrationSuccess from "../registration/TournamentRegistrationSuccess";
 import RegisteredPlayersGrid from "../RegisteredPlayersGrid";
@@ -20,11 +22,14 @@ import LiveResults from "./LiveResults";
 import FinalStandings from "./FinalStandings";
 import TournamentRegistrationForm from "./TournamentRegistrationForm";
 import ValorantRegistrationForm from "./ValorantRegistrationForm";
+import TeamSlotRegistrationForm from "./TeamSlotRegistrationForm";
+import TeamSlotRoster from "./TeamSlotRoster";
 import useTournamentBracket from "../../../hooks/useTournamentBracket";
 import { tournamentRegistrationStyles } from "../../../styles/tournamentRegistrationStyles";
 import { registeredPlayersStyles } from "../../../styles/playerProfilePageStyles";
 import { tournamentHubStyles } from "../../../styles/tournamentHubStyles";
 import { resolvePrizePoolDisplay } from "../../../lib/prizePool";
+import { isTeamSlotRegistration } from "../../../lib/tournamentModel";
 import {
   isLifecycleClosed,
   isLifecycleCompleted,
@@ -32,6 +37,18 @@ import {
   isLifecycleOpen,
   isRegistrationDeadlinePassed,
 } from "../../../lib/tournamentLifecycle";
+
+function syntheticTeamSlots(teamLimit) {
+  const limit = Number(teamLimit) || 0;
+  return Array.from({ length: limit }, (_, index) => ({
+    id: `team-${index + 1}`,
+    name: `Team ${index + 1}`,
+    seed: index + 1,
+    mains: [],
+    substitutes: [],
+    taken: false,
+  }));
+}
 
 const DEFAULT_REGISTRATION_CAPACITY = 22;
 const DEFAULT_RESERVE_CAPACITY = 4;
@@ -51,9 +68,18 @@ export default function TournamentHubView({ tournament }) {
   const isLive = isLifecycleLive(tournament);
   const isCompleted = isLifecycleCompleted(tournament);
   const deadlinePassed = isRegistrationDeadlinePassed(tournament);
+  const isTeamSlots = isTeamSlotRegistration(tournament);
+  const teamLimit = Number(tournament.teamLimit) || 0;
+  const teamMainSize = Number(tournament.teamMainSize) || 0;
+  const teamSubstituteSize = Number(tournament.teamSubstituteSize) || 0;
 
   const [roster, setRoster] = useState(
     /** @type {{ confirmed: object[], reserves: object[] } | null} */ (null)
+  );
+  const [teamSlots, setTeamSlots] = useState(
+    /** @type {object[] | null} */ (
+      isTeamSlots ? syntheticTeamSlots(teamLimit) : null
+    )
   );
   const [participants, setParticipants] = useState(
     /** @type {object[] | null} */ (null)
@@ -76,6 +102,14 @@ export default function TournamentHubView({ tournament }) {
     if (!tid) return null;
     const next = await fetchTournamentRoster(tid);
     setRoster(next);
+    if (isTeamSlots) {
+      try {
+        const slots = await fetchTournamentTeamSlots(tid);
+        setTeamSlots(slots);
+      } catch (err) {
+        console.error("Failed to fetch team slots:", err);
+      }
+    }
     return next;
   };
 
@@ -91,10 +125,20 @@ export default function TournamentHubView({ tournament }) {
         console.error("Failed to fetch registrations:", err);
         if (!cancelled) setRoster({ confirmed: [], reserves: [] });
       });
+    if (isTeamSlots) {
+      fetchTournamentTeamSlots(tid)
+        .then((next) => {
+          if (!cancelled) setTeamSlots(next);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch team slots:", err);
+          if (!cancelled) setTeamSlots(syntheticTeamSlots(teamLimit));
+        });
+    }
     return () => {
       cancelled = true;
     };
-  }, [tournament.tournamentId]);
+  }, [tournament.tournamentId, isTeamSlots, teamLimit]);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,8 +180,12 @@ export default function TournamentHubView({ tournament }) {
   const reserveCount =
     reserves?.length ?? tournament.reserveCount ?? 0;
 
-  const mainFull = confirmedCount >= capacity;
-  const reserveFull = reserveCount >= reserveLimit;
+  const filledTeams = (teamSlots ?? []).filter((slot) => slot.taken).length;
+  const displaySlots = teamSlots ?? (isTeamSlots ? syntheticTeamSlots(teamLimit) : []);
+  const mainFull = isTeamSlots
+    ? teamLimit > 0 && filledTeams >= teamLimit
+    : confirmedCount >= capacity;
+  const reserveFull = isTeamSlots ? true : reserveCount >= reserveLimit;
   // Main + reserve both stop once the registration deadline passes.
   const canRegisterMain = isOpen && !mainFull && !deadlinePassed;
   const canRegisterReserve =
@@ -265,18 +313,42 @@ export default function TournamentHubView({ tournament }) {
     setRegStatus("success");
   };
 
+  const handleTeamSlotRegister = async (payload) => {
+    const tournamentKey =
+      tournament.tournamentId || tournament.slug || tournament.id;
+    const result = await registerTeamSlot({
+      tournamentId: payload.tournamentId,
+      teamName: payload.teamName,
+      mains: payload.mains,
+      substitutes: payload.substitutes,
+    });
+
+    markRegisteredForTournament(tournamentKey);
+    await refreshRoster(tournament.tournamentId);
+    setRegistrationSummary({
+      registrationType: "team",
+      teamName: result.teamName,
+      playerCount: result.playerCount,
+      substituteCount: result.substituteCount,
+      isReserve: false,
+    });
+    setLastRegistrantNumber(null);
+    setJoinedAsReserve(false);
+    setRegStatus("success");
+  };
+
   if (regStatus === "success") {
     return (
       <>
         <style>{tournamentRegistrationStyles}</style>
         <TournamentRegistrationSuccess
           tournament={tournament}
-          capacity={capacity}
-          registrationCount={confirmedCount}
+          capacity={isTeamSlots ? teamLimit : capacity}
+          registrationCount={isTeamSlots ? filledTeams : confirmedCount}
           registrantNumber={lastRegistrantNumber}
           isReserve={joinedAsReserve}
-          reserveCount={reserveCount}
-          reserveLimit={reserveLimit}
+          reserveCount={isTeamSlots ? 0 : reserveCount}
+          reserveLimit={isTeamSlots ? 0 : reserveLimit}
           registrationSummary={registrationSummary}
         />
       </>
@@ -306,7 +378,8 @@ export default function TournamentHubView({ tournament }) {
               playerCount={confirmedCount}
               capacity={capacity}
               reserveCount={reserveCount}
-              reserveLimit={reserveLimit}
+              reserveLimit={isTeamSlots ? 0 : reserveLimit}
+              teamFilled={filledTeams}
             />
 
             <TournamentCountdown tournament={liveTournament} />
@@ -314,7 +387,13 @@ export default function TournamentHubView({ tournament }) {
             {showRegistrationForm ? (
               <div className="register-card">
                 <div className="register-body">
-                  {isValorantChampionship2 ? (
+                  {isTeamSlots ? (
+                    <TeamSlotRegistrationForm
+                      tournament={liveTournament}
+                      slots={displaySlots}
+                      onSubmit={handleTeamSlotRegister}
+                    />
+                  ) : isValorantChampionship2 ? (
                     <ValorantRegistrationForm
                       tournament={liveTournament}
                       capacity={capacity}
@@ -367,12 +446,36 @@ export default function TournamentHubView({ tournament }) {
             ) : null}
 
             {isCompleted ? (
-              <RegisteredPlayersGrid
-                players={tournament.tournamentId ? displayParticipants : []}
-                accent={tsAccent}
-                title="Participants"
-                emptyMessage="No participants recorded."
-              />
+              isTeamSlots ? (
+                <div className="register-card">
+                  <div className="register-body">
+                    <TeamSlotRoster
+                      slots={displaySlots}
+                      mainSize={teamMainSize}
+                      substituteSize={teamSubstituteSize}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <RegisteredPlayersGrid
+                  players={tournament.tournamentId ? displayParticipants : []}
+                  accent={tsAccent}
+                  title="Participants"
+                  emptyMessage="No participants recorded."
+                />
+              )
+            ) : isTeamSlots ? (
+              showRegistrationForm ? null : (
+                <div className="register-card">
+                  <div className="register-body">
+                    <TeamSlotRoster
+                      slots={displaySlots}
+                      mainSize={teamMainSize}
+                      substituteSize={teamSubstituteSize}
+                    />
+                  </div>
+                </div>
+              )
             ) : (
               <>
                 <RegisteredPlayersGrid

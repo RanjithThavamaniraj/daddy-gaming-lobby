@@ -556,6 +556,127 @@ html, body {
   color: color-mix(in srgb, var(--accent) 80%, white);
 }
 
+.roster-section-heading {
+  margin: 1.5rem 0 0.75rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #d1d5db;
+}
+
+.team-slot-select {
+  padding-left: 0.75rem;
+}
+
+.team-slot-board {
+  margin: 0 0 1.5rem;
+}
+
+.team-slot-board h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.team-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.team-slot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  text-align: left;
+  border-radius: 8px;
+}
+
+button.team-slot-card {
+  cursor: pointer;
+  font: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+button.team-slot-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-2px);
+}
+
+.team-slot-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.team-slot-card.taken {
+  opacity: 0.72;
+}
+
+.team-slot-title {
+  margin: 0 0 0.35rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+.team-slot-count {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #d1d5db;
+}
+
+.team-slot-status {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.team-slot-card.taken .team-slot-status {
+  color: #9ca3af;
+}
+
+.team-slot-names {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.team-slot-names li {
+  margin: 0.15rem 0;
+}
+
+.form-hint {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin: 0 0 1rem;
+}
+
+.alert-error {
+  margin: 0.75rem 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fecaca;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
 /* Submit button */
 .submit-btn {
   position: relative;

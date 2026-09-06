@@ -326,6 +326,168 @@ export async function registerValorantTeam({
   };
 }
 
+/**
+ * Register a full team into a pre-created Team N slot.
+ *
+ * @param {object} params
+ * @param {string} params.tournamentId
+ * @param {string} params.teamName
+ * @param {Array<{ discordUsername: string; isCaptain?: boolean }>} params.mains
+ * @param {Array<{ discordUsername: string }>} [params.substitutes]
+ * @returns {Promise<object>}
+ */
+export async function registerTeamSlot({
+  tournamentId,
+  teamName,
+  mains,
+  substitutes = [],
+}) {
+  const supabase = getSupabaseClient();
+  const trimmedTeam = String(teamName ?? "").trim();
+
+  if (!trimmedTeam) {
+    throw new Error("Select an available team slot.");
+  }
+  if (!Array.isArray(mains) || mains.length === 0) {
+    throw new Error("A full starting roster is required.");
+  }
+
+  const mainPayload = mains.map((player, index) => ({
+    discord_username: String(player.discordUsername ?? "").trim(),
+    is_captain: Boolean(player.isCaptain ?? index === 0),
+  }));
+  const substitutePayload = (substitutes ?? [])
+    .map((player) => ({
+      discord_username: String(player.discordUsername ?? "").trim(),
+    }))
+    .filter((player) => player.discord_username);
+
+  const { data, error } = await supabase.rpc("dgl_register_team_slot", {
+    p_tournament_id: tournamentId,
+    p_team_name: trimmedTeam,
+    p_mains: mainPayload,
+    p_substitutes: substitutePayload,
+  });
+
+  if (error) {
+    const msg = error.message || "";
+    if (/registrations?\s+closed/i.test(msg)) {
+      throw new Error("Registrations Closed");
+    }
+    if (/tournament full/i.test(msg)) {
+      throw new Error("Tournament Full");
+    }
+    if (/already registered/i.test(msg)) {
+      throw new Error(msg);
+    }
+    if (/already taken/i.test(msg)) {
+      throw new Error(msg);
+    }
+    if (/not enough main capacity|not enough capacity/i.test(msg)) {
+      throw new Error(msg);
+    }
+    throw new Error(msg || "Team registration failed. Please try again.");
+  }
+
+  return {
+    registrationType: "team",
+    teamName: data?.team_name ?? trimmedTeam,
+    teamId: data?.team_id ?? null,
+    registrationGroupId: data?.registration_group_id ?? null,
+    registrationIds: data?.registration_ids ?? [],
+    playerCount: Number(data?.player_count ?? mainPayload.length),
+    substituteCount: Number(data?.substitute_count ?? substitutePayload.length),
+    status: data?.status ?? "confirmed",
+    isReserve: false,
+    duplicate: false,
+  };
+}
+
+/**
+ * @param {object} member
+ * @returns {{ role: string; name: string; slug: string | null; playerId: string | null }}
+ */
+function mapTeamMember(member) {
+  const player = Array.isArray(member.player) ? member.player[0] : member.player;
+  return {
+    role: member.role,
+    name: String(
+      player?.discord_username || player?.display_name || "Player"
+    ),
+    slug: player?.slug ?? null,
+    playerId: player?.id ?? member.player_id ?? null,
+  };
+}
+
+/**
+ * Pre-created Team 1…N shells with main / substitute members.
+ *
+ * @param {string} tournamentId
+ * @returns {Promise<Array<{
+ *   id: string;
+ *   name: string;
+ *   seed: number | null;
+ *   mains: object[];
+ *   substitutes: object[];
+ *   taken: boolean;
+ * }>>}
+ */
+export async function fetchTournamentTeamSlots(tournamentId) {
+  const supabase = getSupabaseClient();
+  if (!tournamentId) return [];
+
+  const { data, error } = await supabase
+    .from("tournament_teams")
+    .select(
+      `
+      id,
+      name,
+      seed,
+      members:tournament_team_members (
+        role,
+        player_id,
+        player:players (
+          id,
+          display_name,
+          discord_username,
+          slug
+        )
+      )
+    `
+    )
+    .eq("tournament_id", tournamentId)
+    .order("seed", { ascending: true });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => {
+    const members = Array.isArray(row.members) ? row.members : [];
+    const mains = [];
+    const substitutes = [];
+    for (const member of members) {
+      const mapped = mapTeamMember(member);
+      if (member.role === "substitute") {
+        substitutes.push(mapped);
+      } else if (member.role === "captain" || member.role === "member") {
+        mains.push(mapped);
+      }
+    }
+    mains.sort((a, b) => {
+      if (a.role === "captain" && b.role !== "captain") return -1;
+      if (b.role === "captain" && a.role !== "captain") return 1;
+      return 0;
+    });
+    return {
+      id: row.id,
+      name: row.name,
+      seed: row.seed ?? null,
+      mains,
+      substitutes,
+      taken: mains.length > 0,
+    };
+  });
+}
+
 export {
   isRegisteredForTournament,
   markRegisteredForTournament,
