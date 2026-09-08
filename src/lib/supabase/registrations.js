@@ -500,7 +500,7 @@ export {
  * Priority:
  *   1. player_game_profiles.rank_tier for this tournament's game
  *   2. tournament_registrations.rocket_league_rank (Rocket League signup)
- *   3. form_data.rank (legacy registration payload)
+ *   3. form_data.rank (admin/authenticated reads only; public roster cannot select form_data)
  *
  * @param {object} row
  * @param {Map<string, string>} gameRankByPlayerId
@@ -624,7 +624,6 @@ export async function fetchTournamentRoster(tournamentId, gameId = null) {
       id,
       status,
       registered_at,
-      form_data,
       rocket_league_rank,
       player:players!inner (
         id,
@@ -820,7 +819,7 @@ export async function fetchTournamentParticipants(tournamentId, gameId = null) {
   if (playerIds.length) {
     const { data: regs } = await supabase
       .from("tournament_registrations")
-      .select("player_id, rocket_league_rank, form_data")
+      .select("player_id, rocket_league_rank")
       .eq("tournament_id", tournamentId)
       .in("player_id", playerIds);
     for (const row of regs ?? []) {
