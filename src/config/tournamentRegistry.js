@@ -249,9 +249,9 @@ export const TOURNAMENT_REGISTRY = [
     subtitle: "Marvel Rivals Community Cup",
     registrationLimit: 12,
     reserveLimit: 6,
-    // 4 Sep 2026, 9:00 PM IST
-    startsAt: "2026-09-04T15:30:00.000Z",
-    registrationClosesAt: "2026-09-04T14:30:00.000Z",
+    // 3 Sep 2026, 9:00 PM IST
+    startsAt: "2026-09-03T15:30:00.000Z",
+    registrationClosesAt: "2026-09-03T14:30:00.000Z",
     completedDate: "September 3, 2026",
     isFeatured: false,
     status: "Completed",

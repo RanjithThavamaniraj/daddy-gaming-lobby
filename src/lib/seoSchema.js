@@ -36,6 +36,7 @@ export function tournamentEventJsonLd(tournament) {
   const path = slug ? `/tournaments/${slug}` : "/tournaments";
   const name = tournament.championshipName ?? tournament.title ?? tournament.name;
   const startDate =
+    toIsoStart(tournament.startsAt) ??
     toIsoDate(tournament.startDate) ??
     toIsoDate(tournament.completedDate) ??
     undefined;
@@ -118,6 +119,21 @@ function mapEventStatus(status) {
     default:
       return "https://schema.org/EventScheduled";
   }
+}
+
+/**
+ * ISO start for Event JSON-LD. Prefers a full datetime when `startsAt` is ISO.
+ * @param {string | undefined | null} value
+ * @returns {string | null}
+ */
+function toIsoStart(value) {
+  if (!value || typeof value !== "string") return null;
+  if (/^\d{4}-\d{2}-\d{2}T/.test(value)) {
+    const parsed = Date.parse(value);
+    if (Number.isNaN(parsed)) return null;
+    return new Date(parsed).toISOString();
+  }
+  return toIsoDate(value);
 }
 
 /**
