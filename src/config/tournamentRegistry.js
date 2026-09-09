@@ -115,8 +115,9 @@ export const TOURNAMENT_REGISTRY = [
     number: 3,
     id: "dgl-cs2-championship-1",
     slug: "cs2-1",
-    game: "Counter Strike 2",
+    game: "Counter-Strike 2",
     gameSlug: "cs2",
+    championshipLabel: "CS2",
     format: "5v5",
     matchType: "Best of 3",
     prizePool: "₹2,000 Team Prize",
@@ -201,6 +202,16 @@ export const TOURNAMENT_REGISTRY = [
     // 8 Aug 2026, 7:00 PM IST
     startsAt: "2026-08-08T13:30:00.000Z",
     status: "Completed",
+    pointsAwarded: {
+      champion: 350,
+      runnerUp: 300,
+      semiFinalist: 150,
+      quarterFinalist: 50,
+    },
+    championPlayers: ["rheniumnoob", "shady"],
+    runnerUpPlayers: ["chillax.exe", "piyushgehlot_"],
+    semiFinalistPlayers: ["frez69", "RazensWorth", "Shadow", "Zerodarkthirty"],
+    quarterFinalistPlayers: [".pixeloton", "gui_le_titan", "Momo_07", "Valtryek"],
   },
   {
     number: 6,
@@ -336,7 +347,7 @@ export const TOURNAMENT_REGISTRY = [
     matchType: "Knockout",
     prizePool: "₹2,000",
     entryFee: "Free",
-    registrationLimit: 40,
+    registrationLimit: 45,
     reserveLimit: 0,
     isFeatured: false,
     // 5 Sep 2026, 4:00 PM IST
@@ -369,7 +380,7 @@ export const TOURNAMENT_REGISTRY = [
     number: 10,
     id: "dgl-cs2-saturday-showdown-1",
     slug: "cs2-saturday-showdown-1",
-    game: "Counter Strike 2",
+    game: "Counter-Strike 2",
     gameSlug: "cs2",
     championshipLabel: "CS2",
     eventType: "saturday_showdown",
@@ -416,7 +427,7 @@ export const TOURNAMENT_REGISTRY = [
     // 4 Oct 2026, 4:00 PM IST
     startsAt: "2026-10-04T10:30:00.000Z",
     registrationClosesAt: "2026-10-04T09:30:00.000Z",
-    status: "Registrations Open",
+    status: "Registrations Closed",
     accent: "#f5c518",
   },
 ];
