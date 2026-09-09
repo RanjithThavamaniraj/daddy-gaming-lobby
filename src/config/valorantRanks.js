@@ -27,3 +27,18 @@ export const VALORANT_RANKS = [
   "Immortal 3",
   "Radiant",
 ];
+
+/**
+ * Strength index from the existing VALORANT_RANKS order (Unranked weakest,
+ * Radiant strongest). Missing or unknown values return -1 so they sort
+ * below Unranked without throwing.
+ *
+ * @param {string | null | undefined} rank
+ * @returns {number}
+ */
+export function getValorantRankStrength(rank) {
+  const value = String(rank ?? "").trim();
+  if (!value) return -1;
+  const index = VALORANT_RANKS.indexOf(value);
+  return index === -1 ? -1 : index;
+}

@@ -22,7 +22,6 @@ import {
   getTournamentBySlug,
   getUpcomingTournaments,
   selectFeaturedTournament,
-  selectNextTournament,
   toArchivedCardShape,
   toCompletedCardShape,
   toFeaturedShape,
@@ -42,6 +41,7 @@ import {
 } from "../dashboardModel";
 import { buildDglPointsLeaderboard, buildHallOfChampions } from "../../config/leaderboardConfig";
 import { getTournamentsPageLayout } from "../../config/tournamentConfig";
+import { selectNextScheduledTournament } from "../nextScheduledTournament";
 import {
   buildHomeFeaturedGames,
   HOME_FEATURED_GAME_IDS,
@@ -60,19 +60,23 @@ const NEXT_SCHEDULED_STATUSES = [
 ];
 
 /**
- * Next scheduled public event: soonest start among non-completed statuses,
- * including registration_closed. Secondary order is global_number.
+ * Next public event among non-completed statuses.
+ * Prefers live / registration_open over closed, then latest global number.
+ * Null starts_at is allowed and is not invented here.
  * @param {import("@supabase/supabase-js").SupabaseClient} supabase
  */
-function fetchNextScheduledTournament(supabase) {
-  return supabase
+async function fetchNextScheduledTournament(supabase) {
+  const { data, error } = await supabase
     .from("v_tournaments_enriched")
     .select("*")
-    .in("status", NEXT_SCHEDULED_STATUSES)
-    .order("starts_at", { ascending: true, nullsFirst: false })
-    .order("global_number", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .in("status", NEXT_SCHEDULED_STATUSES);
+
+  if (error) return { data: null, error };
+
+  return {
+    data: selectNextScheduledTournament(data ?? []),
+    error: null,
+  };
 }
 
 function mapCommunityProofRpc(data) {
@@ -569,7 +573,9 @@ export async function fetchTournamentsPageLayout() {
     const featuredTournament = selectFeaturedTournament(all);
     const featuredShape = featuredTournament ? toFeaturedShape(featuredTournament) : null;
 
-    const nextTournament = selectNextTournament(all, featuredTournament);
+    const nextTournament = selectNextScheduledTournament(all, {
+      excludeId: featuredTournament?.id ?? null,
+    });
     const nextShape = nextTournament ? toFeaturedShape(nextTournament) : null;
 
     const upcomingTournaments = upcoming.map(toUpcomingCardShape);

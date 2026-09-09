@@ -17,7 +17,7 @@
  * @property {string} game - Display game name (e.g. "Valorant", "CS2")
  * @property {string} gameSlug
  * @property {string} [championshipLabel] - Used in "DGL Signature — {label} Championship #N" (defaults to `game`)
- * @property {"championship"|"saturday_showdown"} [eventType] - Defaults to "championship" (DGL Signature). Saturday Showdown gets its own burnt-orange accent and card treatment (see eventTypeConfig.js) regardless of the `accent` field below.
+ * @property {"championship"|"saturday_showdown"|"dgl_duel"} [eventType] - Defaults to "championship" (DGL Signature). Saturday Showdown gets its own burnt-orange accent and card treatment (see eventTypeConfig.js) regardless of the `accent` field below.
  * @property {string} [format]
  * @property {string} [matchType]
  * @property {string} [prizePool]
@@ -429,5 +429,24 @@ export const TOURNAMENT_REGISTRY = [
     registrationClosesAt: "2026-10-04T09:30:00.000Z",
     status: "Registrations Closed",
     accent: "#f5c518",
+  },
+  {
+    number: 12,
+    id: "dgl-duel-1",
+    slug: "dgl-duel-1",
+    game: "Valorant",
+    gameSlug: "valorant",
+    championshipLabel: "Valorant",
+    eventType: "dgl_duel",
+    title: "DGL Duel #1",
+    format: "1v1",
+    matchType: "Single Elimination",
+    entryFee: "Free",
+    subtitle: "VALORANT · 1v1 · 64 Players",
+    registrationLimit: 64,
+    reserveLimit: 0,
+    isFeatured: false,
+    status: "Registrations Open",
+    accent: "#ff4655",
   },
 ];

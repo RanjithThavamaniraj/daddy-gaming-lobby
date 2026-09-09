@@ -124,6 +124,7 @@ export async function registerForTournament({
   teammateDisplayName,
   platform,
   extraFormData = {},
+  valorantRank,
 }) {
   const supabase = getSupabaseClient();
   const trimmed = discordUsername.trim();
@@ -135,6 +136,8 @@ export async function registerForTournament({
     throw new Error("Tournament id is required.");
   }
 
+  const rank = String(valorantRank ?? extraFormData.rank ?? "").trim();
+
   const { id: playerId, slug: playerSlug } = await resolveOrCreatePlayer(trimmed);
   await ensurePlayerPointsSummary(playerId);
 
@@ -142,6 +145,7 @@ export async function registerForTournament({
     discord_username: trimmed,
     ...(platform ? { platform } : {}),
     ...extraFormData,
+    ...(rank ? { rank } : {}),
   };
 
   // Status is overwritten by dgl_assign_registration_status when needed.
@@ -183,6 +187,14 @@ export async function registerForTournament({
   }
 
   const status = data.status ?? "confirmed";
+
+  if (rank && playerId) {
+    const tournamentGame = await resolveTournamentGame(tournamentId);
+    if (tournamentGame.gameId) {
+      await upsertPlayerGameRank(playerId, tournamentGame.gameId, rank);
+    }
+  }
+
   return {
     registrationId: data.id,
     playerId,

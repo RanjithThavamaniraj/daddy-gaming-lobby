@@ -9,7 +9,6 @@ import {
   getCompletedTournaments,
   getUpcomingTournaments,
   selectFeaturedTournament,
-  selectNextTournament,
   toArchivedCardShape,
   toCompletedCardShape,
   toFeaturedShape,
@@ -17,18 +16,21 @@ import {
   compareTournamentsByStartDate,
   compareTournamentsByCompletedDateDesc,
 } from "../lib/tournamentModel";
+import { selectNextScheduledTournament } from "../lib/nextScheduledTournament";
 
 const completed = getCompletedTournaments();
 const upcoming = getUpcomingTournaments();
 const all = [...completed, ...upcoming];
 
 const featuredRaw = selectFeaturedTournament(all);
-const nextRaw = selectNextTournament(all, featuredRaw);
+const nextRaw = selectNextScheduledTournament(all, {
+  excludeId: featuredRaw?.id ?? null,
+});
 
 /** Main Event — highest priority tournament (Live > Open > Upcoming > Completed) */
 export const featuredTournament = featuredRaw ? toFeaturedShape(featuredRaw) : null;
 
-/** Next Tournament — chronologically next after Main Event */
+/** Next Tournament — latest active open/live event after the Main Event */
 export const nextTournament = nextRaw ? toFeaturedShape(nextRaw) : null;
 
 export const upcomingTournaments = upcoming.map(toUpcomingCardShape);

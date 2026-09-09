@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { isSaturdayShowdown, getSeriesLabel } from "../../../config/eventTypeConfig";
+import { isSaturdayShowdown, isDglDuel, getSeriesLabel } from "../../../config/eventTypeConfig";
+import { VALORANT_RANKS } from "../../../config/valorantRanks";
 
 /**
  * Registration form section for open / reserve-mode tournaments.
@@ -47,6 +48,7 @@ export default function TournamentRegistrationForm({
   } = tournament;
 
   const isShowdown = isSaturdayShowdown(eventType);
+  const isDuel = isDglDuel(eventType);
   const seriesLabel = tournament.seriesLabel || getSeriesLabel(eventType);
   const isRocketLeague =
     (gameSlug ?? (game ? game.toLowerCase().replace(/\s+/g, "-") : "")) ===
@@ -56,6 +58,7 @@ export default function TournamentRegistrationForm({
     discordUsername: "",
     epicId: "",
     rocketLeagueRank: "",
+    valorantRank: "",
     registrationMode: "team",
     teammateDisplayName: "",
     teamName: "",
@@ -102,6 +105,17 @@ export default function TournamentRegistrationForm({
       setError("Please enter your Discord username.");
       return;
     }
+    if (isDuel) {
+      const rank = formData.valorantRank.trim();
+      if (!rank) {
+        setError("Please select your Valorant rank.");
+        return;
+      }
+      if (!VALORANT_RANKS.includes(rank)) {
+        setError("Please select a valid Valorant rank.");
+        return;
+      }
+    }
     if (isRocketLeague) {
       if (!trimmedEpicId) {
         setError("Please enter your Epic ID.");
@@ -126,9 +140,19 @@ export default function TournamentRegistrationForm({
     setStatus("submitting");
     setError(null);
     try {
+      const duelRank = isDuel ? formData.valorantRank.trim() : "";
       await onSubmit({
         tournamentId: tournamentId || slug || id,
         discordUsername: trimmedName,
+        ...(isDuel
+          ? {
+              valorantRank: duelRank,
+              extraFormData: {
+                registration_type: "solo",
+                rank: duelRank,
+              },
+            }
+          : {}),
         ...(isRocketLeague
           ? {
               epicId: trimmedEpicId,
@@ -162,6 +186,7 @@ export default function TournamentRegistrationForm({
             <span className="label">Format</span>
             <span className="value">{matchType}</span>
           </div>
+          {isDuel ? null : (
           <div className="info-item">
             {isShowdown || (!prizePool && !prizePerConfirmed) ? (
               <>
@@ -175,6 +200,7 @@ export default function TournamentRegistrationForm({
               </>
             )}
           </div>
+          )}
           {platform ? (
             <div className="info-item">
               <span className="label">Platform</span>
@@ -297,6 +323,33 @@ export default function TournamentRegistrationForm({
             Enter the username you use in the Daddy Gaming Lobby Discord server.
           </p>
         </div>
+
+        {isDuel ? (
+          <div className="form-group">
+            <label htmlFor="valorantRank" className="form-label">
+              Valorant Rank <span className="required">*</span>
+            </label>
+            <div className="input-wrapper">
+              <select
+                id="valorantRank"
+                className="form-control"
+                value={formData.valorantRank}
+                onChange={handleInputChange("valorantRank")}
+                disabled={status === "submitting" || isFull}
+                required
+              >
+                <option value="" disabled>
+                  Select your rank
+                </option>
+                {VALORANT_RANKS.map((rank) => (
+                  <option key={rank} value={rank}>
+                    {rank}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        ) : null}
 
         {isRocketLeague ? (
           <>
