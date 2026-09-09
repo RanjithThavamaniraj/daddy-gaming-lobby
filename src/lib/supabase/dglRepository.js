@@ -51,6 +51,30 @@ import {
   mapFeaturedGamesList,
 } from "./mapGames";
 
+/** Statuses that still belong in next-event / upcoming preview selection. */
+const NEXT_SCHEDULED_STATUSES = [
+  "coming_soon",
+  "registration_open",
+  "registration_closed",
+  "active",
+];
+
+/**
+ * Next scheduled public event: soonest start among non-completed statuses,
+ * including registration_closed. Secondary order is global_number.
+ * @param {import("@supabase/supabase-js").SupabaseClient} supabase
+ */
+function fetchNextScheduledTournament(supabase) {
+  return supabase
+    .from("v_tournaments_enriched")
+    .select("*")
+    .in("status", NEXT_SCHEDULED_STATUSES)
+    .order("starts_at", { ascending: true, nullsFirst: false })
+    .order("global_number", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+}
+
 function mapCommunityProofRpc(data) {
   const stats = [
     {
@@ -403,13 +427,7 @@ export async function fetchLatestPlatformUpdate() {
         .order("global_number", { ascending: false })
         .limit(1)
         .maybeSingle(),
-      supabase
-        .from("v_tournaments_enriched")
-        .select("*")
-        .in("status", ["coming_soon", "registration_open", "active"])
-        .order("global_number", { ascending: true })
-        .limit(1)
-        .maybeSingle(),
+      fetchNextScheduledTournament(supabase),
     ]);
 
     if (completedError) throw completedError;
@@ -471,13 +489,7 @@ export async function fetchCommunityActivity() {
  */
 export async function fetchUpcomingTournamentPreview() {
   return fetchWithFallback("upcoming-tournament-preview", async () => {
-    const { data, error } = await getSupabaseClient()
-      .from("v_tournaments_enriched")
-      .select("*")
-      .in("status", ["coming_soon", "registration_open", "active"])
-      .order("global_number", { ascending: true })
-      .limit(1)
-      .maybeSingle();
+    const { data, error } = await fetchNextScheduledTournament(getSupabaseClient());
 
     if (error) throw error;
     if (!data) return null;
@@ -598,13 +610,7 @@ export async function fetchHomePageData() {
           .order("global_number", { ascending: false })
           .limit(1)
           .maybeSingle(),
-        supabase
-          .from("v_tournaments_enriched")
-          .select("*")
-          .in("status", ["coming_soon", "registration_open", "active"])
-          .order("global_number", { ascending: true })
-          .limit(1)
-          .maybeSingle(),
+        fetchNextScheduledTournament(supabase),
         supabase
           .from("games")
           .select("*")
@@ -664,13 +670,7 @@ export async function fetchDashboardPageData() {
         { data: completedRows, error: completedError },
       ] = await Promise.all([
         supabase.rpc("get_platform_stats"),
-        supabase
-          .from("v_tournaments_enriched")
-          .select("*")
-          .in("status", ["coming_soon", "registration_open", "active"])
-          .order("global_number", { ascending: true })
-          .limit(1)
-          .maybeSingle(),
+        fetchNextScheduledTournament(supabase),
         supabase.rpc("get_home_community_proof"),
         supabase.from("v_player_leaderboard").select("*"),
         supabase.from("games").select("*").order("sort_order"),

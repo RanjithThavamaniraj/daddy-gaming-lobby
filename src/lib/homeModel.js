@@ -1,5 +1,6 @@
 import { DGL_GAMES } from "../config/dglGamesConfig";
 import {
+  formatGlobalTournamentNumber,
   getCompletedTournaments,
   getUpcomingTournaments,
 } from "./tournamentModel";
@@ -18,16 +19,22 @@ const GAME_EMOJI = {
 };
 
 /**
- * "NEXT EVENT" hero title, e.g. "🎮 CS2 TOURNAMENT #1".
- * Uses the per-game championship number (falls back to global number).
+ * "NEXT EVENT" hero title using the canonical global tournament number.
+ * Example: "🎮 Tournament #10". Does not mix series / championship numbering.
  * @param {object} tournament - enriched tournament
  * @returns {string}
  */
 export function formatNextEventTitle(tournament) {
   const emoji = GAME_EMOJI[tournament.gameSlug] ?? "🎮";
-  const label = (tournament.championshipLabel ?? tournament.game).replace(/\s+/g, "");
-  const number = tournament.gameChampionshipNumber ?? tournament.globalNumber;
-  return `${emoji} ${label} TOURNAMENT #${number}`;
+  const globalLabel = formatGlobalTournamentNumber(tournament.globalNumber);
+  if (globalLabel) return `${emoji} ${globalLabel}`;
+
+  const name =
+    tournament.championshipName ??
+    tournament.championshipLabel ??
+    tournament.game ??
+    "Upcoming tournament";
+  return `${emoji} ${name}`;
 }
 
 /** Game slugs featured on the homepage (subset of DGL roadmap). */
