@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import PageMeta from "../components/PageMeta";
@@ -51,13 +52,29 @@ function tournamentMeta(tournament, mode) {
 
 /**
  * Tournament detail route — Phase 2 live hub for every lifecycle state.
+ * Remounts per slug so useSupabaseData cannot retain a stale null across navigations.
  */
 export default function TournamentResults() {
   const { slug } = useParams();
+  return <TournamentResultsBody key={slug} slug={slug} />;
+}
+
+/**
+ * @param {object} props
+ * @param {string | undefined} props.slug
+ */
+function TournamentResultsBody({ slug }) {
   const staticTournament = getTournamentBySlug(slug);
+  const [fetchSettled, setFetchSettled] = useState(false);
   const tournament = useSupabaseData(
     staticTournament,
-    () => fetchTournamentBySlug(slug),
+    async () => {
+      try {
+        return await fetchTournamentBySlug(slug);
+      } finally {
+        setFetchSettled(true);
+      }
+    },
     [slug]
   );
 
@@ -71,6 +88,17 @@ export default function TournamentResults() {
   const meta = tournamentMeta(tournament, completed ? "results" : "register");
 
   if (!tournament) {
+    if (!staticTournament && !fetchSettled) {
+      return (
+        <>
+          <PageMeta {...meta} />
+          <div className="tournament-page" style={{ padding: "2rem" }}>
+            <p>Loading tournament…</p>
+          </div>
+        </>
+      );
+    }
+
     return (
       <>
         <PageMeta {...meta} />

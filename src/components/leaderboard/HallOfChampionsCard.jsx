@@ -12,6 +12,7 @@ import { isSaturdayShowdown } from "../../config/eventTypeConfig";
  * @param {number} [props.index]
  */
 export default function HallOfChampionsCard({ tournament, index = 0 }) {
+  const championPlayers = tournament.championPlayers ?? [];
   const runnerUpPlayers = tournament.runnerUpPlayers ?? [];
   const isShowdown = isSaturdayShowdown(tournament.eventType);
 
@@ -72,16 +73,18 @@ export default function HallOfChampionsCard({ tournament, index = 0 }) {
           </div>
         </div>
 
-        <div className="hall-champions-block">
-          <span className="hall-champions-label">
-            <Trophy size={14} /> Champion{tournament.championPlayers.length > 1 ? "s" : ""}
-          </span>
-          <ul className="hall-players-list">
-            {tournament.championPlayers.map((player) => (
-              <li key={player}>{player}</li>
-            ))}
-          </ul>
-        </div>
+        {championPlayers.length > 0 ? (
+          <div className="hall-champions-block">
+            <span className="hall-champions-label">
+              <Trophy size={14} /> Champion{championPlayers.length > 1 ? "s" : ""}
+            </span>
+            <ul className="hall-players-list">
+              {championPlayers.map((player) => (
+                <li key={player}>{player}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         {runnerUpPlayers.length > 0 ? (
           <div className="hall-champions-block">
