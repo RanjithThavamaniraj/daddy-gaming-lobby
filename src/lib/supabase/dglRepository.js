@@ -22,7 +22,6 @@ import {
   getTournamentBySlug,
   getUpcomingTournaments,
   selectFeaturedTournament,
-  toArchivedCardShape,
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
@@ -568,7 +567,7 @@ export async function fetchTournamentsPageLayout() {
       mapEnrichedTournamentRow(row, resultsById.get(row.id))
     );
 
-    const { completed, upcoming, archived } = partitionTournaments(all);
+    const { completed, upcoming } = partitionTournaments(all);
 
     const featuredTournament = selectFeaturedTournament(all);
     const featuredShape = featuredTournament ? toFeaturedShape(featuredTournament) : null;
@@ -580,14 +579,12 @@ export async function fetchTournamentsPageLayout() {
 
     const upcomingTournaments = upcoming.map(toUpcomingCardShape);
     const completedTournaments = completed.map(toCompletedCardShape);
-    const archivedEvents = archived.map(toArchivedCardShape);
 
     return getTournamentsPageLayout({
       featured: featuredShape,
       next: nextShape,
       upcoming: upcomingTournaments,
       completed: completedTournaments,
-      archived: archivedEvents,
       activeTournamentCount: countActiveTournaments(all),
     });
   }, () => getTournamentsPageLayout());

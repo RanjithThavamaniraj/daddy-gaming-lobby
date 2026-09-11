@@ -446,6 +446,9 @@ export const TOURNAMENT_REGISTRY = [
     registrationLimit: 64,
     reserveLimit: 0,
     isFeatured: false,
+    // 19 Sep 2026, 3:00 PM IST — registration closes 2:30 PM IST
+    startsAt: "2026-09-19T09:30:00.000Z",
+    registrationClosesAt: "2026-09-19T09:00:00.000Z",
     status: "Registrations Open",
     accent: "#ff4655",
   },

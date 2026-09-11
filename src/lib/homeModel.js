@@ -4,6 +4,7 @@ import {
   getCompletedTournaments,
   getUpcomingTournaments,
 } from "./tournamentModel";
+import { selectNextScheduledTournament } from "./nextScheduledTournament";
 import { buildHallOfChampionsPreview } from "./dashboardModel";
 import { aggregateCompletedTournamentStats } from "./tournamentStats";
 
@@ -139,9 +140,7 @@ export function buildLatestPlatformUpdate() {
   const latestCompleted = [...getCompletedTournaments()].sort(
     (a, b) => b.globalNumber - a.globalNumber
   )[0];
-  const nextUpcoming = [...getUpcomingTournaments()].sort(
-    (a, b) => a.globalNumber - b.globalNumber
-  )[0];
+  const nextUpcoming = selectNextScheduledTournament(getUpcomingTournaments());
 
   if (!latestCompleted && !nextUpcoming) return null;
 

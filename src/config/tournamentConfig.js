@@ -5,11 +5,9 @@
 
 import {
   countActiveTournaments,
-  getArchivedTournaments,
   getCompletedTournaments,
   getUpcomingTournaments,
   selectFeaturedTournament,
-  toArchivedCardShape,
   toCompletedCardShape,
   toFeaturedShape,
   toUpcomingCardShape,
@@ -37,20 +35,19 @@ export const upcomingTournaments = upcoming.map(toUpcomingCardShape);
 
 export const completedTournaments = completed.map(toCompletedCardShape);
 
-export const archivedTournaments = getArchivedTournaments().map(toArchivedCardShape);
-
 /**
  * Resolves Main Event vs Next Tournament vs Upcoming vs Completed archive
  * for the tournaments hub. Neither the featured nor the next tournament is
  * ever duplicated into the plain upcoming grid.
  * Upcoming list is ordered by tournament start date.
+ * Archived/historical events stay in the database and hub-by-slug fallback,
+ * but are never listed on the public tournaments page.
  */
 export function getTournamentsPageLayout({
   featured = featuredTournament,
   next = nextTournament,
   upcoming: upcomingList = upcomingTournaments,
   completed: completedList = completedTournaments,
-  archived: archivedList = archivedTournaments,
   activeTournamentCount = countActiveTournaments(all),
   openRegistrationCount = activeTournamentCount,
 } = {}) {
@@ -70,8 +67,6 @@ export function getTournamentsPageLayout({
     upcomingDisplay,
     showCompletedArchive: archivedCompleted.length > 0,
     archivedCompleted,
-    showArchivedEvents: archivedList.length > 0,
-    archivedEvents: archivedList,
     activeTournamentCount,
     openRegistrationCount,
   };

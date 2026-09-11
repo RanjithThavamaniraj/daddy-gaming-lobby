@@ -8,6 +8,7 @@ import {
   toUpcomingCardShape,
   compareTournamentsByCompletedDateDesc,
 } from "./tournamentModel";
+import { selectNextScheduledTournament } from "./nextScheduledTournament";
 
 /**
  * Supported games for Active Realms — every supported title is ACTIVE.
@@ -148,9 +149,7 @@ export function buildCommunityActivity() {
  * Future: supabase.from("tournaments").select("*").eq("status", "Coming Soon").order("number").limit(1)
  */
 export function buildUpcomingTournamentPreview() {
-  const next = [...getUpcomingTournaments()].sort(
-    (a, b) => a.globalNumber - b.globalNumber
-  )[0];
+  const next = selectNextScheduledTournament(getUpcomingTournaments());
   if (!next) return null;
 
   return {

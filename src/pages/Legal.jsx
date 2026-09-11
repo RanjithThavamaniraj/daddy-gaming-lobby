@@ -34,7 +34,7 @@ export default function Legal() {
           <span className="legal-sec-num">02</span> Play &amp; Compete
         </h2>
         <p className="legal-text">
-          Explore <Link to="/tournaments">open and archived tournaments</Link>,
+          Explore <Link to="/tournaments">open and completed tournaments</Link>,
           check the <Link to="/leaderboard">DGL Points leaderboard</Link>, or{" "}
           <Link to="/contact">contact the team</Link> on Discord.
         </p>
